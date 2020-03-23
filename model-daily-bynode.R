@@ -3,11 +3,12 @@ library(data.table)
 library(foreach)
 library(doParallel)
 library(mgcv)
+library(lubridate)
 #############
 
 dailydat <- fread('data/data_daily_bynode_clean.csv')
 
-# Dealing with date
+# Dealing with date ----
 dailydat[,date:=as.IDate(date)]
 dailydat[,dow:=wday(date)]
 dailydat[,doy:=yday(date)]
@@ -17,24 +18,24 @@ dailydat[,weekday:=factor(weekdays(date))]
 dailydat[,monthday:=format(date, "%b %d")]
 
 
-# get rid of 2017 data: (december 15-31 included in this pull)
+# get rid of 2017 data: (december 15-31 included in this pull) ----
 dailydat <- dailydat[year>2017,]
 
-# get rid of december data:
+# get rid of december data: ----
 dailydat <- dailydat[doy<100,]
 
 dim(dailydat) # 348203     14
 
 
-ggplot(dailydat, aes(x = volume.sum, fill = factor(year)))+
-  geom_density(alpha = 0.5)
+# ggplot(dailydat, aes(x = volume.sum, fill = factor(year)))+
+#   geom_density(alpha = 0.5)
 # some very high numbers
 dailydat[volume.sum>num_sensors_this_year * 23 * 2000] # reasonable though
 
 # no such thing as 0 daily volume
 dailydat <- dailydat[volume.sum>0]
 
-# must have 3 years of data, at least 60 days of data in each year
+# must have 3 years of data, at least 60 days of data in each year ----
 dailydat[,'num_days_per_year':=uniqueN(date), by = .(r_node_name, year)]
 dailydat <- dailydat[num_days_per_year>60]
 
@@ -53,6 +54,8 @@ dailydat_s <- split(dailydat, dailydat$r_node_name)
 diffs_ls <- vector("list", length(dailydat_s))
 gam_list <- vector("list", length(dailydat_s))
 
+
+# MODEL TIME ----
 for(s in seq_along(dailydat_s)){
   # print(s)
   # flush.console()
@@ -88,21 +91,48 @@ for(s in seq_along(dailydat_s)){
   diffs_ls[[s]]<-this_diff
 }
 
-diffsdt <- rbindlist(diffs_ls)
+diffs_dt <- rbindlist(diffs_ls)
 
 
-# some very high numbers?
-hist(diffsdt[,volume.diff])
-summary(diffsdt[,volume.diff])
+# some very high numbers? 
+# hist(diffs_dt[,volume.diff])
+# summary(diffs_dt[,volume.diff])
 
-# diffsdt<-diffsdt[volume.diff > (-100)]
-# negative predicted values -- one spurious node
-diffsdt <- diffsdt[!r_node_name == 'rnd_86223']
+# diffs_dt<-diffs_dt[volume.diff > (-100)]
+# negative predicted values -- one spurious node 
+diffs_dt <- diffs_dt[!r_node_name == 'rnd_86223']
 # other spurious observations (8 of them)
-diffsdt<-diffsdt[volume.diff < (100)]
+diffs_dt<-diffs_dt[volume.diff < (100)]
 # another problematic node:
-diffsdt <- diffsdt[!r_node_name %in% c('rnd_86469', 'rnd_95784')]
+diffs_dt <- diffs_dt[!r_node_name %in% c('rnd_86469', 'rnd_95784')]
 
-fwrite(diffsdt, paste0('data/predicted-and-actual-volumes-', Sys.Date(), '.csv'))
+fwrite(diffs_dt, paste0('data/predicted-and-actual-volumes-', Sys.Date(), '.csv'))
 saveRDS(gam_list, file = paste0('data/gam-models-', Sys.Date(), '.RData'))
 
+# More data reshaping of model output ----
+diffs_dt[,date:=as.IDate(date)]
+
+# Total difference from expected for whole metro area ----
+diffs_4plot <- diffs_dt[,lapply(.SD, FUN = function(x) sum(x, na.rm = T)),
+                       .SDcols = c('volume.sum', 'volume.predict'), 
+                       by = .(date, dow, doy, year, woy, weekday, monthday)]
+# vmt is 1/2 of volume ----
+diffs_4plot[,c("vmt.sum", "vmt.predict"):=list(volume.sum*0.5, volume.predict * 0.5)]
+diffs_4plot[,'Difference from Typical VMT (%)':=round(100*(vmt.sum-vmt.predict)/vmt.predict, 2)]
+
+fwrite(diffs_4plot, paste0('data/pred-and-act-vol-for-plotting-wide', Sys.Date(), '.csv'))
+
+# melt to long form for plotting predicted and acutals simultaneoulsy in plotly ----
+diffs_4plot_long <- melt(diffs_4plot[,.(vmt.sum, vmt.predict, date, dow, doy, year, woy, weekday, monthday, `Difference from Typical VMT (%)`)], 
+                        id.vars = c('date', 'dow', 'doy', 'year', 'woy', 'weekday', 'monthday', "Difference from Typical VMT (%)"),
+                        variable.name = "estimate_type", value.name = "VMT")
+diffs_4plot_long$estimate_type <- ifelse(diffs_4plot_long$estimate_type == "vmt.sum", "Actual Traffic", "Typical Traffic")
+
+diffs_4plot_long[,difference_text:=ifelse(estimate_type == "Actual Traffic", 
+                                         ifelse(`Difference from Typical VMT (%)` <0, paste0(abs(`Difference from Typical VMT (%)`), " % less than typical"),
+                                                paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % more than typical")),
+                                         ifelse(`Difference from Typical VMT (%)` <0, paste0(abs(`Difference from Typical VMT (%)`), " % more than actual"),
+                                                paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % less than actual")))]
+
+
+fwrite(diffs_4plot_long, paste0('data/pred-and-act-vol-for-plotting-long', Sys.Date(), '.csv'))
