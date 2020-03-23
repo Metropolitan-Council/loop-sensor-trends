@@ -7,7 +7,7 @@ library(tidyverse)
 library(sf)
 #############
 
-diffs <- fread('data/predicted-and-actual-volumes-2020-03-22.csv')
+diffs <- fread('data/predicted-and-actual-volumes-2020-03-23.csv')
 diffs <- data.table(diffs)
 diffs[,scl_volume:=scale(diffs$volume.predict, center= F)]
 diffs[,date:=as.IDate(date)]
@@ -36,12 +36,17 @@ node_labels <- sprintf(
   lapply(htmltools::HTML)
 
 
-length(unique(diffs$r_node_name)) # 1177 2020-03-22
+length(unique(diffs$r_node_name)) # 1179 2020-03-22
 
 
 m<-
   leaflet(diffs_sf)%>%
   addProviderTiles('CartoDB.DarkMatter')%>%
+  addCircleMarkers(data = diffs_sf[diffs_sf$date == '2020-03-22' ,],
+                   color = ~binpal(volume.diff), stroke = T, fillOpacity = 0.75, 
+                   radius = ~5*(scl_volume),
+                   label = node_labels[diffs_sf$date == '2020-03-22' ],
+                   group = "Sun. March 22")%>%
   addCircleMarkers(data = diffs_sf[diffs_sf$date == '2020-03-21' ,],
                    color = ~binpal(volume.diff), stroke = T, fillOpacity = 0.75, 
                    radius = ~5*(scl_volume),
@@ -109,7 +114,8 @@ m<-
                    group = "Mon. March 9")%>%
   addLayersControl(
     baseGroups = c("Mon. March 9", "Tues. March 10", "Weds. March 11", "Thurs. March 12","Fri. March 13","Sat. March 14",
-                   "Sun. March 15","Mon. March 16","Tues. March 17", "Weds. March 18", "Thurs. March 19", "Fri. March 20", "Sat. March 21"),
+                   "Sun. March 15","Mon. March 16","Tues. March 17", "Weds. March 18", "Thurs. March 19", "Fri. March 20", "Sat. March 21",
+                   "Sun. March 22"),
     options = layersControlOptions(collapsed = FALSE))%>%
   addLegend(pal = binpal, values = ~volume.diff, title = "% Change in Traffic")
 
