@@ -64,8 +64,8 @@ for(s in seq_along(dailydat_s)){
   
   modeling_dat <- modeling_dat[!modeling_dat$date == '2020-01-17',] # cold snap - exclude
   modeling_dat <- modeling_dat[!modeling_dat$date == '2020-01-18',] # cold snap - exclude
-  modeling_dat <- modeling_dat[!modeling_dat$date == '2020-02-09',] # cold snap - exclude
-  unique(modeling_dat$date)
+  modeling_dat <- modeling_dat[!modeling_dat$date == '2020-02-09',] # snow day - exclude
+  
   this_gam <- with(modeling_dat,
                    mgcv::gam(volume.sum ~ 
                                s(dow, k = 7, by = as.factor(year)) # one knot for each day of the week

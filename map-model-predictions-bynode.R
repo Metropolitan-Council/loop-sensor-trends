@@ -1,14 +1,25 @@
-diffsdt$scl_volume <- scale(diffsdt$volume.predict, center= F)
+#############
+library(data.table)
+library(htmlwidgets)
+library(htmltools)
+library(leaflet)
+library(tidyverse)
+library(sf)
+#############
 
-diffs_sf <- st_as_sf(diffsdt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
+diffs <- fread('data/predicted-and-actual-volumes-2020-03-22.csv')
+diffs <- data.table(diffs)
+diffs[,scl_volume:=scale(diffs$volume.predict, center= F)]
+diffs[,date:=as.IDate(date)]
 
+diffs_sf <- st_as_sf(diffs, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
 
-binpal <- colorBin("RdBu", diffsdt$volume.diff, 
+binpal <- colorBin("RdBu", diffs$volume.diff, 
                    bins = c(-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100), 
                    pretty = FALSE, reverse = T)
 
-# hist(diffsdt$volume.predict)
-# hist(diffsdt$scl_volume)
+# hist(diffs$volume.predict)
+# hist(diffs$scl_volume)
 
 node_labels <- sprintf(
   "<strong>%s %s</strong>
@@ -16,41 +27,21 @@ node_labels <- sprintf(
       <br>Expected Volume: %s vehicles
       <br>Actual Volume: %s vehicles
       <br>Difference from Expected:<strong> %s %%</strong>",
-  diffsdt[,corridor_route ], 
-  diffsdt[,corridor_dir], 
-  diffsdt[,r_node_name],
-  diffsdt[,round(volume.predict)], 
-  diffsdt[,volume.sum], 
-  diffsdt[,round(volume.diff, 1)])%>% 
+  diffs[,corridor_route ], 
+  diffs[,corridor_dir], 
+  diffs[,r_node_name],
+  diffs[,round(volume.predict)], 
+  diffs[,volume.sum], 
+  diffs[,round(volume.diff, 1)])%>% 
   lapply(htmltools::HTML)
 
 
+length(unique(diffs$r_node_name)) # 1177 2020-03-22
 
-length(unique(diffsdt$r_node_name)) # 1179
-# diffsdt[,c('start', 'end'):=list(date, date+1)]
-# power_geo <- geojsonio::geojson_json(diffsdt,lat="r_node_lat",lon="r_node_lon")
-# 
-# # add leaflet-timeline as a dependency
-# #  to get the js and css
-# leaf$dependencies[[length(leaf$dependencies)+1]] <- htmlDependency(
-#   name = "leaflet-timeline",
-#   version = "1.0.0",
-#   src = c("href" = "http://skeate.github.io/Leaflet.timeline/"),
-#   script = "javascripts/leaflet.timeline.js",
-#   stylesheet = "stylesheets/leaflet.timeline.css"
-# )
-# 
-# leaflet(power_geo)%>%
-#   addTiles()%>%
-#   addTimeline()
 
-# diffs_sf %>%
-#   filter(date == '2020-03-18')%>%
-#   filter(volume.diff>=-60)%>%
 m<-
   leaflet(diffs_sf)%>%
   addProviderTiles('CartoDB.DarkMatter')%>%
-  addPolygons(data = t2040shp)%>%
   addCircleMarkers(data = diffs_sf[diffs_sf$date == '2020-03-21' ,],
                    color = ~binpal(volume.diff), stroke = T, fillOpacity = 0.75, 
                    radius = ~5*(scl_volume),
@@ -123,7 +114,7 @@ m<-
   addLegend(pal = binpal, values = ~volume.diff, title = "% Change in Traffic")
 
 library(htmlwidgets)
-saveWidget(m, file="metro-volumes-2020-03-22.html")
-
+setwd('output')
+saveWidget(m, file = paste0("metro-volumes-by-node-", Sys.Date(), ".html"))
 
 
