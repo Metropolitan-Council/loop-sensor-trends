@@ -1,6 +1,6 @@
 
 detector_r_node_corrs_tidy <- read.csv('data/Configuration of Metro Detectors 2020-03-22.csv')
-
+detector_r_node_corrs_tidy <- unique(detector_r_node_corrs_tidy[,c('r_node_name', 'r_node_n_type', 'r_node_lat', 'r_node_lon', 'corridor_route', 'corridor_dir')])
 detector_r_node_corrs_tidy_ii <- detector_r_node_corrs_tidy %>%
   mutate(r_node_lat = as.character(r_node_lat),
          r_node_lon = as.character(r_node_lon)) %>%
@@ -51,7 +51,7 @@ proj4string(spl) <- CRS("+init=epsg:4267")
 
 rgdal::writeOGR(spl, "Configuration Data", "Sline test", "ESRI Shapefile")
 
-# test
-slinesf<-st_read('Configuration Data/Sline test.shp')
-plot(slinesf)
+# # test
+# slinesf<-st_read('Configuration Data/Sline test.shp')
+# plot(slinesf)
 
