@@ -30,7 +30,7 @@ diff_from_normal_plot <-
   ggtitle("Metro Area Traffic")+
   theme(legend.position = 'none')+
   labs(x = "Date", y = "% Difference from Typical VMT\n(Vehicle Miles Traveled)")+
-  geom_text(aes(x = as.Date('2020-01-18'), y = -45, label = "Jan. 17 Cold Snap"))+
+  geom_text(color = 'black', aes(x = as.Date('2020-01-18'), y = -45, label = "Jan. 17\nSnow Storm"))+
   geom_text(color = 'black', aes(x = as.Date('2020-02-09'), y = -28, label = "Feb. 9\nSnow Storm"))
 
 plotly_diff <- plotly::ggplotly(diff_from_normal_plot, tooltip = 'text')
@@ -55,7 +55,7 @@ trends_and_actual_plot <-
   ggtitle("Metro Area VMT (Vehicle Miles Traveled) on MnDOT Roads")+
   theme(legend.position = 'right')+
   labs(x = "Date", y = "Metro Area VMT\n(Vehicle Miles Traveled)")+
-  geom_text(color = 'black', aes(x = as.Date('2020-01-17'), y = 1e07, label = "Jan. 17\nCold Snap"))+
+  geom_text(color = 'black', aes(x = as.Date('2020-01-17'), y = 1e07, label = "Jan. 17\nSnow Storm"))+
   geom_text(color = 'black', aes(x = as.Date('2020-02-09'), y = 1e07, label = "Feb. 9\nSnow Storm"))
 
 plotly_diff_actual <- plotly::ggplotly(trends_and_actual_plot, tooltip = 'text')
@@ -90,7 +90,7 @@ actions_plot <-
   ggtitle("Metro Area VMT (Vehicle Miles Traveled) on MnDOT Roads")+
   theme(legend.position = 'right')+
   labs(x = "Date", y = "Metro Area VMT\n(Vehicle Miles Traveled)")
-  # geom_text(color = 'black', aes(x = as.Date('2020-01-17'), y = 1e07, label = "Jan. 17\nCold Snap"))+
+  # geom_text(color = 'black', aes(x = as.Date('2020-01-17'), y = 1e07, label = "Jan. 17\nSnow Storm"))+
   # geom_text(color = 'black', aes(x = as.Date('2020-02-09'), y = 1e07, label = "Feb. 9\nSnow Storm"))
 
 actions_plot <- plotly::ggplotly(actions_plot, tooltip = 'text')
@@ -101,5 +101,5 @@ library(htmlwidgets)
 setwd("output")
 saveWidget(plotly_diff, file=paste0("metro-area-vmt-percent-", Sys.Date(), ".html"))
 saveWidget(plotly_diff_actual, file=paste0("metro-area-vmt-actuals-", Sys.Date(), ".html"))
-saveWidget(actions_plot, file="metro-area-vmt-actions-2020-03-22.html")
+saveWidget(actions_plot, file="metro-area-vmt-actions-", Sys.Date(),".html")
 
