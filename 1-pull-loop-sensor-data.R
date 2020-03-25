@@ -9,7 +9,7 @@ library(odbc)
 library(leaflet)
 library(tidyverse)
 
-sensor_config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
+sensor_config <- fread('../data/Configuration of Metro Detectors 2020-03-24.csv')
 
 # Select sensors in Metro Area Only ####
 # pull metro area shapefile
@@ -100,15 +100,15 @@ foreach(j = chosen_sensors) %dopar% {
   # }else{
   #   loops_df <- loops_df
   # }
-
+  
   # this part me - aggregate to hourly: 
   loops_df <- loops_df[, as.list(unlist(lapply(.SD, function(x) list(nulls = sum(is.na(x)),
-                                                                  sum = sum(x, na.rm = T),
-                                                                  mean = mean(x, na.rm = T),
-                                                                  median = median(x, na.rm = T))))),
-                         by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
-
-  data.table::fwrite(loops_df, paste0("data\\data_hourly_raw\\Sensor ", j, ".csv"), append = T)
+                                                                     sum = sum(x, na.rm = T),
+                                                                     mean = mean(x, na.rm = T),
+                                                                     median = median(x, na.rm = T))))),
+                       by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
+  
+  data.table::fwrite(loops_df, paste0("..\\data\\data_hourly_raw\\Sensor ", j, ".csv"), append = T)
 }
 
 stopCluster(cl)
