@@ -1,8 +1,8 @@
 Package: covid.traffic.trends
-Title: PKG_TITLE
+Title: Twin Cities Traffic Trends and the COVID190 Pandemic
 Version: 0.0.0.9000
 Authors@R: person('Liz', 'Roten', email = 'liz.roten@metc.state.mn.us', role = c('cre', 'aut'))
-Description: PKG_DESC.
+Description: A Shiny app 
 License: MIT + file LICENSE
 Imports: 
     config,
