@@ -1,0 +1,3 @@
+[submodule "covid.traffic.trends"]
+	path = covid.traffic.trends
+	url = git@github.com:Metropolitan-Council/covid.traffic.trends.git
