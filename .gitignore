@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+old-output
+output/gam-models-2020-03-25.RData
+output/old-model-output.zip
+output/predicted-and-actual-volumes-by-node-2020-03-25.csv

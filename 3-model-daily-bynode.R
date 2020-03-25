@@ -150,13 +150,15 @@ unique(diffs_dt[volume.diff>500 & year == 2020, .(r_node_name, r_node_n_type, da
 
 # get rid of thse as well
 diffs_dt<-diffs_dt[!r_node_name %in% unique(diffs_dt[volume.diff>500 & year == 2020, r_node_name])]
+diffs_dt[,date:=as.IDate(date)]
+# Trim to after March 1 2020:
+diffs_dt <- diffs_dt[date>='2020-03-01',]
 
-
-fwrite(diffs_dt, paste0('data/predicted-and-actual-volumes-', Sys.Date(), '.csv'))
+fwrite(diffs_dt, paste0('output/pred-and-act-vol-by-node-', Sys.Date(), '.csv'))
 
 
 # More data reshaping of model output ----
-diffs_dt[,date:=as.IDate(date)]
+
 
 # Total difference from expected for whole metro area ----
 diffs_4plot <- diffs_dt[r_node_n_type == "Station" & year == 2020
@@ -170,19 +172,19 @@ diffs_4plot[,difference_text:=ifelse(`Difference from Typical VMT (%)` <0, paste
                                                  paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % more than typical"))]
 
 
-fwrite(diffs_4plot, paste0('data/pred-and-act-vol-for-plotting-wide-', Sys.Date(), '.csv'))
+fwrite(diffs_4plot, paste0('output/pred-and-act-vol-region-', Sys.Date(), '.csv'))
 
-# melt to long form for plotting predicted and acutals simultaneoulsy in plotly ----
-diffs_4plot_long <- melt(diffs_4plot[,.(vmt.sum, vmt.predict, date, dow, doy, year, woy, weekday, monthday, `Difference from Typical VMT (%)`)], 
-                        id.vars = c('date', 'dow', 'doy', 'year', 'woy', 'weekday', 'monthday', "Difference from Typical VMT (%)"),
-                        variable.name = "estimate_type", value.name = "VMT")
-diffs_4plot_long$estimate_type <- ifelse(diffs_4plot_long$estimate_type == "vmt.sum", "Actual Traffic", "Typical Traffic")
+# # melt to long form for plotting predicted and acutals simultaneoulsy in plotly ----
+# nahhhh this isn't useful really
 
-diffs_4plot_long[,difference_text:=ifelse(estimate_type == "Actual Traffic", 
-                                         ifelse(`Difference from Typical VMT (%)` <0, paste0(abs(`Difference from Typical VMT (%)`), " % less than typical"),
-                                                paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % more than typical")),
-                                         ifelse(`Difference from Typical VMT (%)` <0, paste0(abs(`Difference from Typical VMT (%)`), " % more than actual"),
-                                                paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % less than actual")))]
-
-
-fwrite(diffs_4plot_long, paste0('data/pred-and-act-vol-for-plotting-long-', Sys.Date(), '.csv'))
+# diffs_4plot_long <- melt(diffs_4plot[,.(vmt.sum, vmt.predict, date, dow, doy, year, woy, weekday, monthday, `Difference from Typical VMT (%)`)], 
+#                         id.vars = c('date', 'dow', 'doy', 'year', 'woy', 'weekday', 'monthday', "Difference from Typical VMT (%)"),
+#                         variable.name = "estimate_type", value.name = "VMT")
+# diffs_4plot_long$estimate_type <- ifelse(diffs_4plot_long$estimate_type == "vmt.sum", "Actual Traffic", "Typical Traffic")
+# 
+# diffs_4plot_long[,difference_text:=ifelse(estimate_type == "Actual Traffic", 
+#                                          ifelse(`Difference from Typical VMT (%)` <0, paste0(abs(`Difference from Typical VMT (%)`), " % less than typical"),
+#                                                 paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % more than typical")),
+#                                          ifelse(`Difference from Typical VMT (%)` <0, paste0(abs(`Difference from Typical VMT (%)`), " % more than actual"),
+#                                                 paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % less than actual")))]
+# fwrite(diffs_4plot_long, paste0('data/pred-and-act-vol-for-plotting-long-', Sys.Date(), '.csv'))
