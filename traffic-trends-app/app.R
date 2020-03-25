@@ -8,6 +8,7 @@ library(plotly)
 
 #### Load Data #### -----
 load("appdata.RData") # takes six seconds, not bad.
+options(shiny.launch.browser = TRUE,
 
 binpal_ctu <- colorNumeric("RdYlBu", min(ctu_diffs_sf$avg.diff):max(ctu_diffs_sf$avg.diff), reverse = T)
 
