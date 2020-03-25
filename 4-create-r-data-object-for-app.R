@@ -6,6 +6,8 @@ library(tidyverse)
 
 # CTUS ----
 # ...shapefile ####
+library(DBI)
+db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
 ctu_sf <- st_read('data/thrive2040shapefile/ThriveMSP2040CommunityDesignation.shp')
 ctu_sf <- st_transform(ctu_sf, crs = 4326)
 
@@ -22,7 +24,7 @@ node_sf <- st_as_sf(node_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
 
 # PREDICTED & ACUTAL VOLUME, BY NODE ----
 # ....DATA TABLE ####
-diffs_dt <- fread('data/predicted-and-actual-volumes-2020-03-24.csv')
+diffs_dt <- fread('data/predicted-and-actual-volumes-2020-03-25.csv')
 diffs_dt[,date:=as.IDate(date)]
 diffs_dt <- diffs_dt[date>'2020-03-01',]
 diffs_dt[,scl_volume:=scale(volume.predict, center= F)]
@@ -34,6 +36,7 @@ diffs_sf <- st_as_sf(diffs_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 432
 
 # VOLUMES, BY CTU ----
 ctu_diffs_join <- st_join(diffs_sf, ctu_sf, join = st_within) # this takes TIME, especially with a lot of data. 
+
 # Aggregate predicted & actual volumes by CTU ####
 ctu_diffs_join <- ctu_diffs_join%>%
   group_by(CTU_NAME, date, year, dow, doy, woy, weekday, monthday)%>%
