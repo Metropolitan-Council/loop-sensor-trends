@@ -37,7 +37,6 @@ ui <- fluidPage(
 
 #### Server ####
 server <- function(input, output){
-    
     output$graph <- renderPlot({
             ggplot(diffs_4plot[doy>61 & year == 2020], 
                    aes(x = date, y = `Difference from Typical VMT (%)`, 

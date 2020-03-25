@@ -20,7 +20,7 @@ node_dt <- unique(sensor_dt[,.(r_node_name, r_node_n_type, r_node_lon, r_node_la
 #...shapefile ####
 node_sf <- st_as_sf(node_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
 leaflet(node_sf)%>%
-  addCircleMarkers()%>%
+  addCircleMarkers(label = node_sf$r_node_name)%>%
   addProviderTiles('CartoDB.Positron')
 
 # st_write(node_sf, 'node', driver = 'ESRI Shapefile')
