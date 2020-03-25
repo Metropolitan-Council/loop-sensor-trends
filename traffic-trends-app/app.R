@@ -9,14 +9,14 @@ library(plotly)
 #### Load Data ####
 load('appdata.RData') # takes six seconds, not bad.
 
-binpal_ctu <- colorNumeric("RdYlBu", min(ctu_diffs_dt$avg.diff):max(ctu_diffs_dt$avg.diff), reverse = T)
+binpal_ctu <- colorNumeric("RdYlBu", min(ctu_diffs_sf$avg.diff):max(ctu_diffs_sf$avg.diff), reverse = T)
 
 #### UI ####
 ui <- fluidPage(
     
     # Date selector
     dateInput("selected_date", "Date:", value = "2020-03-23",
-              min = min(diffs_dt$date), max = max(diffs_dt$date), 
+              min = min(diffs_sf$date), max = max(diffs_sf$date), 
               format = "yyyy-mm-dd", startview = "month"),
     
     # Application title
@@ -69,13 +69,13 @@ server <- function(input, output){
                              options = leafletOptions(pane = "points"))
             # addPolygons(data = ctu_diffs_sf[ctu_diffs_sf$date == '2020-03-23' ,],
             #             color = ~binpal(avg.diff), stroke = T, fillOpacity = 0.75,
-            #             label = ctu_labels[ctu_diffs_dt$date == '2020-03-23'])
+            #             label = ctu_labels[ctu_diffs_sf$date == '2020-03-23'])
     })
 
     # when I select a date------------------------------------------------------
     observeEvent(input$selected_date,{
         new_ctu_diffs <- ctu_diffs_sf[as.character(ctu_diffs_sf$date) == input$selected_date,]
-        new_ctu_labels <- ctu_labels[as.character(ctu_diffs_dt$date) == input$selected_date]
+        new_ctu_labels <- ctu_labels[as.character(ctu_diffs_sf$date) == input$selected_date]
         # new map - this date
         leafletProxy("mymap")  %>%
             clearGroup("ctu_dat")%>%
