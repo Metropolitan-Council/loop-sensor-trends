@@ -67,10 +67,10 @@ registerDoParallel(cl)
 
 
 foreach(j = chosen_sensors) %dopar% {
-  date_range <- c(Sys.Date()-1) # yesterday's data
-  # date_range <- c(seq(as.Date("2018-01-01"), as.Date("2018-04-01"), by = "days"), 
-  #                 seq(as.Date("2019-01-01"), as.Date("2019-04-01"), by = "days"),
-  #                 seq(as.Date("2020-01-01"), as.Date("2020-03-23"), by = "days"))
+  # date_range <- c(Sys.Date()-1) # yesterday's data
+  date_range <- c(seq(as.Date("2018-01-01"), as.Date("2018-05-01"), by = "days"),
+                  seq(as.Date("2019-01-01"), as.Date("2019-05-01"), by = "days"),
+                  seq(as.Date("2020-01-01"), c(Sys.Date()-1), by = "days"))
   
   n <- length(date_range)
   loops_ls <- vector("list", n)
