@@ -1,10 +1,6 @@
 source("global.R")
 #### UI #### -----
 ui <- fluidPage(
-    
-    tags$head(
-        tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
-    ),
     titlePanel("Metro Area Vehicle Miles Traveled on MnDOT Roads"),
     sidebarLayout(
         sidebarPanel(width = 2,
