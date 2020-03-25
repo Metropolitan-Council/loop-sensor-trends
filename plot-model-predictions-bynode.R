@@ -4,6 +4,8 @@ library(plotly)
 #############
 
 
+
+
 predicted_and_observed_plot<-
 ggplot(this_dat, aes(x = date, y = volume.sum, color = factor(year)))+
   theme_minimal()+

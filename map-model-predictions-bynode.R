@@ -5,35 +5,14 @@ library(htmltools)
 library(leaflet)
 library(tidyverse)
 library(sf)
+library(ggplot2)
+library(plotly)
 #############
 
-diffs <- fread('data/predicted-and-actual-volumes-2020-03-23.csv')
-diffs <- data.table(diffs)
-diffs[,scl_volume:=scale(diffs$volume.predict, center= F)]
-diffs[,date:=as.IDate(date)]
 
-diffs_sf <- st_as_sf(diffs, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
+readRDS('appdata.RData')
 
-binpal <- colorBin("RdBu", diffs$volume.diff, 
-                   bins = c(-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100), 
-                   pretty = FALSE, reverse = T)
-
-# hist(diffs$volume.predict)
-# hist(diffs$scl_volume)
-
-node_labels <- sprintf(
-  "<strong>%s %s</strong>
-  <br>Node ID: %s
-      <br>Expected Volume: %s vehicles
-      <br>Actual Volume: %s vehicles
-      <br>Difference from Expected:<strong> %s %%</strong>",
-  diffs[,corridor_route ], 
-  diffs[,corridor_dir], 
-  diffs[,r_node_name],
-  diffs[,round(volume.predict)], 
-  diffs[,volume.sum], 
-  diffs[,round(volume.diff, 1)])%>% 
-  lapply(htmltools::HTML)
+binpal <- colorNumeric("RdBu", diffs$volume.diff, reverse = T)
 
 
 length(unique(diffs$r_node_name)) # 1179 2020-03-22
@@ -42,6 +21,11 @@ length(unique(diffs$r_node_name)) # 1179 2020-03-22
 m<-
   leaflet(diffs_sf)%>%
   addProviderTiles('CartoDB.DarkMatter')%>%
+  addCircleMarkers(data = diffs_sf[diffs_sf$date == '2020-03-22' ,],
+                   color = ~binpal(volume.diff), stroke = T, fillOpacity = 0.75, 
+                   radius = ~5*(scl_volume),
+                   label = node_labels[diffs_sf$date == '2020-03-22' ],
+                   group = "Sun. March 22")%>%
   addCircleMarkers(data = diffs_sf[diffs_sf$date == '2020-03-22' ,],
                    color = ~binpal(volume.diff), stroke = T, fillOpacity = 0.75, 
                    radius = ~5*(scl_volume),
