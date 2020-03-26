@@ -9,7 +9,7 @@ library(odbc)
 library(leaflet)
 library(tidyverse)
 
-sensor_config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
+sensor_config <- fread('../data/Configuration of Metro Detectors 2020-03-24.csv')
 
 # Select sensors in Metro Area Only ####
 # pull metro area shapefile
@@ -65,12 +65,12 @@ cores <- detectCores()
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
-
+tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
   date_range <- c(Sys.Date()-1) # yesterday's data
-  # date_range <- c(seq(as.Date("2018-01-01"), as.Date("2018-04-01"), by = "days"), 
-  #                 seq(as.Date("2019-01-01"), as.Date("2019-04-01"), by = "days"),
-  #                 seq(as.Date("2020-01-01"), as.Date("2020-03-23"), by = "days"))
+  # date_range <- c(seq(as.Date("2018-01-01"), as.Date("2018-05-01"), by = "days"),
+  #                 seq(as.Date("2019-01-01"), as.Date("2019-05-01"), by = "days"),
+  #                 seq(as.Date("2020-01-01"), c(Sys.Date()-1), by = "days"))
   
   n <- length(date_range)
   loops_ls <- vector("list", n)
@@ -100,15 +100,16 @@ foreach(j = chosen_sensors) %dopar% {
   # }else{
   #   loops_df <- loops_df
   # }
-
+  
   # this part me - aggregate to hourly: 
   loops_df <- loops_df[, as.list(unlist(lapply(.SD, function(x) list(nulls = sum(is.na(x)),
-                                                                  sum = sum(x, na.rm = T),
-                                                                  mean = mean(x, na.rm = T),
-                                                                  median = median(x, na.rm = T))))),
-                         by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
-
-  data.table::fwrite(loops_df, paste0("data\\data_hourly_raw\\Sensor ", j, ".csv"), append = T)
+                                                                     sum = sum(x, na.rm = T),
+                                                                     mean = mean(x, na.rm = T),
+                                                                     median = median(x, na.rm = T))))),
+                       by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
+  
+  data.table::fwrite(loops_df, paste0("..\\data\\data_hourly_raw\\Sensor ", j, ".csv"), append = T)
 }
 
 stopCluster(cl)
+tictoc::toc()

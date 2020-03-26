@@ -26,7 +26,7 @@ node_sf <- st_as_sf(node_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
 
 # PREDICTED & ACUTAL VOLUME, BY NODE ----
 # ....DATA TABLE ####
-diffs_dt <- fread('output/predicted-and-actual-volumes-2020-03-25.csv')
+diffs_dt <- fread('data/predicted-and-actual-volumes-2020-03-25.csv') # our golden ticket!
 diffs_dt[,date:=as.IDate(date)]
 diffs_dt <- diffs_dt[date>'2020-03-01',]
 diffs_dt[,scl_volume:=scale(volume.predict, center= F)]
