@@ -10,7 +10,9 @@
 mod_sidebar_ui <- function(id){
   ns <- NS(id)
   tagList(
- 
+
+    wellPanel(shinipsum::random_text(nwords = 30))
+    
   )
 }
     
