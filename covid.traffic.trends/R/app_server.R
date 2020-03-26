@@ -7,4 +7,7 @@
 app_server <- function( input, output, session ) {
   # List the first level callModules here
 
+  callModule(mod_leaflet_server, "leaflet_ui")
+  callModule(mod_plot_server, "plot_ui_1")
+  
 }

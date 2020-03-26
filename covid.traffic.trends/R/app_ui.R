@@ -19,7 +19,17 @@ app_ui <- function(request) {
           skeleton::sk_nav_item("about", "About")
         ),
         
-        skeleton::sk_row(id = "map_plot"),
+        skeleton::sk_row(id = "map_plot",
+                         width = 12,
+                         skeleton::sk_col("sk_sidebar", width = 2,
+                                          mod_sidebar_ui("sidebar_ui")
+                                          ),
+                         skeleton::sk_col("sk_map", width = 10,
+                                          mod_leaflet_ui("leaflet_ui"),
+                                          mod_plot_ui("plot_ui_1")
+                                          
+                         )
+        ),
         skeleton::sk_row(id = "about",
                          mod_about_ui("about_ui")
         ),
@@ -60,7 +70,7 @@ golem_add_external_resources <- function(){
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),
-      app_title = 'covid.traffic.trends'
+      app_title = 'Minnesota COVID-19 Traffic Trends'
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert() 
