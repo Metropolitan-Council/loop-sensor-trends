@@ -47,7 +47,7 @@ mod_leaflet_server <- function(input, output, session,
       addLayersControl(position = "bottomright",
                        baseGroups = c("Carto Positron",
                                       "Carto DarkMatter"),
-                       overlayGroups = c("Stations",
+                       overlayGroups = c("Nodes",
                                          "County outlines"))
   })
   
@@ -63,7 +63,7 @@ mod_leaflet_server <- function(input, output, session,
     
     
     map <- leafletProxy("map", session = session) %>% 
-      clearGroup("Stations") %>%
+      clearGroup("Nodes") %>%
       addCircleMarkers(data = dat,
                        lng = ~r_node_lon,
                        lat = ~r_node_lat,
@@ -72,14 +72,15 @@ mod_leaflet_server <- function(input, output, session,
                        fillOpacity = 0.75, 
                        popup = ~paste(hover_text),
                        radius = ~5*(scl_volume),
-                       group = "Stations",
+                       group = "Nodes",
                        options = leafletOptions(pane = "points") 
       ) %>% 
       addLegend(position = "topright",
                 pal = col_pal,
                 values = dat$volume.diff,
-                layerId = "Stations",
-                title = paste(stringr::str_wrap("Traffic Change from Expected", width = 5)),
+                layerId = "Nodes",
+                title = paste("% Change", "<br>",
+                              "from Expected"),
                 labFormat = labelFormat(suffix = "%"))
     
     return(map)
