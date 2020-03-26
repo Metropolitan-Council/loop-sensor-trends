@@ -6,29 +6,27 @@ library(tidyverse)
 
 # CTUS ----
 # ...shapefile ####
-library(DBI)
-db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
-ctu_sf <- st_read('data/thrive2040shapefile/ThriveMSP2040CommunityDesignation.shp')
+ctu_sf <- st_read('thrive2040shapefile/ThriveMSP2040CommunityDesignation.shp')
 ctu_sf <- st_transform(ctu_sf, crs = 4326)
 
 # SENSOR DATA ----
 #....data table ####
-sensor_dt <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
+sensor_dt <- fread('Configuration of Metro Detectors 2020-03-24.csv')
 node_dt <- unique(sensor_dt[,.(r_node_name, r_node_n_type, r_node_lon, r_node_lat, r_node_station_id, corridor_route, corridor_dir)])
 
 
 #...shapefile ####
 node_sf <- st_as_sf(node_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
-leaflet(node_sf)%>%
-  addCircleMarkers(label = node_sf$r_node_name)%>%
-  addProviderTiles('CartoDB.Positron')
+# leaflet(node_sf)%>%
+#   addCircleMarkers(label = node_sf$r_node_name)%>%
+#   addProviderTiles('CartoDB.Positron')
 
 # st_write(node_sf, 'node', driver = 'ESRI Shapefile')
 
 
 # PREDICTED & ACUTAL VOLUME, BY NODE ----
 # ....DATA TABLE ####
-diffs_dt <- fread('data/predicted-and-actual-volumes-2020-03-25.csv')
+diffs_dt <- fread('output/predicted-and-actual-volumes-2020-03-25.csv')
 diffs_dt[,date:=as.IDate(date)]
 diffs_dt <- diffs_dt[date>'2020-03-01',]
 diffs_dt[,scl_volume:=scale(volume.predict, center= F)]
@@ -100,9 +98,9 @@ load('councilcolors.Rdata')
 hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Resources/Files-and-reports/2018-Population-Estimates-(FINAL,-July-2019)-(1).aspx
 
 rm(ctu_diffs_dt); rm(diffs_dt)
-diffs_4plot <- fread(paste0('data/pred-and-act-vol-for-plotting-wide', Sys.Date(), '.csv'))
+diffs_4plot <- fread(paste0('output/pred-and-act-vol-for-plotting-wide', Sys.Date(), '.csv'))
 diffs_4plot[,date:=as.IDate(date)]
-diffs_4plot_long <- fread(paste0('data/pred-and-act-vol-for-plotting-long', Sys.Date(), '.csv'))
+diffs_4plot_long <- fread(paste0('output/pred-and-act-vol-for-plotting-long', Sys.Date(), '.csv'))
 diffs_4plot_long[,date:=as.IDate(date)]
 
 save.image(file = 'traffic-trends-app/appdata.RData')
