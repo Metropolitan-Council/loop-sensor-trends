@@ -26,6 +26,7 @@ app_ui <- function(request) {
                                           ),
                          skeleton::sk_col("sk_map", width = 10,
                                           mod_leaflet_ui("leaflet_ui"),
+                                          h5("Traffic Reduction"),
                                           mod_plot_ui("plot_ui_1")
                                           
                          )
