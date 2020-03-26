@@ -13,7 +13,7 @@ mod_sidebar_ui <- function(id){
     
     wellPanel(
       dateInput(ns("select_date"), "Date:",
-                        value = "2020-03-23",
+                        value = "2020-03-25",
                         min = min(predicted_actual_by_region$date),
                         max = max(predicted_actual_by_region$date),
                         format = "yyyy-mm-dd", startview = "month"
