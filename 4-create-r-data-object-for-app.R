@@ -6,12 +6,30 @@ library(tidyverse)
 
 # CTUS ----
 # ...shapefile ####
-ctu_sf <- st_read('thrive2040shapefile/ThriveMSP2040CommunityDesignation.shp')
+library(DBI)
+db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
+metro_area_shp <- DBI::dbGetQuery(db,"SELECT
+                        *,
+                        SHAPE.STAsText() as geometry
+                        FROM GISLibrary.DBO.MetropolitanPlanningOrganizationArea;") %>%
+  st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
+  st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
+ctu_sf <- DBI::dbGetQuery(db,"SELECT
+                        *,
+                        SHAPE.STAsText() as geometry
+                        FROM GISLibrary.DBO.ThriveMSP2040CommunityDesignation;") %>%
+  st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
+  st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
+st_write(ctu_sf, 'thrive2040shapefile', driver = 'ESRI Shapefile')
+
+ctu_sf <- st_read('thrive2040shapefile/thrive2040shapefile.shp')
 ctu_sf <- st_transform(ctu_sf, crs = 4326)
+
+
 
 # SENSOR DATA ----
 #....data table ####
-sensor_dt <- fread('Configuration of Metro Detectors 2020-03-24.csv')
+sensor_dt <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
 node_dt <- unique(sensor_dt[,.(r_node_name, r_node_n_type, r_node_lon, r_node_lat, r_node_station_id, corridor_route, corridor_dir)])
 
 
@@ -26,7 +44,7 @@ node_sf <- st_as_sf(node_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
 
 # PREDICTED & ACUTAL VOLUME, BY NODE ----
 # ....DATA TABLE ####
-diffs_dt <- fread('data/predicted-and-actual-volumes-2020-03-25.csv') # our golden ticket!
+diffs_dt <- fread('output/pred-and-act-vol-by-node-2020-03-26.csv') # our golden ticket!
 diffs_dt[,date:=as.IDate(date)]
 diffs_dt <- diffs_dt[date>'2020-03-01',]
 diffs_dt[,scl_volume:=scale(volume.predict, center= F)]
@@ -51,7 +69,7 @@ ctu_diffs_sf <- st_join(ctu_sf, ctu_diffs_join, on = 'CTU_NAME')
 ctu_diffs_sf <- ctu_diffs_sf%>%filter(!is.na(date))
 rm(ctu_diffs_join)
 
-# st_write(ctu_diffs_sf, 'volumes-by-CTU', driver = 'ESRI Shapefile')
+st_write(ctu_diffs_sf, 'volumes-by-CTU', driver = 'ESRI Shapefile')
 
 ctu_diffs_dt <- data.table(ctu_diffs_sf)
 ctu_diffs_dt$geometry<-NULL
