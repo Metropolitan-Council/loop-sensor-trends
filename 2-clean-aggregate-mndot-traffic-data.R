@@ -6,7 +6,7 @@ library(lubridate)
 #############
 
 # READ DATA ----
-config <- fread('data/Configuration of Metro Detectors 2020-03-22.csv')
+config <- fread('Configuration of Metro Detectors 2020-03-24.csv')
 config$date<-NULL
 
 cores <- detectCores()
@@ -126,7 +126,7 @@ hourlydat_sensor[,num_sensors_this_year:=uniqueN(sensor),
 # Yes, I believe this number of sensors instead
 
 # exclude to only those hourly observations at each node where the number of lanes
-# equals the number of observations
+# equals the number of detectors for this year.
 hourlydat_sensor <- hourlydat_sensor[num_lanes_with_data_this_hr == num_sensors_this_year]
 
 fwrite(hourlydat_sensor, 'data/data_hourly_bysensor_clean.csv')

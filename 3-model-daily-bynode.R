@@ -92,7 +92,7 @@ for(s in seq_along(dailydat_s)){
 }
 
 diffs_dt <- rbindlist(diffs_ls)
-saveRDS(gam_list, file = paste0('data/gam-models-', Sys.Date(), '.RData'))
+# saveRDS(gam_list, file = paste0('data/gam-models-', Sys.Date(), '.RData'))
 
 # some very high numbers? 
 # hist(diffs_dt[,volume.diff])
@@ -161,10 +161,11 @@ fwrite(diffs_dt, paste0('output/pred-and-act-vol-by-node-', Sys.Date(), '.csv'))
 
 
 # Total difference from expected for whole metro area ----
-diffs_4plot <- diffs_dt[r_node_n_type == "Station" & year == 2020
+diffs_4plot <- diffs_dt[r_node_n_type == "Station" & year == 2020 # this year's data, stations only. ####
                         ,lapply(.SD, FUN = function(x) sum(x, na.rm = T)),
                        .SDcols = c('volume.sum', 'volume.predict'), 
                        by = .(date, dow, doy, year, woy, weekday, monthday)]
+
 # vmt is 1/2 of volume ----
 diffs_4plot[,c("vmt.sum", "vmt.predict"):=list(volume.sum*0.5, volume.predict * 0.5)]
 diffs_4plot[,'Difference from Typical VMT (%)':=round(100*(vmt.sum-vmt.predict)/vmt.predict, 2)]
