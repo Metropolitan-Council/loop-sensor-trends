@@ -7,7 +7,7 @@ options(shiny.launch.browser = TRUE,
 # golem::detach_all_attached()
 # rm(list=ls(all.names = TRUE))
 
-rmarkdown::render("./ABOUT.Rmd", output_format = "github_document",
+rmarkdown::render("./ABOUT.Rmd", output_format = "github_document", # -----
                   output_file = "ABOUT.md", output_dir = "./inst/app/www",
                   params = list(actor_id = "roten",
                                 data_date = "2020-03-26",
@@ -15,7 +15,7 @@ rmarkdown::render("./ABOUT.Rmd", output_format = "github_document",
                                              intern=TRUE)))
 
 
-# Document and reload your package
+# Document and reload your package ----
 golem::document_and_reload()
 
 # Run the application
