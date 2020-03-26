@@ -1,9 +1,16 @@
 Package: covid.traffic.trends
 Title: Twin Cities Traffic Trends and the COVID190 Pandemic
 Version: 0.0.0.9000
-Authors@R: person('Liz', 'Roten', email = 'liz.roten@metc.state.mn.us', role = c('cre', 'aut'))
+Authors@R: c(person("Metropolitan Council", role=c("cph")),
+             person('Liz', 'Roten', email = 'liz.roten@metc.state.mn.us', role = c('cre', 'aut')))
 Description: A Shiny app 
+URL: https://github.com/Metropolitan-Council/loop-sensor-trends/tree/master/covid.traffic.trends
+BugReports: https://github.com/Metropolitan-Council/loop-sensor-trends/issues
 License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+Depends: R (>= 3.5.0) 
 Imports: 
     config,
     golem,
@@ -14,10 +21,10 @@ Imports:
     glue,
     htmltools,
     data.table,
-    skeleton (>= 0.0.0.9000)
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.1.0
+    skeleton (>= 0.0.0.9000),
+    leaflet,
+    shinipsum,
+    plotly
 Suggests: 
     testthat (>= 2.1.0),
     knitr,
@@ -25,5 +32,5 @@ Suggests:
     tigris,
     dplyr
 VignetteBuilder: knitr
-Remotes:  
+Remotes: 
     eroten/skeleton
