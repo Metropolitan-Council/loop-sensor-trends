@@ -3,6 +3,11 @@ b, strong {
 	font-family: Raleway;
 }
 
+.header {
+	margin-top: 4rem !important;
+	text-align: center;
+}
+
 tbody{
   font-size: 14px;
 }
