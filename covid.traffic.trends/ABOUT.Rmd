@@ -1,0 +1,35 @@
+---
+output: 
+  github_document:
+    html_preview: false
+params: 
+  actor_id: "roten" 
+  data_date: "2020-03-26"
+  sha: "sha"
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/ABOUT-",
+  out.width = "100%"
+)
+```
+
+## About 
+
+### Models  
+
+### Contributors  
+
+- Liz Roten  
+- Ashley Asmus  
+- Jonathan Erhlich
+
+  
+<right style="font-size: 1rem; text-align: right; display: block;">
+*Last updated `r Sys.Date()`*  
+Build ID: `r Sys.Date()`.`r params$actor_id`.`r params$sha`  
+</right>
