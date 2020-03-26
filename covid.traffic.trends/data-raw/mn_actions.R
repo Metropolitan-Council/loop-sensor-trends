@@ -22,7 +22,8 @@ mn_actions <- cbind(
            'https://mn.gov/governor/news/?id=1055-423071',
            'https://mn.gov/governor/assets/2020_03_16_EO_20_04_Bars_Restaurants_tcm1055-423380.pdf',
            'https://mn.gov/governor/covid-19/')
-)
+) %>% 
+  data.table::as.data.table()
 
 
 
