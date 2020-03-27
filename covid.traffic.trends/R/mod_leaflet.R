@@ -24,7 +24,7 @@ mod_leaflet_server <- function(input, output, session,
   
   output$map <- renderLeaflet({
     leaflet() %>%
-      fitBounds(-94.51,43.9,-91.93,45.72)%>% # fitting boundary of map to metro area and rochester
+      fitBounds(-93.521749,44.854051,-92.899649,45.081892)%>% # fitting boundary of map to metro area and rochester
       addProviderTiles("CartoDB.DarkMatter",
                        group = "Carto DarkMatter") %>%
       addProviderTiles("CartoDB.Positron",
@@ -58,8 +58,8 @@ mod_leaflet_server <- function(input, output, session,
     dat <- covid.traffic.trends::predicted_actual_by_node %>% 
       filter(date == sidebar_values$date)
     
-    col_pal <- colorNumeric(palette = "PuOr",
-                        domain = c(-100:100), # suggest white is zero, purple is decrease, orange is increase 
+    col_pal <- colorBin(palette = "RdBu",
+                    domain = c(-100:100), bins = 10,  # suggest white is zero, purple is decrease, orange is increase 
                         reverse = T)
     
     
