@@ -1,6 +1,6 @@
 
-*This app is in active development and will be updated frequently. Thank
-you for your patience. *
+**This app is in active development and will be updated frequently.
+Thank you for your patience.**
 
 ## About
 
@@ -30,7 +30,7 @@ community.
 
 ### Data sources
 
-Traffic are provided by MNDOT. We pull these data using our open-source
+Traffic are provided by MnDOT. We pull these data using our open-source
 R package,
 [tc.sensors](https://github.com/Metropolitan-Council/tc.sensors).
 
@@ -66,11 +66,8 @@ site](https://www.health.state.mn.us/diseases/coronavirus/index.html)
 
   - Liz Roten, Metropolitan Council  
   - Ashley Asmus, Metropolitan Council  
-  - Jonathan Erhlich, Metropolitan Council
-
-##### ????
-
-  - Brian Kary
+  - Brian Kary, MnDOT  
+  - Jonathan Ehrlich, Metropolitan Council
 
 ### Contact
 
@@ -81,6 +78,6 @@ repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2020-03-26*  
-Build ID: 2020-03-26.roten.6f2961c  
+*Last updated 2020-03-27*  
+Build ID: 2020-03-27.roten.aabf20c  
 </right>

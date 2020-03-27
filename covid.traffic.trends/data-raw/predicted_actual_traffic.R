@@ -40,7 +40,7 @@ predicted_actual_by_region <- fread(paste0('./data-raw/pred-and-act-vol-region-'
 usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
 
 
-# MNDOT Traffic Trends -----
+# MnDOT Traffic Trends -----
 
 
 
