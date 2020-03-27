@@ -6,13 +6,13 @@ library(data.table)
 library(dplyr)
 
 ## by node -----
-predicted_actual_by_node <- fread("./data-raw/pred-and-act-vol-by-node-2020-03-26.csv") # our golden ticket!
+predicted_actual_by_node <- fread(paste0('./data-raw/pred-and-act-vol-by-node-', Sys.Date(), '.csv')) # our golden ticket!
 predicted_actual_by_node[,date:=as.IDate(date)]
 predicted_actual_by_node <- predicted_actual_by_node[date>'2020-03-01',]
 predicted_actual_by_node <- predicted_actual_by_node[,scl_volume:=scale(volume.predict, center= F)] %>% 
   mutate(hover_text = paste(sep = "", "<b>", format.Date(date, "%B %d"), "</b>",  "<br>",
                             volume.diff, "%"))
-         
+
 
 usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
 ## by ctu -----
@@ -26,11 +26,11 @@ usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
 
 ## by region -----
 ## predicted and actual summarized to the region (mostly sensors in the metro and Fargo/Moorehead) from March 1
-predicted_actual_by_region <- fread("./data-raw/pred-and-act-vol-region-2020-03-26.csv") %>% 
+predicted_actual_by_region <- fread(paste0('./data-raw/pred-and-act-vol-region-', Sys.Date(), '.csv')) %>% 
   mutate(typical_vmt_diff = `Difference from Typical VMT (%)`) %>% 
   select(-`Difference from Typical VMT (%)`) %>% 
   mutate(hover_text = paste(sep = "", "<b>", format.Date(date, "%B %d"), "</b>",  "<br>",
-                               typical_vmt_diff, "%")
+                            typical_vmt_diff, "%")
   )
 
 usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
