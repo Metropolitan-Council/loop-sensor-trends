@@ -71,7 +71,7 @@ site](https://www.health.state.mn.us/diseases/coronavirus/index.html)
 
 ### Contact
 
-Email Sara Maske at Sara.Maaske(at)metc.state.mn.us.
+Email Sara Maaske at Sara.Maaske(at)metc.state.mn.us.
 
 For app concerns, feel free to open an Issue on our [GitHub
 repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
@@ -79,5 +79,5 @@ for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
 *Last updated 2020-03-27*  
-Build ID: 2020-03-27.roten.aabf20c  
+Build ID: 2020-03-27.roten.17ea78b  
 </right>
