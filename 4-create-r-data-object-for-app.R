@@ -123,4 +123,19 @@ diffs_4plot_long[,date:=as.IDate(date)]
 
 save.image(file = 'traffic-trends-app/appdata.RData')
 
+#########################
+#MNDOT Traffic Trends
+yesterday <- Sys.Date()-1
+yesterday <- as.IDate(yesterday)
+yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
+
+data <- fread(paste0('http://www.dot.state.mn.us/traffic/data/reports/COVD19/Daily_Volume_Change_', yesterday, '_update.csv'))
+data <- data[District %in% c('MnDOT Statewide')]
+data <- melt(data, id.vars = c('District'), variable.name = 'date', value.name = 'Difference from Typical VMT (%)')
+data[,date:=as.IDate(date, format = "%m/%d/%Y")]
+
+write.csv(data, paste0('output/diff-vol-state-', Sys.Date(), '.csv'), row.names = F)
+#############################
+
+
 
