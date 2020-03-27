@@ -21,11 +21,11 @@ app_ui <- function(request) {
         
         skeleton::sk_row(id = "map_plot",
                          width = 12,
-                         skeleton::sk_col("sk_sidebar", width = 2,
+                         skeleton::sk_col("sk_sidebar", width = 3,
                                           mod_sidebar_ui("sidebar_ui")
                          ),
                          
-                         skeleton::sk_col("sk_map", width = 10,
+                         skeleton::sk_col("sk_map", width = 9,
                                           ## plot
                                           h5("Travel decreased steadily in the days following the first COVID-19 case in Minnesota"),
                                           mod_plot_ui("plot_ui_1"),
