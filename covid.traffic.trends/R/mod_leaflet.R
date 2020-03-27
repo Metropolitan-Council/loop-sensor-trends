@@ -31,7 +31,7 @@ mod_leaflet_server <- function(input, output, session,
                        group = "Carto Positron") %>%
       addMapPane("polygons", zIndex = 410) %>%
       addMapPane("points", zIndex = 420) %>%
-      addPolygons(data = mn_counties,
+      addPolygons(data = covid.traffic.trends::mn_counties,
                   group = "County outlines",
                   fill = NA,
                   color = "darkgray",
@@ -55,7 +55,7 @@ mod_leaflet_server <- function(input, output, session,
   
   observeEvent(sidebar_values$date, {
     # browser()
-    dat <- predicted_actual_by_node %>% 
+    dat <- covid.traffic.trends::predicted_actual_by_node %>% 
       filter(date == sidebar_values$date)
     
     col_pal <- colorNumeric(palette = "PuOr",
