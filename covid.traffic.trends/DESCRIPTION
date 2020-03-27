@@ -19,18 +19,17 @@ Imports:
     attempt,
     DT,
     glue,
+    dplyr,
     htmltools,
     data.table,
     skeleton (>= 0.0.0.9000),
     leaflet,
-    shinipsum,
     plotly
 Suggests: 
     testthat (>= 2.1.0),
     knitr,
     rmarkdown,
     tigris,
-    dplyr
 VignetteBuilder: knitr
 Remotes: 
     eroten/skeleton
