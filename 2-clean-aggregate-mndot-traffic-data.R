@@ -5,7 +5,7 @@ library(doParallel)
 library(lubridate)
 #############
 
-# READ DATA ----
+# READ DATA (takes about 1.5 minutes)----
 config <- fread('Configuration of Metro Detectors 2020-03-24.csv')
 config$date<-NULL
 
@@ -16,14 +16,11 @@ registerDoParallel(cl)
 
 sensors <- list.files('data/data_hourly_raw')
 
-rawdat <- do.call("rbind", foreach(i = sensors) %dopar% {
-  library(data.table)
-  fread(paste0("data/data_hourly_raw", "/", i))
+hourlydat_sensor <- rbindlist(foreach(i = sensors) %dopar% {
+  data.table::fread(paste0("data/data_hourly_raw/", i))
 })
 
 stopCluster(cl)
-
-hourlydat_sensor <- copy(rawdat)
 
 
 # EXTRACT COLUMNS ----
@@ -36,7 +33,7 @@ hourlydat_sensor[,c('occupancy.nulls', 'occupancy.sum', 'occupancy.mean', 'occup
 # get only the second observation:
 hourlydat_sensor <- hourlydat_sensor[!duplicated(hourlydat_sensor, by = c('date', 'hour', 'sensor'), fromLast=TRUE)]
 
-# EXPAND DATASET FOR MISSING DAYS OF DATA ----
+# EXPAND DATASET FOR MISSING DAYS OF DATA (takes about 2 minutes)----
 # for whole days with no observations, "hour" is NA. Get rid of these for now, then fill in
 hourlydat_sensor <- hourlydat_sensor[!is.na(hour)]
 
@@ -78,7 +75,7 @@ hourlydat_sensor[,volume.sum := ifelse(volume.nulls>100, NA, volume.sum)]
         
         # 3000/60 # that's 50 cars per minute!
         # exclude these (0.06% of observations)
-hourlydat_sensor <- hourlydat_sensor[,volume.sum:=ifelse(volume.sum>=3000, NA, volume.sum)]
+hourlydat_sensor <- hourlydat_sensor[,volume.sum:=ifelse(volume.sum>=2300, NA, volume.sum)]
 
 # 0 cars per hour? 
 # hist(hourlydat_sensor[volume.sum == 0, date], breaks = 'weeks')
@@ -129,6 +126,8 @@ hourlydat_sensor[,num_sensors_this_year:=uniqueN(sensor),
 # equals the number of detectors for this year.
 hourlydat_sensor <- hourlydat_sensor[num_lanes_with_data_this_hr == num_sensors_this_year]
 
+
+# WRITE HOURLY DATA ! ----
 fwrite(hourlydat_sensor, 'data/data_hourly_bysensor_clean.csv')
 
 
@@ -150,4 +149,5 @@ dailydat <- hourlydat_node[,lapply(.SD, sum), .SDcols = 'volume.sum',
                              corridor_route, corridor_dir,
                              year, date)]
 
+# WRITE DAILY DATA! ----
 fwrite(dailydat, 'data/data_daily_bynode_clean.csv')
