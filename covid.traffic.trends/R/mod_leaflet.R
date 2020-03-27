@@ -24,6 +24,7 @@ mod_leaflet_server <- function(input, output, session,
   
   output$map <- renderLeaflet({
     leaflet() %>%
+      fitBounds(-94.51,43.9,-91.93,45.72)%>% # fitting boundary of map to metro area and rochester
       addProviderTiles("CartoDB.DarkMatter",
                        group = "Carto DarkMatter") %>%
       addProviderTiles("CartoDB.Positron",
