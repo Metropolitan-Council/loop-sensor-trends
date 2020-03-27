@@ -50,7 +50,7 @@ app_ui <- function(request) {
         tags$footer(
           #----
           tags$a(href="https://metrocouncil.org", target="_blank",
-                 img(src = "www/logo.png", align = "right", style = "padding: 1%"))
+                 img(src = "www/main-logo.png", align = "right", style = "padding: 1%"))
           # tags$div(
           #   tags$a(href="https://github.com/Metropolitan-Council/loop-sensor-trends", target="_blank",
           #          icon(name = "github", lib = "font-awesome"))
