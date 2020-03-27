@@ -157,6 +157,21 @@ diffs_dt[, date := as.IDate(date)]
 # Trim to after March 1 2020:
 diffs_dt <- diffs_dt[date >= "2020-03-01", ]
 
+# Creat color palette
+load('councilcolors.RData')
+## Use n equally spaced breaks to assign each value to n-1 equal sized bins 
+ii <- cut(diffs_dt$volume.diff, breaks = seq(min(diffs_dt$volume.diff), max(diffs_dt$volume.diff), len = 100), 
+          include.lowest = TRUE)
+ii
+colors <- colorRampPalette(RdBu)(99)[ii]
+diffs_dt$node_color <- colors
+
+# test color palette
+# ggplot(diffs_dt[date  == '2020-03-26' | date == '2020-03-10' | volume.diff > 50], aes(x = r_node_name, y = volume.diff, color = node_color, fill = node_color))+
+#   geom_point()+
+#   scale_color_identity()+
+#   scale_fill_identity()
+
 fwrite(diffs_dt, paste0("output/pred-and-act-vol-by-node-", Sys.Date(), ".csv"))
 fwrite(diffs_dt, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv"))
 

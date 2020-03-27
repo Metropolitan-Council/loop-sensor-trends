@@ -21,17 +21,20 @@ app_ui <- function(request) {
         
         skeleton::sk_row(id = "map_plot",
                          width = 12,
-                         skeleton::sk_col("sk_sidebar", width = 2,
+                         skeleton::sk_col("sk_sidebar", width = 3,
                                           mod_sidebar_ui("sidebar_ui")
                          ),
-                         skeleton::sk_col("sk_map", width = 10,
-                                          h5("Decreases in travel are occuring across the Twin Cities metropolitan region"),
-                                          
-                                          mod_leaflet_ui("leaflet_ui"),
+                         
+                         skeleton::sk_col("sk_map", width = 9,
+                                          ## plot
                                           h5("Travel decreased steadily in the days following the first COVID-19 case in Minnesota"),
-                                          mod_plot_ui("plot_ui_1")
+                                          mod_plot_ui("plot_ui_1"),
                                           
+                                          ## map
+                                          h5("Decreases in travel are occuring across the Twin Cities metropolitan region"),
+                                          mod_leaflet_ui("leaflet_ui")
                          )
+                         
         ),
         skeleton::sk_row(id = "about",
                          mod_about_ui("about_ui")
@@ -47,7 +50,7 @@ app_ui <- function(request) {
         tags$footer(
           #----
           tags$a(href="https://metrocouncil.org", target="_blank",
-                 img(src = "www/logo.png", align = "right", style = "padding: 1%"))
+                 img(src = "www/main-logo.png", align = "right", style = "padding: 1%"))
           # tags$div(
           #   tags$a(href="https://github.com/Metropolitan-Council/loop-sensor-trends", target="_blank",
           #          icon(name = "github", lib = "font-awesome"))
