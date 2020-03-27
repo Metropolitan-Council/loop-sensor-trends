@@ -13,10 +13,11 @@ mod_sidebar_ui <- function(id){
     
     wellPanel(
       dateInput(ns("select_date"), "Select a date to see change over time",
-                value = "2020-03-25",
+                value = "2020-03-26",
                 min = min(covid.traffic.trends::predicted_actual_by_region$date),
                 max = max(covid.traffic.trends::predicted_actual_by_region$date),
-                format = "yyyy-mm-dd", startview = "month"
+                format = "mm/dd/yyyy",
+                startview = "month"
       )
     )
     
