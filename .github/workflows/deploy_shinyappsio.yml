@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@master
       - name: Cache
         uses: actions/cache@master
-        working-directory: ${{ env.working-directory }}
         with:
           path: /usr/local/lib/R/site-library
           key: ${{ runner.os }}-r-${{ '3.6' }}-${{ hashFiles('DESCRIPTION') }}
@@ -39,7 +38,7 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: Rscript -e "rcmdcheck::rcmdcheck(error_on = 'error', check_dir = 'check')"
       - name: Deploy app
-        working-directory: .github/workflows
+        working-directory: ${{ env.working-directory }}
         env:
           SHINYAPPSIO_TOKEN: ${{ secrets.SHINYAPPSIO_TOKEN }}
           SHINYAPPSIO_SECRET: ${{ secrets.SHINYAPPSIO_SECRET }}
