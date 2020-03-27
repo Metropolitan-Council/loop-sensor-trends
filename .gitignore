@@ -24,3 +24,13 @@ data/2019_wim_volume.zip
 data/2019_atr_volume.zip
 
 data/2018_atr_wim_data.zip
+
+volumes-by-CTU-old/
+
+data/
+
+*.jpeg
+
+output/hourly-pred-and-act-vol-region-2020-03-27.csv
+
+output/hourly-pred-and-act-vol-by-node-2020-03-27.csv
