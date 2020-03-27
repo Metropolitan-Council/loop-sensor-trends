@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-*This app is in active development and will be updated frequently. Thank you for your patience. *
+**This app is in active development and will be updated frequently. Thank you for your patience.**
 
 ## About 
 
@@ -32,7 +32,7 @@ Researchers at the Council will continue to update these figures as additional r
 
 ### Data sources  
 
-Traffic are provided by MNDOT. We pull these data using our open-source R package, [tc.sensors](https://github.com/Metropolitan-Council/tc.sensors).  
+Traffic are provided by MnDOT. We pull these data using our open-source R package, [tc.sensors](https://github.com/Metropolitan-Council/tc.sensors).  
 
 ### Modeling    
   
@@ -51,11 +51,8 @@ Our GAMs consider two trends. One trend occurs over the span of a year: in most 
 
 - Liz Roten, Metropolitan Council  
 - Ashley Asmus, Metropolitan Council  
-- Jonathan Erhlich, Metropolitan Council   
-
-##### ????
-
-- Brian Kary
+- Brian Kary, MnDOT  
+- Jonathan Ehrlich, Metropolitan Council   
 
 ### Contact  
 

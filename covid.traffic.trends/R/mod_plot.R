@@ -24,8 +24,8 @@ mod_plot_server <- function(input, output, session) {
     plot_ly() %>%
       plotly::add_markers(
         data = covid.traffic.trends::predicted_actual_by_region["doy" > 60 & "year" == 2020],
-        x = predicted_actual_by_region$date,
-        y = predicted_actual_by_region$typical_vmt_diff,
+        x = covid.traffic.trends::predicted_actual_by_region$date,
+        y = covid.traffic.trends::predicted_actual_by_region$typical_vmt_diff,
         mode = "lines+markers",
         line = list(
           width = 1,
@@ -38,7 +38,7 @@ mod_plot_server <- function(input, output, session) {
       ) %>%
       plotly::add_markers(
         data = covid.traffic.trends::mn_actions,
-        x = mn_actions$date,
+        x = covid.traffic.trends::mn_actions$date,
         y = -30,
         name = "MN Actions",
         mode = "lines+markers",
@@ -56,7 +56,7 @@ mod_plot_server <- function(input, output, session) {
         margin = list(l = 10, r = 45, b = 10, t = 10), # l = left; r = right; t = top; b = bottom
         # title ="Metro Area Traffic: Difference between expected and observed",
         annotations = list(
-          text = paste("<i>", "Data last updated", "2020-03-26", "</i>"),
+          text = paste("<i>", "Data last updated", "2020-03-27", "</i>"),
           x = 1, y = -0.1,
           showarrow = F,
           xref = "paper", yref = "paper",
