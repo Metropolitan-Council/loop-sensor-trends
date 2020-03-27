@@ -6,21 +6,21 @@ library(tidyverse)
 
 # CTUS ----
 # ...shapefile ####
-library(DBI)
-db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
-metro_area_shp <- DBI::dbGetQuery(db,"SELECT
-                        *,
-                        SHAPE.STAsText() as geometry
-                        FROM GISLibrary.DBO.MetropolitanPlanningOrganizationArea;") %>%
-  st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
-  st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
-ctu_sf <- DBI::dbGetQuery(db,"SELECT
-                        *,
-                        SHAPE.STAsText() as geometry
-                        FROM GISLibrary.DBO.ThriveMSP2040CommunityDesignation;") %>%
-  st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
-  st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
-st_write(ctu_sf, 'thrive2040shapefile', driver = 'ESRI Shapefile')
+# library(DBI)
+# db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
+# metro_area_shp <- DBI::dbGetQuery(db,"SELECT
+#                         *,
+#                         SHAPE.STAsText() as geometry
+#                         FROM GISLibrary.DBO.MetropolitanPlanningOrganizationArea;") %>%
+#   st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
+#   st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
+# ctu_sf <- DBI::dbGetQuery(db,"SELECT
+#                         *,
+#                         SHAPE.STAsText() as geometry
+#                         FROM GISLibrary.DBO.ThriveMSP2040CommunityDesignation;") %>%
+#   st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
+#   st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
+# st_write(ctu_sf, 'thrive2040shapefile', driver = 'ESRI Shapefile')
 
 ctu_sf <- st_read('thrive2040shapefile/thrive2040shapefile.shp')
 ctu_sf <- st_transform(ctu_sf, crs = 4326)
