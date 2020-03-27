@@ -42,7 +42,7 @@ node_sf <- st_as_sf(node_dt, coords = c('r_node_lon', 'r_node_lat'), crs = 4326)
 # st_write(node_sf, 'node', driver = 'ESRI Shapefile')
 
 
-# PREDICTED & ACUTAL VOLUME, BY NODE ----
+# PREDICTED & ACTUAL VOLUME, BY NODE ----
 # ....DATA TABLE ####
 diffs_dt <- fread('output/pred-and-act-vol-by-node-2020-03-26.csv') # our golden ticket!
 diffs_dt[,date:=as.IDate(date)]
