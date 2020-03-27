@@ -9,7 +9,8 @@ library(odbc)
 library(leaflet)
 library(tidyverse)
 
-sensor_config <- fread('../data/Configuration of Metro Detectors 2020-03-24.csv')
+
+sensor_config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
 
 # Select sensors in Metro Area Only ####
 # pull metro area shapefile
@@ -65,9 +66,9 @@ cores <- detectCores()
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
-tictoc::tic()
+# tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
-  date_range <- c(Sys.Date()-1) # yesterday's data
+  date_range <- Sys.Date()-2 # yesterday's data
   # date_range <- c(seq(as.Date("2018-01-01"), as.Date("2018-05-01"), by = "days"),
   #                 seq(as.Date("2019-01-01"), as.Date("2019-05-01"), by = "days"),
   #                 seq(as.Date("2020-01-01"), c(Sys.Date()-1), by = "days"))
@@ -108,8 +109,8 @@ foreach(j = chosen_sensors) %dopar% {
                                                                      median = median(x, na.rm = T))))),
                        by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
   
-  data.table::fwrite(loops_df, paste0("..\\data\\data_hourly_raw\\Sensor ", j, ".csv"), append = T)
+  data.table::fwrite(loops_df, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
 }
 
 stopCluster(cl)
-tictoc::toc()
+# tictoc::toc()
