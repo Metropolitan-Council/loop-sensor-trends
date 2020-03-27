@@ -8,7 +8,7 @@ options(
   "golem.app.prod" = TRUE,
   "golem.pkg.name" = "covid.traffic.trends"
 )
-research.COVID19::run_app() # add parameters here (if any)
+covid.traffic.trends::run_app() # add parameters here (if any)
 
 ## run code below in console only. DO NOT UN-COMMENT.
 

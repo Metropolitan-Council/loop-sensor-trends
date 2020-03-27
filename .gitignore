@@ -8,3 +8,5 @@ output/old-model-output.zip
 output/predicted-and-actual-volumes-by-node-2020-03-25.csv
 
 data/data_hourly_raw/
+
+rsconnect/
