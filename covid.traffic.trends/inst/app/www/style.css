@@ -1,0 +1,41 @@
+b, strong {
+	font-weight: bold;
+	font-family: Raleway;
+}
+
+.header {
+	margin-top: 4rem !important;
+	text-align: center;
+}
+
+tbody{
+  font-size: 14px;
+}
+.navbar {
+	display: block;
+	background: #fff;
+	z-index: 99;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+	visibility: block;
+	height: 0;
+}
+
+/* leaflet styling  */
+
+.info {
+	padding: 6px 8px;
+	font: 14px/16px Helvetica, sans-serif;
+	/* background: white; */
+	background: rgba(255,255,255,0.8);
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	border-radius: 5px;
+}
+
+
+
+.leaflet-popup-content {
+	margin: 13px 19px;
+	line-height: 1.4;
+	font-size: 1.6em;
+}
