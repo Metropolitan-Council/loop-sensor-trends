@@ -1,0 +1,47 @@
+name: Check and deploy
+
+on:
+   push:
+     branches: 
+      - master
+   
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      working-directory: ./covid.traffic.trends
+    container:
+      image: rocker/geospatial
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@master
+      - name: Cache
+        uses: actions/cache@master
+        working-directory: ${{ env.working-directory }}
+        with:
+          path: /usr/local/lib/R/site-library
+          key: ${{ runner.os }}-r-${{ '3.6' }}-${{ hashFiles('DESCRIPTION') }}
+      - name: Install System Dependencies
+        working-directory: ${{ env.working-directory }}
+        run: |
+          sudo apt-get update && apt-get install -y --no-install-recommends \
+          libxml2-dev \
+          libssl-dev \
+          libpng-dev \
+          libudunits2-dev \
+          libcurl4-openssl-dev
+          sudo apt autoremove -y
+      - name: Install Package Dependencies
+        working-directory: ${{ env.working-directory }}
+        run: |-
+          Rscript -e "remotes::install_deps(dependencies = TRUE, repos = 'https://mirror.las.iastate.edu/CRAN/')"
+      - name: Check Package
+        working-directory: ${{ env.working-directory }}
+        run: Rscript -e "rcmdcheck::rcmdcheck(error_on = 'error', check_dir = 'check')"
+      - name: Deploy app
+        working-directory: .github/workflows
+        env:
+          SHINYAPPSIO_TOKEN: ${{ secrets.SHINYAPPSIO_TOKEN }}
+          SHINYAPPSIO_SECRET: ${{ secrets.SHINYAPPSIO_SECRET }}
+        run: |
+         bash ./entrypoint.sh
