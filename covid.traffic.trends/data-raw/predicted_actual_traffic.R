@@ -37,7 +37,7 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region-"
   mutate(
     hover_text = paste(
       sep = "", "<b>", format.Date(date, "%B %d"), "</b>", "<br>",
-      typical_vmt_diff, "%"
+      round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Metro Freeways"
   )
@@ -64,7 +64,7 @@ get_mndot_data <- function() {
   )),
   silent = TRUE
   )
-  if (class(try_today) == "try-error") {
+  if (class(try_today)[1] == "try-error") {
     message("Data for ", yesterday, " is unavailable")
     message("Returning data for ", day_before_yesterday)
     final <- fread(paste0(
