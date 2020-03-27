@@ -59,7 +59,7 @@ mod_leaflet_server <- function(input, output, session,
       filter(date == sidebar_values$date)
     
     col_pal <- colorNumeric(palette = "PuOr",
-                        domain = dat$volume.diff, 
+                        domain = c(-100:100), # suggest white is zero, purple is decrease, orange is increase 
                         reverse = T)
     
     
