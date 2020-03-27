@@ -22,13 +22,17 @@ knitr::opts_chunk$set(
 
 ## About 
 
-A Metropolitan Council analysis of over 1,000 traffic monitoring stations across the Twin Cities metropolitan area and beyond shows that Minnesotans are doing their part to reduce the spread of COVID-19 by reducing travel and staying home.  
+A Metropolitan Council analysis of over 1,000 traffic monitoring stations across the metropolitan area and beyond show that Minnesotans are doing their part to limit the spread of COVID-19 by reducing travel and staying home.  
 
-Researchers at the Metropolitan Council are using traffic data from the Minnesota Department of Transportation (MnDOT) to evaluate the impact of recent social distancing efforts on regional and statewide travel. Using a modeling approach that relies on historical traffic data to estimate typical travel, Council researchers have shown that travel across the region has declined by as much as 50% in the weeks following the first COVID-19 case in Minnesota, on March 6th.
+Researchers at the Metropolitan Council are using traffic data from the Minnesota Department of Transportation (MnDOT) to evaluate the impact of recent physical distancing efforts on regional and statewide travel. Using a modeling approach that relies on historical traffic data to estimate typical travel, Met Council researchers have shown that travel across the region has declined by as much as 50% in the weeks following the first COVID-19 case in Minnesota, on March 6th. 
 
-These data are helping inform statewide models of disease transmission, and helping policymakers evaluate the impact of their actions on social distancing efforts.
-Researchers at the Council will continue to update these figures as additional restrictions go into effect, and as restrictions are lifted. Future research at the Council aims to understand the impact of social distancing efforts on other types of travel, especially pedestrian and bike travel. Researchers also hope to study other aspects of travel behavior -- for example, the travel that Minnesotans do in service to others in their household, family or community.  
+State actions appear in travel data 
 
+Travel decreased over time as state officials took action to support physical distancing efforts. For example, after the Governor asked Minnesotans to cancel all large gatherings and limit restaurants to takeout on March 18, travel decreased by an additional 7% over what had already been a 35% decrease from typical. Travel increased slightly on Friday, March 20, perhaps in anticipation of additional statewide travel restrictions. 
+
+These data are helping inform statewide models of disease transmission, and helping policymakers evaluate the impact of their actions on physical distancing efforts. 
+
+Researchers at the Met Council will continue to update these figures as additional restrictions go into effect, and as restrictions are lifted. Future research at the Council aims to understand the impact of physical distancing efforts on other types of travel, especially pedestrian and bike travel. Researchers also hope to study other aspects of travel behavior – including the travel that Minnesotans do in service to others in their household, family or community.  
 
 ### Data sources  
 
@@ -36,9 +40,9 @@ Traffic are provided by MnDOT. We pull these data using our open-source R packag
 
 ### Modeling    
   
-To estimate typical traffic in a way that is robust to Minnesota’s famous fluctuations in weather, we used a statistical modeling approach that relies on three years of data (2018, 2019 and 2020 up to March 1, 2020). The model used here is a generalized additive model, or GAM. GAMs are commonly used in analyses of data with a strong seasonal or cyclical trend – especially when that trend does not follow a perfectly straight line. Some GAMs that people might already be familiar with are those that meteorologists and climatologists use to estimate temperature trends within and across years.   
+To estimate typical traffic in a way that is robust to Minnesota’s famous fluctuations in weather, we used a statistical modeling approach that relies on three years of data (2018, 2019, and 2020 up to March 1, 2020). The model used here is a generalized additive model, or GAM. GAMs are commonly used in analyses of data with a strong seasonal or cyclical trend – especially when that trend does not follow a perfectly straight line. Some GAMs that people might already be familiar with are those that meteorologists and climatologists use to estimate temperature trends within and across years.  
 
-Our GAMs consider two trends. One trend occurs over the span of a year: in most places, travel increases in the summer months and decreases in the winter months.  A second trend occurs over the span of a week: travel tends to be highest on Fridays, and lowest on Sundays.  To allow the shapes of these yearly and weekly trends to vary in a location-specific way, we created separate models for each traffic monitoring station.
+Our GAMs consider two trends. One trend happens over the span of a year: in most places, travel increases in the summer months and decreases in the winter months.  A second trend occurs over the span of a week: travel tends to be highest on Fridays, and lowest on Sundays.  To allow the shapes of these yearly and weekly trends to vary in a location-specific way, we created separate models for each traffic monitoring station. 
   
 ### Resources  
 
