@@ -12,8 +12,8 @@ app_ui <- function(request) {
     # List the first level UI elements here 
     fluidPage(
       skeleton::sk_page(
-        skeleton::sk_header("Minnesotans Reduce Travel in Response to COVID-19",
-                            shiny::h4("Traffic Data Reveals More Minnesotans are Staying at Home During the COVID-19 Outbreak")),
+        skeleton::sk_header("COVID-19 Outbreak – Metro Area Travel Declines",
+                            shiny::h4("Traffic data show more metro area residents are staying home")),
         skeleton::sk_nav(
           skeleton::sk_nav_item("map_plot", "Map & Plot"),
           skeleton::sk_nav_item("about", "About")
@@ -27,7 +27,7 @@ app_ui <- function(request) {
                          
                          skeleton::sk_col("sk_map", width = 9,
                                           ## plot
-                                          h5("Travel decreased steadily in the days following the first COVID-19 case in Minnesota"),
+                                          h5("Twin Cities’ travel decreasing across COVID-19 timeline"),
                                           mod_plot_ui("plot_ui_1"),
                                           
                                           ## map
@@ -80,7 +80,7 @@ golem_add_external_resources <- function(){
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),
-      app_title = 'Minnesota COVID-19 Traffic Trends'
+      app_title = 'COVID-19 Outbreak – Metro Area Travel Declines'
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert() 

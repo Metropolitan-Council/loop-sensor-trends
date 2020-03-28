@@ -17,7 +17,7 @@ estimate typical travel, Met Council researchers have shown that travel
 across the region has declined by as much as 50% in the weeks following
 the first COVID-19 case in Minnesota, on March 6th.
 
-State actions appear in travel data
+### State actions appear in travel data
 
 Travel decreased over time as state officials took action to support
 physical distancing efforts. For example, after the Governor asked
@@ -90,5 +90,5 @@ for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
 *Last updated 2020-03-27*  
-Build ID: 2020-03-27.roten.9e17812  
+Build ID: 2020-03-27.roten.9e48580  
 </right>

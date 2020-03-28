@@ -26,7 +26,7 @@ A Metropolitan Council analysis of over 1,000 traffic monitoring stations across
 
 Researchers at the Metropolitan Council are using traffic data from the Minnesota Department of Transportation (MnDOT) to evaluate the impact of recent physical distancing efforts on regional and statewide travel. Using a modeling approach that relies on historical traffic data to estimate typical travel, Met Council researchers have shown that travel across the region has declined by as much as 50% in the weeks following the first COVID-19 case in Minnesota, on March 6th. 
 
-State actions appear in travel data 
+### State actions appear in travel data 
 
 Travel decreased over time as state officials took action to support physical distancing efforts. For example, after the Governor asked Minnesotans to cancel all large gatherings and limit restaurants to takeout on March 18, travel decreased by an additional 7% over what had already been a 35% decrease from typical. Travel increased slightly on Friday, March 20, perhaps in anticipation of additional statewide travel restrictions. 
 
