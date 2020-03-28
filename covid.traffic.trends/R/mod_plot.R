@@ -66,10 +66,10 @@ mod_plot_server <- function(input, output, session) {
         name = "MnDOT Metro\n(1000+ Stations)\n",
         mode = "lines+markers",
         line = list(
-          width = 2,
+          width = 3,
           color = councilBlue
         ),
-        marker = list(color = suppGray,
+        marker = list(color = councilBlue,
                       size = 8),
         hoverinfo = "text",
         text = paste(predicted_actual_by_region$hover_text),
@@ -84,11 +84,11 @@ mod_plot_server <- function(input, output, session) {
         hoverinfo = "text",
         text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
         line = list(
-          width = 2,
+          width = 3,
           color = "black"
         ),
         marker = list(
-          color = suppGray,
+          color = "black",
           size = 8
         )
       ) %>% 
@@ -126,7 +126,7 @@ mod_plot_server <- function(input, output, session) {
         axref = "x",
         ayref = "y",
         ax = as.Date(covid.traffic.trends::mn_actions$date) - 2,
-        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 8,
+        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 12,
         # xshift = -20,
         # yshift = -30,
         font = list(
@@ -141,7 +141,9 @@ mod_plot_server <- function(input, output, session) {
               margin = list(l = 10, r = 45, b = 10, t = 10, pad = 10), # l = left; r = right; t = top; b = bottom
               # title ="Metro Area Traffic: Difference between expected and observed",
               annotations = list(
-                text = paste("<i>", "Data last updated", "2020-03-27", "</i>"),
+                text = paste("<i>", "Data last updated", 
+                             max(c(predicted_actual_by_state$date, as.Date(predicted_actual_by_region$date))),
+                             "</i>"),
                 x = 1, 
                 y = -0.1,
                 showarrow = F,

@@ -1,9 +1,9 @@
 Package: covid.traffic.trends
-Title: Twin Cities Traffic Trends and the COVID190 Pandemic
+Title: Twin Cities Traffic Trends and the COVID-19 Pandemic
 Version: 0.0.0.9000
 Authors@R: c(person("Metropolitan Council", role=c("cph")),
              person('Liz', 'Roten', email = 'liz.roten@metc.state.mn.us', role = c('cre', 'aut')))
-Description: A Shiny app 
+Description: A Shiny app. 
 URL: https://github.com/Metropolitan-Council/loop-sensor-trends/tree/master/covid.traffic.trends
 BugReports: https://github.com/Metropolitan-Council/loop-sensor-trends/issues
 License: MIT + file LICENSE
@@ -15,13 +15,10 @@ Imports:
     config,
     golem,
     shiny,
-    processx,
-    attempt,
-    DT,
-    glue,
+    purrr,
+    stringr,
     dplyr,
     htmltools,
-    data.table,
     skeleton (>= 0.0.0.9000),
     leaflet,
     plotly
@@ -30,6 +27,7 @@ Suggests:
     knitr,
     rmarkdown,
     tigris,
+    data.table
 VignetteBuilder: knitr
 Remotes: 
     eroten/skeleton

@@ -7,6 +7,7 @@
 #' @noRd 
 #' @import leaflet
 #' @importFrom shiny NS tagList 
+#' @importFrom dplyr filter 
 mod_leaflet_ui <- function(id){
   ns <- NS(id)
   tagList(
