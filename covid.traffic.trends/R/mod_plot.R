@@ -66,10 +66,10 @@ mod_plot_server <- function(input, output, session) {
         name = "MnDOT Metro\n(1000+ Stations)\n",
         mode = "lines+markers",
         line = list(
-          width = 2,
+          width = 3,
           color = councilBlue
         ),
-        marker = list(color = suppGray,
+        marker = list(color = councilBlue,
                       size = 8),
         hoverinfo = "text",
         text = paste(predicted_actual_by_region$hover_text),
@@ -84,11 +84,11 @@ mod_plot_server <- function(input, output, session) {
         hoverinfo = "text",
         text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
         line = list(
-          width = 2,
+          width = 3,
           color = "black"
         ),
         marker = list(
-          color = suppGray,
+          color = "black",
           size = 8
         )
       ) %>% 
