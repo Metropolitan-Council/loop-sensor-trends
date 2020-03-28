@@ -7,8 +7,6 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of covid.traffic.trends is to …
-
 ## Contributing
 
 Please note that the ‘covid.traffic.trends’ project is released with a
