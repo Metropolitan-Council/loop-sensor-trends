@@ -5,12 +5,12 @@ library(covid.traffic.trends)
 library(dplyr)
 library(sf)
 library(tigris)
+options(tigris_use_cache = FALSE)
 
-
-mn_counties <- tigris::counties(state = "MN",
-                                class = "sf") %>% 
-  dplyr::select(NAME) %>% 
-  sf::st_transform(4326) 
+# mn_counties <- tigris::counties(state = "MN",
+                                # class = "sf") %>% 
+  # dplyr::select(NAME) %>% 
+  # sf::st_transform(4326) 
 
 usethis::use_data(mn_counties, overwrite = TRUE, compress = "xz")
 
