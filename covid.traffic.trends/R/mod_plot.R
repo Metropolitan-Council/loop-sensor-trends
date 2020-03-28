@@ -141,7 +141,9 @@ mod_plot_server <- function(input, output, session) {
               margin = list(l = 10, r = 45, b = 10, t = 10, pad = 10), # l = left; r = right; t = top; b = bottom
               # title ="Metro Area Traffic: Difference between expected and observed",
               annotations = list(
-                text = paste("<i>", "Data last updated", "2020-03-27", "</i>"),
+                text = paste("<i>", "Data last updated", 
+                             max(c(predicted_actual_by_state$date, as.Date(predicted_actual_by_region$date))),
+                             "</i>"),
                 x = 1, 
                 y = -0.1,
                 showarrow = F,
