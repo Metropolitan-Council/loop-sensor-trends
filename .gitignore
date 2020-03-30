@@ -29,8 +29,6 @@ volumes-by-CTU-old/
 
 data/
 
-*.jpeg
-
 output/hourly-pred-and-act-vol-region-2020-03-27.csv
 
 output/hourly-pred-and-act-vol-by-node-2020-03-27.csv
@@ -44,3 +42,7 @@ MetcLogo4C-360x265.jpg
 output/traffic-trends-actions.png
 
 output/gam-models-hourly-2020-03-27.RData
+
+output/pred-and-act-vol-region-2020-03-28.csv
+
+output/pred-and-act-vol-by-node-2020-03-30.csv
