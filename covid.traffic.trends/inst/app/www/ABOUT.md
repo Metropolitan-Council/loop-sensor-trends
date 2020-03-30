@@ -39,6 +39,9 @@ bike travel. Researchers also hope to study other aspects of travel
 behavior – including the travel that Minnesotans do in service to others
 in their household, family or community.
 
+<img src="traffic-trends-actions.jpeg" alt="Static plot of the percent difference in observed traffic level from
+the expected traffic level" style="width: 100%">
+
 ### Data sources
 
 Traffic are provided by MnDOT. We pull these data using our open-source
@@ -90,5 +93,5 @@ for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
 *Last updated 2020-03-30*  
-Build ID: 2020-03-30.roten.219851b  
+Build ID: 2020-03-30.roten.60b5812  
 </right>
