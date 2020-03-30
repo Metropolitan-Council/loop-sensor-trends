@@ -72,7 +72,7 @@ mypng <- readPNG('MetcLogo4C-360x265.png')
 # Static plot
 static_plot <-
 ggplot(diffs_4plot[doy>59 & year == 2020], 
-       aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro\n(1000+ Stations)\n'))+
+       aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
   # geom_vline(data = actions, aes(xintercept = as.numeric(date)), color = 'gray50', linetype = 'dashed')+
   theme_minimal()+
   geom_point(size = 3)+
@@ -81,7 +81,7 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
   geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1)+
   scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
   geom_hline(yintercept = 0)+
-  ggtitle("Traffic on MnDOT Roads\nUpdated 3/28/2020")+
+  ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
   labs(x = "Date", y = "% difference from typical traffic")+
@@ -111,3 +111,6 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
 
 
 ggsave(paste0('output/traffic-trends-actions-', Sys.Date(), '.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
+
+ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
+
