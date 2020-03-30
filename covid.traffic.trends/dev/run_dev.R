@@ -1,6 +1,8 @@
 # Set options here
 options(shiny.launch.browser = TRUE,
         scipen = 9999,
+        warn = -1,
+        verbose = FALSE,
         golem.app.prod = FALSE) # TRUE = production mode, FALSE = development mode
 
 # Detach all loaded packages and clean your environment

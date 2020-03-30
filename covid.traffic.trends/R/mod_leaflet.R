@@ -73,7 +73,7 @@ mod_leaflet_server <- function(input, output, session,
                        stroke = T,
                        fillOpacity = 0.75, 
                        popup = ~paste(hover_text),
-                       radius = ~5*(scl_volume),
+                       radius = 3,
                        group = "Nodes",
                        options = leafletOptions(pane = "points") 
       ) %>% 

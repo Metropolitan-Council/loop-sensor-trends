@@ -115,7 +115,7 @@ mod_plot_server <- function(input, output, session) {
       ) %>% 
       add_annotations(
         data = covid.traffic.trends::mn_actions,
-        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 20),
+        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 35),
         x = covid.traffic.trends::mn_actions$date,
         y = covid.traffic.trends::mn_actions$typical_vmt_diff,
         showarrow = TRUE,
@@ -126,7 +126,7 @@ mod_plot_server <- function(input, output, session) {
         axref = "x",
         ayref = "y",
         ax = as.Date(covid.traffic.trends::mn_actions$date) - 2,
-        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 12,
+        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 15,
         # xshift = -20,
         # yshift = -30,
         font = list(
@@ -141,7 +141,8 @@ mod_plot_server <- function(input, output, session) {
               margin = list(l = 10, r = 45, b = 10, t = 10, pad = 10), # l = left; r = right; t = top; b = bottom
               # title ="Metro Area Traffic: Difference between expected and observed",
               annotations = list(
-                text = paste("<i>", "Data last updated", 
+                text = paste(
+                             "<i>", "Data last updated", 
                              max(c(predicted_actual_by_state$date, as.Date(predicted_actual_by_region$date))),
                              "</i>"),
                 x = 1, 
@@ -167,7 +168,7 @@ mod_plot_server <- function(input, output, session) {
               xaxis = list( #----
                             title = "",
                             type = "date",
-                            tickformat = "%B %d",
+                            tickformat = "%A, %B %d",
                             
                             ## spikes
                             # showspikes = TRUE,
