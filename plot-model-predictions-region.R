@@ -28,7 +28,9 @@ yesterday <- Sys.Date() - 1
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
-mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVD19/Daily_Volume_Change_", yesterday, "_update.csv"))
+mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
+
+
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
 mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
@@ -45,15 +47,15 @@ actions <- cbind(
            '2020-03-15', #Gov. Walz announces\npublic schools\nwill close by Mar. 18
            '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
            '2020-03-22',
-           '2020-03-25', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
-           as.character(Sys.Date()-1)),
+           '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
+           as.character(Sys.Date()-2)),
   action = c('1st Confirmed\nCOVID-19 case in MN', 
              'UMN Suspends\nIn-Person Classes', 
              'Gov. Walz declares peacetime emergency;\ncalls for cancellation of events >250 ppl', 
              'Gov. Walz & MDH announce public schools\nwill close by Mar. 18',
              'Gov. Walz & MDH ask all gyms, bars, public spaces\n to close,restaurants limit to take-out',
              '',
-             'Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27',
+             'MN "Stay-at-home" order\ntakes effect',
              '')
 )
 
@@ -61,7 +63,7 @@ actions <-data.table(actions)
 actions[,date:=as.IDate(date)]
 actions<-merge(actions, diffs_4plot, all.x = T, all.y = F)
 actions[,arrow_end:=`Difference from Typical VMT (%)`-0.1]
-actions[,arrow_start:=c(-5, -16, -27, -38, -49, NA, -60, NA)]
+actions[,arrow_start:=c(-5, -16, -27, -38, -49, NA, -80, NA)]
 
 # add logo
 library(png)
@@ -84,12 +86,13 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
   theme(legend.position = 'right')+
   labs(x = "Date", y = "% difference from typical traffic")+
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
-  scale_y_continuous(limits = c(-65, 15), breaks = seq(from = -70, to = 10, by = 10))+
+  scale_y_continuous(limits = c(-85, 15), breaks = seq(from = -80, to = 10, by = 10))+
   geom_segment(data = actions, 
                aes(x = date, xend = date, y = arrow_start+1, yend = arrow_end), 
                arrow = arrow(angle = 20, length = unit(0.75, 'lines'), type = "closed"), color = councilBlue)+
   geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11)+
   geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11)+
+  # geom_rect(aes(ymin = -Inf, ymax = Inf, xmin = as.numeric(as.Date('2020-03-27')), xmax = as.numeric(as.Date(Sys.Date()-1))))
   geom_text(data = actions,
             aes(x = date, y = arrow_start, 
                 label = paste0(format(date, '%b %d'), ": ", action)), 
@@ -104,7 +107,7 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
                 label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
             # hjust = 'center',vjust = -1.35, 
             color = 'black', size = 3.7, fontface = 'italic')+
-  annotation_raster(mypng, ymin = 2, ymax= 20,xmin = as.numeric(as.Date('2020-03-22')),xmax = as.numeric(as.Date('2020-03-27')))
+  annotation_raster(mypng, ymin = 2, ymax= 20,xmin = as.numeric(as.Date('2020-03-23')),xmax = as.numeric(as.Date('2020-03-27')))
 
 
-ggsave(paste0('output/traffic-trends-actions-', Sys.Date(), '.jpeg'),static_plot, height = 7, width = 11, units = 'in', dpi = 300)
+ggsave(paste0('output/traffic-trends-actions-', Sys.Date(), '.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
