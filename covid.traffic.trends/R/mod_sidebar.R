@@ -28,7 +28,7 @@ mod_sidebar_ui <- function(id){
               p("The map shows the decreases in travel at individual traffic monitoring sites across the Twin Cities Metropolitan area. Traffic monitoring is performed by the Minnesota Department of Transportation (MnDOT) using detectors built into the infrastructure of the roads. These detectors are usually used to estimate congestion along Metro area highways. "),
               
       dateInput(ns("select_date"), "Select a date to see change in the map over time",
-                value = "2020-03-26",
+                value = max(covid.traffic.trends::predicted_actual_by_region$date),
                 min = min(covid.traffic.trends::predicted_actual_by_region$date),
                 max = max(covid.traffic.trends::predicted_actual_by_region$date),
                 format = "mm/dd/yyyy",
