@@ -8,7 +8,7 @@ library(dplyr)
 ## by node -----
 
 try_today <- try(fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")), silent = TRUE)
-if(class(try_today) == "try-error"){
+if(class(try_today[1]) == "try-error"){
   message("Node data for ", Sys.Date(), " is not yet available")
   message("Keeping previous data")
 } else {
@@ -43,7 +43,7 @@ if(class(try_today) == "try-error"){
 
 try_today <- try(fread(paste0("./data-raw/pred-and-act-vol-region-", Sys.Date(), ".csv")), silent = TRUE)
 
-if(class(try_today) == "try-error"){
+if(class(try_today)[1] == "try-error"){
   message("Region data for ", Sys.Date(), " is not yet available")
   message("Keeping previous data")
 } else {
@@ -83,7 +83,7 @@ get_mndot_data <- function() {
   )
   if (class(try_today)[1] == "try-error") {
     message("State data for ", yesterday, " is unavailable")
-    message("Returning data for ", day_before_yesterday)
+    message("Returning state data for ", day_before_yesterday)
     final <- fread(paste0(
       "http://www.dot.state.mn.us/traffic/data/reports/COVD19/Daily_Volume_Change_",
       day_before_yesterday, "_update.csv"
