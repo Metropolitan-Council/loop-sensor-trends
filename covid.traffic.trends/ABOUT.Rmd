@@ -53,10 +53,10 @@ Our GAMs consider two trends. One trend happens over the span of a year: in most
 
 ##### App and data development  
 
-- Liz Roten, Metropolitan Council  
-- Ashley Asmus, Metropolitan Council  
-- Brian Kary, MnDOT  
-- Jonathan Ehrlich, Metropolitan Council   
+  - Liz Roten, Metropolitan Council  
+  - Ashley Asmus, Metropolitan Council  
+  - Brian Kary, MnDOT  
+  - Jonathan Ehrlich, Metropolitan Council   
 
 ### Contact  
 
