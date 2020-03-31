@@ -15,7 +15,9 @@ if(class(try_today[1]) == "try-error"){
   predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")) # our golden ticket!
   predicted_actual_by_node[, date := as.IDate(date)]
   predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ]
+  
   all_corridors <- unique(predicted_actual_by_node$corridor_route)
+  
   predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
     mutate(
       hover_text = paste(
