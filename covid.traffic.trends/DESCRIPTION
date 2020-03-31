@@ -12,22 +12,22 @@ LazyData: true
 RoxygenNote: 7.1.0
 Depends: R (>= 3.5.0) 
 Imports: 
-    config,
-    golem,
-    shiny,
-    purrr,
-    stringr,
-    dplyr,
-    htmltools,
+    config (>= 0.3),
+    golem (>= 0.2.1),
+    shiny (>= 1.4.0.2),
+    purrr (>= 0.3.3),
+    stringr (>= 1.4.0),
+    dplyr (>= 0.8.5),
+    htmltools (>= 0.4.0),
     skeleton (>= 0.0.0.9000),
-    leaflet,
-    plotly
+    leaflet (>= 2.0.3),
+    plotly (>= 4.9.2)
 Suggests: 
     testthat (>= 2.1.0),
-    knitr,
-    rmarkdown,
-    tigris,
-    data.table
+    knitr (>= 1.28),
+    rmarkdown (>= 2.1),
+    tigris (>= 0.9.2),
+    data.table (>= 1.12.8)
 VignetteBuilder: knitr
 Remotes: 
     eroten/skeleton
