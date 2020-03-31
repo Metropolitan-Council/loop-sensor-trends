@@ -23,15 +23,15 @@ mod_leaflet_ui <- function(id) {
 mod_leaflet_server <- function(input, output, session,
                                map_inputs) {
   ns <- session$ns
-
+  
   output$map <- renderLeaflet({
     leaflet() %>%
       fitBounds(-93.521749, 44.854051, -92.899649, 45.081892) %>% # fitting boundary of map to metro area and rochester
       addProviderTiles("CartoDB.DarkMatter",
-        group = "Carto DarkMatter"
+                       group = "Carto DarkMatter"
       ) %>%
       addProviderTiles("CartoDB.Positron",
-        group = "Carto Positron"
+                       group = "Carto Positron"
       ) %>%
       addMapPane("polygons", zIndex = 410) %>%
       addMapPane("points", zIndex = 420) %>%
@@ -58,23 +58,28 @@ mod_leaflet_server <- function(input, output, session,
         )
       )
   })
-
-
-  observeEvent(map_inputs$date, {
-    # browser()
+  
+  current_nodes <- reactive({
     dat <- purrr::map(
       covid.traffic.trends::predicted_actual_by_node,
       filter, date == map_inputs$date
-    )
-
+    ) %>% 
+      purrr::map(filter, corridor_route %in% c(map_inputs$corridor))
+    
+    return(dat)
+  })
+  
+  update_map <- reactive({
+    dat <- current_nodes()
+    
     col_pal <- colorBin(
       palette = "RdBu",
       domain = c(-100:100), bins = 10, # suggest white is zero, purple is decrease, orange is increase
       reverse = T
     )
-
-
-    map <- leafletProxy("map", session = session) %>%
+    
+    
+    map <- leafletProxy("map", session = session) %>% 
       clearGroup("Station") %>%
       clearGroup("Entrance") %>%
       clearGroup("Exit") %>%
@@ -138,8 +143,21 @@ mod_leaflet_server <- function(input, output, session,
         ),
         labFormat = labelFormat(suffix = "%")
       )
-
+    
     return(map)
+    
+  })
+  
+  observeEvent(map_inputs$corridor, {
+    # print(map_inputs$corridor)
+    # browser()
+    update_map()
+  })
+  
+  
+  
+  observeEvent(map_inputs$date, {
+    update_map()
   })
 }
 
