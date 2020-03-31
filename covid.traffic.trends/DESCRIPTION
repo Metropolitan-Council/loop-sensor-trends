@@ -24,7 +24,7 @@ Imports:
     plotly (>= 4.9.2)
 Suggests: 
     testthat (>= 2.1.0),
-    knitr (>= 1.28),
+    knitr,
     rmarkdown (>= 2.1),
     tigris (>= 0.9.2),
     data.table (>= 1.12.8)
