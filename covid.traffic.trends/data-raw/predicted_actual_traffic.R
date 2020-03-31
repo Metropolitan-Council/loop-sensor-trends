@@ -18,7 +18,7 @@ if(class(try_today[1]) == "try-error"){
   predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
     mutate(
       hover_text = paste(
-        sep = "", "<b>", format.Date(date, "%B %d"), "</b>", "<br>",
+        sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
         volume.diff, "%"
       ),
       District = "MnDOT Metro Freeways"
@@ -52,7 +52,7 @@ if(class(try_today)[1] == "try-error"){
     select(-`Difference from Typical VMT (%)`) %>%
     mutate(
       hover_text = paste(
-        sep = "", "<b>", format.Date(date, "%B %d"), "</b>", "<br>",
+        sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
         round(typical_vmt_diff, digits = 1), "%"
       ),
       District = "MnDOT Metro Freeways"
@@ -107,7 +107,7 @@ predicted_actual_by_state <- melt(predicted_actual_by_state,
 )
 predicted_actual_by_state <- predicted_actual_by_state[, date := as.IDate(date, format = "%m/%d/%Y")] %>%
   mutate(hover_text = paste(
-    sep = "", "<b>", format.Date(date, "%B %d"), "</b>", "<br>",
+    sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
     typical_vmt_diff, "%"
   ))
 
