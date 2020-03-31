@@ -97,7 +97,7 @@ mod_plot_server <- function(input, output, session) {
                            data = covid.traffic.trends::mn_actions,
                            x = covid.traffic.trends::mn_actions$date,
                            y = covid.traffic.trends::mn_actions$typical_vmt_diff,
-                           name = "MN Actions",
+                           name = "Minnesota State\nActions",
                            mode = "markers",
                            hoverinfo = "none",
                            marker = list(
