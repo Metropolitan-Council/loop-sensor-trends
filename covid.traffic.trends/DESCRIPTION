@@ -14,7 +14,7 @@ Depends: R (>= 3.5.0)
 Imports: 
     config (>= 0.3),
     golem (>= 0.2.1),
-    shiny (>= 1.4.0.2),
+    shiny (>= 1.4.0),
     purrr (>= 0.3.3),
     stringr (>= 1.4.0),
     dplyr (>= 0.8.5),
