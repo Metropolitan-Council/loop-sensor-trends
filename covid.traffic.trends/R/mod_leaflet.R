@@ -33,40 +33,38 @@ mod_leaflet_server <- function(input, output, session,
       addMapPane("polygons", zIndex = 410) %>%
       addMapPane("points", zIndex = 420) %>%
       addPolygons(data = covid.traffic.trends::mn_counties,
-                  group = "County outlines",
+                  group = "County outline",
                   fill = NA,
                   color = "darkgray",
                   weight = 1) %>% 
-      hideGroup("County outlines") %>% 
-      # addCircleMarkers(
-      #   data = covid.traffic.trends::nodes, 
-      #   color = "gray",
-      #   radius = 2,
-      #   fill = FALSE,
-      #   group = "Traffic Detector Locations",
-      #   options = leafletOptions(pane = "points")
-      # ) %>% 
+      hideGroup("County outline") %>% 
       addLayersControl(position = "bottomright",
                        baseGroups = c("Carto Positron",
                                       "Carto DarkMatter"),
-                       overlayGroups = c("Nodes",
-                                         "County outlines"))
+                       overlayGroups = c("Station",
+                                         "Entrance",
+                                         "Exit",
+                                         "Intersection",
+                                         "County outline"))
   })
   
   
   observeEvent(sidebar_values$date, {
     # browser()
-    dat <- covid.traffic.trends::predicted_actual_by_node %>% 
-      filter(date == sidebar_values$date)
+    dat <- purrr::map(covid.traffic.trends::predicted_actual_by_node,
+                      filter, date == sidebar_values$date)
     
     col_pal <- colorBin(palette = "RdBu",
-                    domain = c(-100:100), bins = 10,  # suggest white is zero, purple is decrease, orange is increase 
+                        domain = c(-100:100), bins = 10,  # suggest white is zero, purple is decrease, orange is increase 
                         reverse = T)
     
     
     map <- leafletProxy("map", session = session) %>% 
-      clearGroup("Nodes") %>%
-      addCircleMarkers(data = dat,
+      clearGroup("Station") %>% 
+      clearGroup("Entrance") %>% 
+      clearGroup("Exit") %>% 
+      clearGroup("Intersection") %>% 
+      addCircleMarkers(data = dat$Station,
                        lng = ~r_node_lon,
                        lat = ~r_node_lat,
                        color = ~col_pal(volume.diff),
@@ -74,9 +72,43 @@ mod_leaflet_server <- function(input, output, session,
                        fillOpacity = 0.75, 
                        popup = ~paste(hover_text),
                        radius = 3,
-                       group = "Nodes",
+                       group = "Station",
                        options = leafletOptions(pane = "points") 
       ) %>% 
+      addCircleMarkers(data = dat$Entrance,
+                       lng = ~r_node_lon,
+                       lat = ~r_node_lat,
+                       color = ~col_pal(volume.diff),
+                       stroke = T,
+                       fillOpacity = 0.75, 
+                       popup = ~paste(hover_text),
+                       radius = 3,
+                       group = "Entrance",
+                       options = leafletOptions(pane = "points") 
+      ) %>% 
+      addCircleMarkers(data = dat$Exit,
+                       lng = ~r_node_lon,
+                       lat = ~r_node_lat,
+                       color = ~col_pal(volume.diff),
+                       stroke = T,
+                       fillOpacity = 0.75, 
+                       popup = ~paste(hover_text),
+                       radius = 3,
+                       group = "Exit",
+                       options = leafletOptions(pane = "points") 
+      ) %>% 
+      addCircleMarkers(data = dat$Intersection,
+                       lng = ~r_node_lon,
+                       lat = ~r_node_lat,
+                       color = ~col_pal(volume.diff),
+                       stroke = T,
+                       fillOpacity = 0.75, 
+                       popup = ~paste(hover_text),
+                       radius = 3,
+                       group = "Intersection",
+                       options = leafletOptions(pane = "points") 
+      ) %>% 
+      
       addLegend(position = "topright",
                 pal = col_pal,
                 values = dat$volume.diff,
