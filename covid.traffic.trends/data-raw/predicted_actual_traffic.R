@@ -75,7 +75,7 @@ get_mndot_data <- function() {
   day_before_yesterday <- as.IDate(day_before_yesterday)
   day_before_yesterday <- paste0(month(day_before_yesterday), "-", mday(day_before_yesterday), "-", year(day_before_yesterday))
   
-  try_today <- try(suppressWarnings(fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVD19/Daily_Volume_Change_", yesterday, "_update.csv"),
+  try_today <- try(suppressWarnings(fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"),
                                           verbose = FALSE,
                                           showProgress = FALSE
   )),
@@ -85,7 +85,7 @@ get_mndot_data <- function() {
     message("State data for ", yesterday, " is unavailable")
     message("Returning state data for ", day_before_yesterday)
     final <- fread(paste0(
-      "http://www.dot.state.mn.us/traffic/data/reports/COVD19/Daily_Volume_Change_",
+      "http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_",
       day_before_yesterday, "_update.csv"
     ),
     verbose = FALSE,
