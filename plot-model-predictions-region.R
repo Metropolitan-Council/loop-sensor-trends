@@ -1,9 +1,9 @@
-# # 1 pull loop sensor data ----
-# source('1-pull-loop-sensor-data.R')
-# # 2 clean aggregate data ----
-# source('2-clean-aggregate-mndot-traffic-data.R')
-# # 3 model data ----
-# source('3-model-daily-bynode.R')
+# 1 pull loop sensor data ----
+source('1-pull-loop-sensor-data.R')
+# 2 clean aggregate data ----
+source('2-clean-aggregate-mndot-traffic-data.R')
+# 3 model data ----
+source('3-model-daily-bynode.R')
 # 4 create new model output
 # source('4-create-r-data-object-for-app.R')
 
@@ -48,7 +48,7 @@ actions <- cbind(
            '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
            '2020-03-22',
            '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
-           as.character(Sys.Date()-2)),
+           as.character(Sys.Date()-1)),
   action = c('1st Confirmed\nCOVID-19 case in MN', 
              'UMN Suspends\nIn-Person Classes', 
              'Gov. Walz declares peacetime emergency;\ncalls for cancellation of events >250 ppl', 
@@ -72,7 +72,7 @@ mypng <- readPNG('MetcLogo4C-360x265.png')
 # Static plot
 static_plot <-
 ggplot(diffs_4plot[doy>59 & year == 2020], 
-       aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro\n(1000+ Stations)\n'))+
+       aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
   # geom_vline(data = actions, aes(xintercept = as.numeric(date)), color = 'gray50', linetype = 'dashed')+
   theme_minimal()+
   geom_point(size = 3)+
@@ -81,7 +81,7 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
   geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1)+
   scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
   geom_hline(yintercept = 0)+
-  ggtitle("Traffic on MnDOT Roads\nUpdated 3/28/2020")+
+  ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
   labs(x = "Date", y = "% difference from typical traffic")+
@@ -111,3 +111,6 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
 
 
 ggsave(paste0('output/traffic-trends-actions-', Sys.Date(), '.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
+
+ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
+
