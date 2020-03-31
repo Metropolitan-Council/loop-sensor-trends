@@ -6,10 +6,14 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # List the first level callModules here
-  sidebar_values <- callModule(mod_sidebar_server, "sidebar_ui")
+  callModule(mod_sidebar_server, "sidebar_ui_map")
+  callModule(mod_sidebar_server, "sidebar_ui_plot")
+  
+  map_inputs <- callModule(mod_map_inputs_server, "map_inputs_ui_1")
+  
   
   callModule(mod_leaflet_server, "leaflet_ui",
-             sidebar_values = sidebar_values)
+             map_inputs = map_inputs)
   
   callModule(mod_plot_server, "plot_ui_1")
   
