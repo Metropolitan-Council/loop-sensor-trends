@@ -19,7 +19,7 @@ if(class(try_today[1]) == "try-error"){
     mutate(
       hover_text = paste(
         sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
-        r_node_n_type, " ", r_node_label, " ",
+        r_node_n_type, ", ", r_node_label, ", ",
         volume.diff, "%"
       ),
       District = "MnDOT Metro Freeways"
