@@ -35,7 +35,7 @@ These data are helping inform statewide models of disease transmission, and help
 Researchers at the Met Council will continue to update these figures as additional restrictions go into effect, and as restrictions are lifted. Future research at the Council aims to understand the impact of physical distancing efforts on other types of travel, especially pedestrian and bike travel. Researchers also hope to study other aspects of travel behavior – including the travel that Minnesotans do in service to others in their household, family or community.  
 
 
-<img src="traffic-trends-actions.jpeg" alt="Static plot of the percent difference in observed traffic level from
+<img src="traffic-trends-actions.png" alt="Static plot of the percent difference in observed traffic level from
 the expected traffic level" style="width: 100%">
 
 
