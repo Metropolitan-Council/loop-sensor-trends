@@ -39,7 +39,7 @@ bike travel. Researchers also hope to study other aspects of travel
 behavior – including the travel that Minnesotans do in service to others
 in their household, family or community.
 
-<img src="traffic-trends-actions.jpeg" alt="Static plot of the percent difference in observed traffic level from
+<img src="traffic-trends-actions.png" alt="Static plot of the percent difference in observed traffic level from
 the expected traffic level" style="width: 100%">
 
 ### Data sources
@@ -92,6 +92,6 @@ repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2020-03-30*  
-Build ID: 2020-03-30.roten.60b5812  
+*Last updated 2020-03-31*  
+Build ID: 2020-03-31.roten.5184ab0  
 </right>
