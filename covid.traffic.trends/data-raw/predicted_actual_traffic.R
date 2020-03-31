@@ -16,7 +16,7 @@ if(class(try_today[1]) == "try-error"){
   predicted_actual_by_node[, date := as.IDate(date)]
   predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ]
   
-  all_corridors <- unique(predicted_actual_by_node$corridor_route)
+  unique_corridors <- unique(predicted_actual_by_node$corridor_route)
   
   predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
     mutate(
@@ -34,7 +34,7 @@ if(class(try_today[1]) == "try-error"){
   names(predicted_actual_by_node) <- c("Entrance", "Exit", "Intersection", "Station")
   
   usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
-  usethis::use_data(all_corridors, overwrite = TRUE, compress = "xz")
+  usethis::use_data(unique_corridors, overwrite = TRUE, compress = "xz")
   
 }
 
