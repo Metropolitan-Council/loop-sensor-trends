@@ -32,11 +32,11 @@ app_ui <- function(request) {
           skeleton::sk_col("sk_map",
             width = 9,
             ## plot
-            h5("Twin Cities’ travel decreasing across COVID-19 timeline"),
+            h5("Twin Cities’ freeway travel decreasing across COVID-19 timeline"),
             mod_plot_ui("plot_ui_1"),
 
             ## map
-            h5("Decreases in travel are occuring across the Twin Cities metropolitan region"),
+            h5("Decreases in freeway travel are occuring across the Twin Cities metropolitan region"),
             mod_leaflet_ui("leaflet_ui")
           )
         ),

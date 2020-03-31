@@ -4,7 +4,7 @@ Thank you for your patience.**
 
 ## About
 
-A Metropolitan Council analysis of over 1,000 traffic monitoring
+A Metropolitan Council analysis of over 1,000 freeway traffic monitoring
 stations across the metropolitan area and beyond show that Minnesotans
 are doing their part to limit the spread of COVID-19 by reducing travel
 and staying home.
@@ -14,8 +14,8 @@ Minnesota Department of Transportation (MnDOT) to evaluate the impact of
 recent physical distancing efforts on regional and statewide travel.
 Using a modeling approach that relies on historical traffic data to
 estimate typical travel, Met Council researchers have shown that travel
-across the region has declined by as much as 50% in the weeks following
-the first COVID-19 case in Minnesota, on March 6th.
+across the region’s freeways has declined by more than 70% in the weeks
+following the first COVID-19 case in Minnesota, on March 6th.
 
 ### State actions appear in travel data
 
@@ -93,5 +93,5 @@ for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
 *Last updated 2020-03-31*  
-Build ID: 2020-03-31.roten.5184ab0  
+Build ID: 2020-03-31.roten.888c4d3  
 </right>
