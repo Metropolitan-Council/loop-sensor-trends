@@ -1,7 +1,7 @@
 name: Check and deploy
 
 on:
-   pull-request:
+   pull_request:
      branches: 
       - master
    
