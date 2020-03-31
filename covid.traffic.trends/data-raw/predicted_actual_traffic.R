@@ -19,11 +19,16 @@ if(class(try_today[1]) == "try-error"){
     mutate(
       hover_text = paste(
         sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
+        r_node_n_type, " ", r_node_label, " ",
         volume.diff, "%"
       ),
       District = "MnDOT Metro Freeways"
-    )
+    ) %>% 
+    group_by(r_node_n_type) %>% 
+    dplyr::group_split(keep = TRUE)
   
+  
+  names(predicted_actual_by_node) <- c("Entrance", "Exit", "Intersection", "Station")
   
   usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
 }
