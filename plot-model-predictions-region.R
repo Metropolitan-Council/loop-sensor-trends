@@ -1,9 +1,9 @@
-# # 1 pull loop sensor data ----
-# source('1-pull-loop-sensor-data.R')
-# # 2 clean aggregate data ----
-# source('2-clean-aggregate-mndot-traffic-data.R')
-# # 3 model data ----
-# source('3-model-daily-bynode.R')
+# 1 pull loop sensor data ----
+source('1-pull-loop-sensor-data.R')
+# 2 clean aggregate data ----
+source('2-clean-aggregate-mndot-traffic-data.R')
+# 3 model data ----
+source('3-model-daily-bynode.R')
 # 4 create new model output
 # source('4-create-r-data-object-for-app.R')
 
@@ -48,7 +48,7 @@ actions <- cbind(
            '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
            '2020-03-22',
            '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
-           as.character(Sys.Date()-2)),
+           as.character(Sys.Date()-1)),
   action = c('1st Confirmed\nCOVID-19 case in MN', 
              'UMN Suspends\nIn-Person Classes', 
              'Gov. Walz declares peacetime emergency;\ncalls for cancellation of events >250 ppl', 
