@@ -12,7 +12,7 @@ options(shiny.launch.browser = TRUE,
 rmarkdown::render("./ABOUT.Rmd", output_format = "github_document", # -----
                   output_file = "ABOUT.md", output_dir = "./inst/app/www",
                   params = list(actor_id = "roten",
-                                data_date = "2020-03-31",
+                                data_date = Sys.Date(),
                                 sha = system("git rev-parse --short HEAD",
                                              intern=TRUE)))
 
