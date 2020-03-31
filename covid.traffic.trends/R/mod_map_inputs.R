@@ -5,7 +5,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd 
-#'
+#' @importFrom shinyWidgets pickerInput pickerOptions
 #' @importFrom shiny NS tagList 
 mod_map_inputs_ui <- function(id){
   ns <- NS(id)
@@ -16,12 +16,20 @@ mod_map_inputs_ui <- function(id){
               max = max(covid.traffic.trends::predicted_actual_by_region$date),
               format = "mm/dd/yyyy",
               startview = "month"
-    )
+    ),
+    shinyWidgets::pickerInput(ns("select_corridor"),
+                              "Select a corridor",
+                              choices = all_corridors,
+                              selected = all_corridors,
+                              multiple = TRUE,
+                              options = shinyWidgets::pickerOptions(actionsBox = TRUE,
+                                                                    dropupAuto = FALSE,
+                                                                    liveSearch = TRUE))
     
- 
+    
   )
 }
-    
+
 #' map_inputs Server Function
 #'
 #' @noRd 
@@ -33,12 +41,17 @@ mod_map_inputs_server <- function(input, output, session){
     vals$date <- input$select_date
   })
   
+  observeEvent(input$select_corridor, {
+    vals$corridor <- input$select_corridor
+  })
+  
+  
   return(vals)
 }
-    
+
 ## To be copied in the UI
 # mod_map_inputs_ui("map_inputs_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_map_inputs_server, "map_inputs_ui_1")
- 
+
