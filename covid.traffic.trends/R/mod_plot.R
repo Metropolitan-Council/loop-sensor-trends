@@ -20,6 +20,7 @@ mod_plot_ui <- function(id) {
 mod_plot_server <- function(input, output, session) {
   ns <- session$ns
   # Color palette values  
+  font_family_list <- "Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif"
   
   ## Council Colors
   councilBlue   <- "#0054A4" # Council blue
@@ -131,8 +132,7 @@ mod_plot_server <- function(input, output, session) {
         # yshift = -30,
         font = list(
           size = 12,
-          family = "'Raleway', 'HelveticaNeue', 'Helvetica Neue',
-                           Helvetica, Arial, sans-serif",
+          family = font_family_list,
           color = "black"
           
         )
@@ -150,15 +150,14 @@ mod_plot_server <- function(input, output, session) {
                 showarrow = F,
                 xref = "paper", yref = "paper",
                 xanchor = "right", yanchor = "auto",
-                xshift = 0, yshift = -0.3
+                xshift = 0, yshift = -10
               ),
               hovermode = "closest",
               hoverdistance = "10",
               hoverlabel = list( #----
                                  font = list(
                                    size = 20,
-                                   family = "'Raleway', 'HelveticaNeue', 'Helvetica Neue',
-                           Helvetica, Arial, sans-serif",
+                                   family = font_family_list,
                                    color = "black"
                                  ),
                                  bgcolor = "white",
@@ -182,24 +181,22 @@ mod_plot_server <- function(input, output, session) {
                             showgrid = TRUE,
                             tickfont = list(
                               size = 14,
-                              family = "'Raleway', 'HelveticaNeue', 'Helvetica Neue',
-                           Helvetica, Arial, sans-serif",
+                              family = font_family_list,
                               color = "black"
                             )
               ),
               yaxis = list( #----
-                            title = "% difference from typical traffic",
+                            title = "% difference from typical traffic \n",
                             titlefont = list(
                               size = 14,
-                              family = "'Raleway', 'HelveticaNeue', 'Helvetica Neue',
-                           Helvetica, Arial, sans-serif",
+                              family = font_family_list,
                               color = "black"
                             ),
                             ticksuffix = "%",
                             tickfont = list(
                               size = 12,
-                              family = "'Raleway', 'HelveticaNeue', 'Helvetica Neue',
-                           Helvetica, Arial, sans-serif",
+                              family = font_family_list,
+                              
                               color = "black"
                             ),
                             zeroline = TRUE,
@@ -209,8 +206,8 @@ mod_plot_server <- function(input, output, session) {
               legend = list(
                 font = list(
                   size = 14,
-                  family = "'Raleway', 'HelveticaNeue', 'Helvetica Neue',
-                           Helvetica, Arial, sans-serif",
+                  family = font_family_list,
+                  
                   color = "black"
                 )  
               )
