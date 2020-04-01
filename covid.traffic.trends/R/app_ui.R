@@ -3,7 +3,7 @@
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
 #' @import shiny
-#' @import skeleton
+#' @import council.skeleton
 #' @noRd
 app_ui <- function(request) {
   tagList(
@@ -11,28 +11,28 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # List the first level UI elements here
     fluidPage(
-      skeleton::sk_page(
-        skeleton::sk_header(
+      council.skeleton::sk_page(
+        council.skeleton::sk_header(
           "COVID-19 Outbreak – Metro Area Travel Declines",
           shiny::h4("Traffic data show more metro area residents are staying home")
         ),
-        skeleton::sk_nav(
-          skeleton::sk_nav_item("map_plot", "Map & Plot"),
-          skeleton::sk_nav_item("about", "About")
+        council.skeleton::sk_nav(
+          council.skeleton::sk_nav_item("map_plot", "Map & Plot"),
+          council.skeleton::sk_nav_item("about", "About")
         ),
         
-        skeleton::sk_row(
+        council.skeleton::sk_row(
           id = "map_plot",
           width = 12,
           h5("Twin Cities’ freeway travel decreasing across COVID-19 timeline"),
           
-          skeleton::sk_col("sk_plot_col",
+          council.skeleton::sk_col("sk_plot_col",
             width = 12,
             
-            skeleton::sk_col("sk_sidebar_plot",
+            council.skeleton::sk_col("sk_sidebar_plot",
                              width = 3,
                              mod_sidebar_ui("sidebar_ui_plot", pair = "plot")),
-            skeleton::sk_col("sk_plot",
+            council.skeleton::sk_col("sk_plot",
                              width = 9,
                              mod_plot_ui("plot_ui_1")
             )
@@ -40,20 +40,20 @@ app_ui <- function(request) {
           ),
           h5("Decreases in freeway travel are occuring across the Twin Cities metropolitan region"),
           
-        skeleton::sk_col("sk_map_col",
+        council.skeleton::sk_col("sk_map_col",
             width = 12,
-            skeleton::sk_col("sk_sidebar_map",
+            council.skeleton::sk_col("sk_sidebar_map",
                              width = 3,
                              mod_sidebar_ui("sidebar_ui_map", pair = "map")),
             
-            skeleton::sk_col("sk_map",
+            council.skeleton::sk_col("sk_map",
                              width = 9,
                              mod_leaflet_ui("leaflet_ui")
                              ## plot
             )
           )
         ),
-        skeleton::sk_row(
+        council.skeleton::sk_row(
           id = "about",
           mod_about_ui("about_ui")
         ),
@@ -93,7 +93,11 @@ golem_add_external_resources <- function() {
   add_resource_path(
     "www", app_sys("app/www")
   )
+  add_resource_path(
+    "fonts", app_sys("app/www/fonts")
+  )
   
+  suppressDependencies()
   tags$head(
     favicon(),
     bundle_resources(

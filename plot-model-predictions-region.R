@@ -19,23 +19,24 @@ load('councilcolors.Rdata')
 # number of households in metro area (estimated 2018)
 hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Resources/Files-and-reports/2018-Population-Estimates-(FINAL,-July-2019)-(1).aspx
 
-diffs_4plot <- fread(paste0('output/pred-and-act-vol-region-', Sys.Date(), '.csv'))
+diffs_4plot <- fread(paste0('output/pred-and-act-vol-region.csv'))
 diffs_4plot[,date:=as.IDate(date)]
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 2 # change back to -1 when new data available
+yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
 mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
+mndotdat <- fread('data/Daily_Volume_Change_3-31-2020_update.csv')
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
 mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
 
-fwrite(mndotdat, paste0("output/diff-vol-state-", Sys.Date(), ".csv"), row.names = F)
+fwrite(mndotdat, paste0("output/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
 ###################################
 
@@ -74,7 +75,7 @@ static_plot <-
 ggplot(diffs_4plot[doy>59 & year == 2020], 
        aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
   # geom_vline(data = actions, aes(xintercept = as.numeric(date)), color = 'gray50', linetype = 'dashed')+
-  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Inf, ymin = -Inf, ymax = Inf, 
+  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Sys.Date(), ymin = -Inf, ymax = Inf, 
            alpha = .15)+
   # geom_vline(aes(xintercept = as.Date('2020-03-28')), linetype = 'dashed', color = councilBlue)+
   theme_minimal()+

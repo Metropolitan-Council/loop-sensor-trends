@@ -55,7 +55,8 @@ mod_leaflet_server <- function(input, output, session,
           "Exit",
           "Intersection",
           "County outline"
-        )
+        ),
+        options = layersControlOptions(collapsed = F)
       )
   })
   
@@ -72,8 +73,12 @@ mod_leaflet_server <- function(input, output, session,
   update_map <- reactive({
     dat <- current_nodes()
     
-    col_pal <- colorBin(
-      palette = "RdBu",
+    col_pal <- colorBin( # palette generated with Chroma.js (#ee3124 to #0054a4)
+      palette = c('#840000', '#bd1712', 
+                  '#ed4434', '#fe8466', 
+                  '#fac0b1', '#accdfe',
+                  '#78a3e8', '#497acd', 
+                  '#2353a2', '#002f77'),
       domain = c(-100:100), bins = 10, # suggest white is zero, purple is decrease, orange is increase
       reverse = T
     )
