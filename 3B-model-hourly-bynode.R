@@ -55,6 +55,7 @@ diffs_ls <- vector("list", length(hourlydat_s))
 gam_list <- vector("list", length(hourlydat_s))
 
 
+
 # MODEL TIME ----
 for(s in seq_along(hourlydat_s)){
   # print(s)
@@ -74,7 +75,7 @@ for(s in seq_along(hourlydat_s)){
                                s(hour, by = as.factor(dow))
                              + s(dow, k = 7, by = as.factor(year)) # one knot for each day of the week
                              + s(doy, by = as.factor(year)) #general seasonal trend, let it vary by year, allow knots to be set by gam
-                             + as.factor(year) # intercept for each year
+                             # + as.factor(year) # intercept for each year
                    ))
   
   gam_list[[s]] <- this_gam
@@ -91,25 +92,25 @@ for(s in seq_along(hourlydat_s)){
   this_diff <- this_dat
   diffs_ls[[s]]<-this_diff
   
-  # predicted_and_observed_plot<-
-  #   ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.sum, color = factor(woy)))+
-  #   theme_minimal()+
-  #   geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
-  #               alpha = 0.5, color = NA)+
-  #   geom_point()+
-  #   geom_line()+
-  #   facet_wrap(year~dow, scales = "free_x", nrow = 3)
-  # 
-  # diff_from_normal_plot<-
-  #   ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.diff, color = factor(woy)))+
-  #   theme_minimal()+
-  #   geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
-  #               alpha = 0.5, color = NA)+
-  #   geom_point()+
-  #   geom_line()+
-  #   facet_wrap(year~dow, scales = "free_x", nrow = 3)
-  # 
-  # grid.arrange(predicted_and_observed_plot, diff_from_normal_plot, nrow = 1)
+  predicted_and_observed_plot<-
+    ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.sum, color = factor(woy)))+
+    theme_minimal()+
+    geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
+                alpha = 0.5, color = NA)+
+    geom_point()+
+    geom_line()+
+    facet_wrap(year~dow, scales = "free_x", nrow = 3)
+
+  diff_from_normal_plot<-
+    ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.diff, color = factor(woy)))+
+    theme_minimal()+
+    geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
+                alpha = 0.5, color = NA)+
+    geom_point()+
+    geom_line()+
+    facet_wrap(year~dow, scales = "free_x", nrow = 3)
+
+  grid.arrange(predicted_and_observed_plot, diff_from_normal_plot, nrow = 1)
 }
 
 diffs_dt <- rbindlist(diffs_ls)
