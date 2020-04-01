@@ -2,10 +2,10 @@
 
 export(run_app)
 export(run_daily_app_data)
+import(council.skeleton)
 import(leaflet)
 import(plotly)
 import(shiny)
-import(skeleton)
 importFrom(config,get)
 importFrom(dplyr,filter)
 importFrom(golem,activate_js)
