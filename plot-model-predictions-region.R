@@ -24,7 +24,7 @@ diffs_4plot[,date:=as.IDate(date)]
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 1
+yesterday <- Sys.Date() - 2 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
@@ -74,11 +74,14 @@ static_plot <-
 ggplot(diffs_4plot[doy>59 & year == 2020], 
        aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
   # geom_vline(data = actions, aes(xintercept = as.numeric(date)), color = 'gray50', linetype = 'dashed')+
+  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Inf, ymin = -Inf, ymax = Inf, 
+           alpha = .15)+
+  # geom_vline(aes(xintercept = as.Date('2020-03-28')), linetype = 'dashed', color = councilBlue)+
   theme_minimal()+
   geom_point(size = 3)+
-  geom_line(size = 1)+
+  geom_line(size = 1, show.legend = F)+
   geom_point(data = mndotdat,aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1)+
+  geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
   scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
   geom_hline(yintercept = 0)+
   ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
@@ -90,9 +93,9 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
   geom_segment(data = actions, 
                aes(x = date, xend = date, y = arrow_start+1, yend = arrow_end), 
                arrow = arrow(angle = 20, length = unit(0.75, 'lines'), type = "closed"), color = councilBlue)+
-  geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11)+
-  geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11)+
-  # geom_rect(aes(ymin = -Inf, ymax = Inf, xmin = as.numeric(as.Date('2020-03-27')), xmax = as.numeric(as.Date(Sys.Date()-1))))
+  geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
+  geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
+
   geom_text(data = actions,
             aes(x = date, y = arrow_start, 
                 label = paste0(format(date, '%b %d'), ": ", action)), 
@@ -110,7 +113,7 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
   annotation_raster(mypng, ymin = 2, ymax= 20,xmin = as.numeric(as.Date('2020-03-23')),xmax = as.numeric(as.Date('2020-03-27')))
 
 
-ggsave(paste0('output/traffic-trends-actions-', Sys.Date(), '.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
+ggsave(paste0('output/traffic-trends-actions.jpeg'),static_plot, height = 7, width = 12, units = 'in', dpi = 300)
 
-ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.jpeg'),static_plot, height = 7, width = 11.5, units = 'in', dpi = 300)
+ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 12, units = 'in', dpi = 300)
 
