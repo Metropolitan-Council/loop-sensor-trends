@@ -50,13 +50,12 @@ mod_leaflet_server <- function(input, output, session,
           "Carto DarkMatter"
         ),
         overlayGroups = c(
-          "Station",
+          "Freeway Segment",
           "Entrance",
           "Exit",
-          "Intersection",
           "County outline"
         ),
-        options = layersControlOptions(collapsed = F)
+        options = layersControlOptions(collapsed = T)
       )
   })
   
@@ -85,12 +84,11 @@ mod_leaflet_server <- function(input, output, session,
     
     
     map <- leafletProxy("map", session = session) %>% 
-      clearGroup("Station") %>%
+      clearGroup("Freeway Segment") %>%
       clearGroup("Entrance") %>%
       clearGroup("Exit") %>%
-      clearGroup("Intersection") %>%
       addCircleMarkers(
-        data = dat$Station,
+        data = dat$Freeway_Segment,
         lng = ~r_node_lon,
         lat = ~r_node_lat,
         color = ~ col_pal(volume.diff),
@@ -98,7 +96,7 @@ mod_leaflet_server <- function(input, output, session,
         fillOpacity = 0.75,
         popup = ~ paste(hover_text),
         radius = 3,
-        group = "Station",
+        group = "Freeway Segment",
         options = leafletOptions(pane = "points")
       ) %>%
       addCircleMarkers(
@@ -123,18 +121,6 @@ mod_leaflet_server <- function(input, output, session,
         popup = ~ paste(hover_text),
         radius = 3,
         group = "Exit",
-        options = leafletOptions(pane = "points")
-      ) %>%
-      addCircleMarkers(
-        data = dat$Intersection,
-        lng = ~r_node_lon,
-        lat = ~r_node_lat,
-        color = ~ col_pal(volume.diff),
-        stroke = T,
-        fillOpacity = 0.75,
-        popup = ~ paste(hover_text),
-        radius = 3,
-        group = "Intersection",
         options = leafletOptions(pane = "points")
       ) %>%
       addLegend(
