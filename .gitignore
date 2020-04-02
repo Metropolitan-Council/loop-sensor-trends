@@ -46,3 +46,9 @@ output/gam-models-hourly-2020-03-27.RData
 output/pred-and-act-vol-region-2020-03-28.csv
 
 output/pred-and-act-vol-by-node-2020-03-30.csv
+
+output/daily_model_predictions_bynode/
+
+output/gam-models-2020-04-02.RData
+
+hourly-model-example.jpeg

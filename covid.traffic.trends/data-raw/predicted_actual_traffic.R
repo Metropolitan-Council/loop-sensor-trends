@@ -7,20 +7,17 @@ library(dplyr)
 
 ## by node -----
 
-try_today <- try(fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")), silent = TRUE)
-if(class(try_today[1]) == "try-error"){
-  message("Node data for ", Sys.Date(), " is not yet available")
-  message("Keeping previous data")
-} else {
-  predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")) # our golden ticket!
+  predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv")) # our golden ticket!
   predicted_actual_by_node[, date := as.IDate(date)]
-  predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",]
+  predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",] %>% 
+    mutate(corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "),"\\.", " "), "T H", "TH"), "U S", "US"))
   
+  unique_corridors <- unique(predicted_actual_by_node$corridor_route)
   
-  predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
+  predicted_actual_by_node <- predicted_actual_by_node %>%
     mutate(
-      corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "),"\\.", " "), "T H", "TH"), "U S", "US"),
-      node_type = case_when(r_node_n_type == "Station" ~ "Freeway Segments",
+      scl_volume = scale(volume.predict, center = F),
+      node_type = case_when(r_node_n_type == "Station" ~ "Freeway Segment",
                             TRUE ~ r_node_n_type),
       hover_text = paste(
         sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
@@ -36,8 +33,8 @@ if(class(try_today[1]) == "try-error"){
   names(predicted_actual_by_node) <- c("Entrance", "Exit", "Freeway_Segment")
   
   usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
+  usethis::use_data(unique_corridors, overwrite = TRUE, compress = "xz")
   
-}
 
 
 ## by ctu -----
@@ -52,13 +49,8 @@ if(class(try_today[1]) == "try-error"){
 ## by region -----
 ## predicted and actual summarized to the region (mostly sensors in the metro and Fargo/Moorehead) from March 1
 
-try_today <- try(fread(paste0("./data-raw/pred-and-act-vol-region-", Sys.Date(), ".csv")), silent = TRUE)
 
-if(class(try_today)[1] == "try-error"){
-  message("Region data for ", Sys.Date(), " is not yet available")
-  message("Keeping previous data")
-} else {
-  predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region-", Sys.Date(), ".csv")) %>%
+  predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.csv")) %>%
     mutate(typical_vmt_diff = `Difference from Typical VMT (%)`) %>%
     select(-`Difference from Typical VMT (%)`) %>%
     mutate(
@@ -70,7 +62,6 @@ if(class(try_today)[1] == "try-error"){
     )
   
   usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
-}
 
 
 # MnDOT Traffic Trends -----
@@ -123,3 +114,4 @@ predicted_actual_by_state <- predicted_actual_by_state[, date := as.IDate(date, 
   ))
 
 usethis::use_data(predicted_actual_by_state, overwrite = TRUE, compress = "xz")
+
