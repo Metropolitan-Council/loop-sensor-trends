@@ -1,6 +1,6 @@
 #' The application User-Interface
 #'
-#' @param request Internal parameter for `{shiny}`.
+#' @param request Internal parameter for \code{shiny}.
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @import council.skeleton
@@ -18,6 +18,7 @@ app_ui <- function(request) {
         ),
         council.skeleton::sk_nav(
           council.skeleton::sk_nav_item("map_plot", "Map & Plot"),
+          council.skeleton::sk_nav_item("download", "Download Data"),
           council.skeleton::sk_nav_item("about", "About")
         ),
         
@@ -27,32 +28,46 @@ app_ui <- function(request) {
           h5("Twin Cities’ freeway travel decreasing across COVID-19 timeline"),
           
           council.skeleton::sk_col("sk_plot_col",
-            width = 12,
-            
-            council.skeleton::sk_col("sk_sidebar_plot",
-                             width = 3,
-                             mod_sidebar_ui("sidebar_ui_plot", pair = "plot")),
-            council.skeleton::sk_col("sk_plot",
-                             width = 9,
-                             mod_plot_ui("plot_ui_1")
-            )
-            
+                                   width = 12,
+                                   
+                                   council.skeleton::sk_col("sk_sidebar_plot",
+                                                            width = 3,
+                                                            mod_sidebar_ui("sidebar_ui_plot", pair = "plot")),
+                                   council.skeleton::sk_col("sk_plot",
+                                                            width = 9,
+                                                            mod_plot_ui("plot_ui_1")
+                                   )
+                                   
           ),
           h5("Decreases in freeway travel are occuring across the Twin Cities metropolitan region"),
           
-        council.skeleton::sk_col("sk_map_col",
-            width = 12,
-            council.skeleton::sk_col("sk_sidebar_map",
-                             width = 3,
-                             mod_sidebar_ui("sidebar_ui_map", pair = "map")),
-            
-            council.skeleton::sk_col("sk_map",
-                             width = 9,
-                             mod_leaflet_ui("leaflet_ui")
-                             ## plot
-            )
+          council.skeleton::sk_col("sk_map_col",
+                                   width = 12,
+                                   council.skeleton::sk_col("sk_sidebar_map",
+                                                            width = 3,
+                                                            mod_sidebar_ui("sidebar_ui_map", pair = "map")),
+                                   
+                                   council.skeleton::sk_col("sk_map",
+                                                            width = 9,
+                                                            mod_leaflet_ui("leaflet_ui")
+                                   )
           )
         ),
+        
+        council.skeleton::sk_row(
+          id = "download",
+          sk_col("sk_sidebar_download",
+                 width = 3,
+                 h5("Download the most recent data"),
+                 mod_sidebar_ui("sidebar_ui_table", pair = "table"),
+          ),
+          sk_col("sk_table", 
+                 width = 9,
+                 mod_table_ui("table_ui_1")
+          )
+        ),
+        
+        
         council.skeleton::sk_row(
           id = "about",
           mod_about_ui("about_ui")
