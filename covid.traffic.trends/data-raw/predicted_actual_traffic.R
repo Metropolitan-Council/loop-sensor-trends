@@ -9,12 +9,14 @@ library(dplyr)
 
   predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv")) # our golden ticket!
   predicted_actual_by_node[, date := as.IDate(date)]
-  predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",]
+  predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",] %>% 
+    mutate(corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "),"\\.", " "), "T H", "TH"), "U S", "US"))
   
+  unique_corridors <- unique(predicted_actual_by_node$corridor_route)
   
-  predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
+  predicted_actual_by_node <- predicted_actual_by_node %>%
     mutate(
-      corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "),"\\.", " "), "T H", "TH"), "U S", "US"),
+      scl_volume = scale(volume.predict, center = F),
       node_type = case_when(r_node_n_type == "Station" ~ "Freeway Segment",
                             TRUE ~ r_node_n_type),
       hover_text = paste(
@@ -31,6 +33,7 @@ library(dplyr)
   names(predicted_actual_by_node) <- c("Entrance", "Exit", "Freeway_Segment")
   
   usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
+  usethis::use_data(unique_corridors, overwrite = TRUE, compress = "xz")
   
 
 
