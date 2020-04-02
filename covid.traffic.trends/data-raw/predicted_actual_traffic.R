@@ -14,27 +14,28 @@ if(class(try_today[1]) == "try-error"){
 } else {
   predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")) # our golden ticket!
   predicted_actual_by_node[, date := as.IDate(date)]
-  predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ]
+  predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",]
   
-  unique_corridors <- unique(predicted_actual_by_node$corridor_route)
   
   predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
     mutate(
+      corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "),"\\.", " "), "T H", "TH"), "U S", "US"),
+      node_type = case_when(r_node_n_type == "Station" ~ "Freeway Segments",
+                            TRUE ~ r_node_n_type),
       hover_text = paste(
         sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
-        r_node_n_type, " on ", corridor_route, " at ", r_node_label, "<br>",
+        node_type, " on ", corridor_route, " at ", r_node_label, "<br>",
         volume.diff, "%"
       ),
       District = "MnDOT Metro Freeways"
     ) %>% 
-    group_by(r_node_n_type) %>% 
+    group_by(node_type) %>% 
     dplyr::group_split(keep = TRUE)
   
   
-  names(predicted_actual_by_node) <- c("Entrance", "Exit", "Intersection", "Station")
+  names(predicted_actual_by_node) <- c("Entrance", "Exit", "Freeway_Segment")
   
   usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
-  usethis::use_data(unique_corridors, overwrite = TRUE, compress = "xz")
   
 }
 
