@@ -7,12 +7,7 @@ library(dplyr)
 
 ## by node -----
 
-try_today <- try(fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")), silent = TRUE)
-if(class(try_today[1]) == "try-error"){
-  message("Node data for ", Sys.Date(), " is not yet available")
-  message("Keeping previous data")
-} else {
-  predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date()-1, ".csv")) # our golden ticket!
+  predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv")) # our golden ticket!
   predicted_actual_by_node[, date := as.IDate(date)]
   predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",]
   
@@ -37,7 +32,6 @@ if(class(try_today[1]) == "try-error"){
   
   usethis::use_data(predicted_actual_by_node, overwrite = TRUE, compress = "xz")
   
-}
 
 
 ## by ctu -----
@@ -52,13 +46,8 @@ if(class(try_today[1]) == "try-error"){
 ## by region -----
 ## predicted and actual summarized to the region (mostly sensors in the metro and Fargo/Moorehead) from March 1
 
-try_today <- try(fread(paste0("./data-raw/pred-and-act-vol-region-", Sys.Date(), ".csv")), silent = TRUE)
 
-if(class(try_today)[1] == "try-error"){
-  message("Region data for ", Sys.Date(), " is not yet available")
-  message("Keeping previous data")
-} else {
-  predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region-", Sys.Date(), ".csv")) %>%
+  predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.csv")) %>%
     mutate(typical_vmt_diff = `Difference from Typical VMT (%)`) %>%
     select(-`Difference from Typical VMT (%)`) %>%
     mutate(
@@ -70,7 +59,6 @@ if(class(try_today)[1] == "try-error"){
     )
   
   usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
-}
 
 
 # MnDOT Traffic Trends -----
@@ -124,27 +112,3 @@ predicted_actual_by_state <- predicted_actual_by_state[, date := as.IDate(date, 
 
 usethis::use_data(predicted_actual_by_state, overwrite = TRUE, compress = "xz")
 
-## table data
-
-
-table_data <- rbind(predicted_actual_by_region %>% 
-        mutate(`date` = as.character(`date`)) %>% 
-        select(date,
-               weekday,
-               District,
-               vmt.sum,
-               vmt.predict,
-               typical_vmt_diff),
-      mutate(predicted_actual_by_state,
-             weekday = weekdays(`date`),
-             vmt.sum = NA,
-             vmt.predict = NA,
-             `date` = as.character(`date`)) %>% 
-        select(date,
-               weekday,
-               District,
-               vmt.sum,
-               vmt.predict,
-               typical_vmt_diff))
-
-usethis::use_data(table_data, overwrite = TRUE, compress = "xz")
