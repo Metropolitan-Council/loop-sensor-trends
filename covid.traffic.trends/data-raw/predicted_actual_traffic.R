@@ -12,7 +12,7 @@ if(class(try_today[1]) == "try-error"){
   message("Node data for ", Sys.Date(), " is not yet available")
   message("Keeping previous data")
 } else {
-  predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date(), ".csv")) # our golden ticket!
+  predicted_actual_by_node <- fread(paste0("./data-raw/pred-and-act-vol-by-node-", Sys.Date()-1, ".csv")) # our golden ticket!
   predicted_actual_by_node[, date := as.IDate(date)]
   predicted_actual_by_node <- predicted_actual_by_node[date > "2020-03-01", ][r_node_n_type != "Intersection",]
   
@@ -20,7 +20,7 @@ if(class(try_today[1]) == "try-error"){
   predicted_actual_by_node <- predicted_actual_by_node[, scl_volume := scale(volume.predict, center = F)] %>%
     mutate(
       corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "),"\\.", " "), "T H", "TH"), "U S", "US"),
-      node_type = case_when(r_node_n_type == "Station" ~ "Freeway Segments",
+      node_type = case_when(r_node_n_type == "Station" ~ "Freeway Segment",
                             TRUE ~ r_node_n_type),
       hover_text = paste(
         sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
