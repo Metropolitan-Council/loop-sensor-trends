@@ -76,22 +76,21 @@ site](https://www.health.state.mn.us/diseases/coronavirus/index.html)
 
 ### Contributors
 
-##### App and data development
-
-  - Liz Roten, Metropolitan Council  
-  - Ashley Asmus, Metropolitan Council  
-  - Brian Kary, MnDOT  
-  - Jonathan Ehrlich, Metropolitan Council
+  - Liz Roten, app development (Metropolitan Council)  
+  - Ashley Asmus, data and model development (Metropolitan Council)  
+  - Brian Kary, data development and ongoing consultation (MnDOT)  
+  - Jonathan Ehrlich, project management (Metropolitan Council)
 
 ### Contact
 
-Email Sara Maaske at Sara.Maaske(at)metc.state.mn.us.
+Email Sara Maaske at <Sara.Maaske@metc.state.mn.us>.
 
-For app concerns, feel free to open an Issue on our [GitHub
+For app bug reports and new feature requests, feel free to open an Issue
+on our [GitHub
 repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2020-04-02*  
-Build ID: 2020-04-02.roten.4332e08  
+*Last updated 2020-04-03*  
+Build ID: 2020-04-03.roten.0804f8b  
 </right>
