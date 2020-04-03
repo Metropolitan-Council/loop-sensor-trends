@@ -21,7 +21,7 @@ yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday)
 
 mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread('data/Daily_Volume_Change_3-31-2020_update.csv')
+mndotdat <- fread('data/Daily_Volume_Change_4-2-2020_update.csv')
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
@@ -105,7 +105,42 @@ ggplot(diffs_4plot[doy>59 & year == 2020],
   annotation_raster(mypng, ymin = 2, ymax= 20,xmin = as.numeric(as.Date('2020-03-23')),xmax = as.numeric(as.Date('2020-03-27')))
 
 
-ggsave(paste0('output/traffic-trends-actions.jpeg'),static_plot, height = 7, width = 12, units = 'in', dpi = 300)
 
-ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 12, units = 'in', dpi = 300)
+ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
+
+ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
+
+
+diffs_4plot$woy <- ifelse(diffs_4plot$date >= '2020-03-29', 'This week', 'Last week')
+diffs_4plot$weekday <- factor(diffs_4plot$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
+
+mndotdat[,date:=as.IDate(date)]
+mndotdat$woy <- ifelse(mndotdat$date >= '2020-03-29', 'This week', 'Last week')
+mndotdat[,weekday:=weekdays(date)]
+mndotdat$weekday <- factor(diffs_4plot$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
+
+
+plot2<-
+  ggplot(diffs_4plot[date >= '2020-03-22'
+                     & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday'),],
+         aes(x = woy,
+             y = (`Difference from Typical VMT (%)`), fill = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
+  theme_minimal()+
+  facet_grid(~weekday)+
+  geom_bar(stat = 'identity', position = 'dodge', width =0.8)+
+  geom_hline(yintercept = 0)+
+    scale_y_continuous(limits = c(-55,0), breaks = seq(from = -50, to = 0, by = 10))+
+    scale_x_discrete(position = 'top')+
+  cowplot::theme_cowplot()+
+  theme(legend.position = 'right')+
+  labs(x = "Day", y = "% difference from typical traffic")+
+  geom_text(aes(label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
+            vjust = 'outward', size = 3.7)+
+  scale_fill_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
+    ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
+   # scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
+  annotation_raster(mypng, ymin = 2, ymax= 20,xmin = 5, xmax = 6)
+
+ggsave(paste0('output/this-week-and-last.png'),plot2, height = 7, width = 10, units = 'in', dpi = 300)
+
 
