@@ -68,7 +68,7 @@ Our GAMs consider two trends. One trend happens over the span of a year: in most
 
 Email Sara Maaske at Sara.Maaske(at)metc.state.mn.us.  
 
-For app concerns, feel free to open an Issue on our [GitHub repository](https://github.com/Metropolitan-Council/loop-sensor-trends) for this project.  
+For app bug reports and feature requests, feel free to open an Issue on our [GitHub repository](https://github.com/Metropolitan-Council/loop-sensor-trends) for this project.  
 
 
 
