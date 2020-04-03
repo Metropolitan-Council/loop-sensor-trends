@@ -10,10 +10,9 @@ library(dplyr)
 predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv")) # our golden ticket!
 
 
-unique_corridors <- unique(predicted_actual_by_node_orig$corridor_route)
 
 predicted_actual_by_node <- predicted_actual_by_node_orig %>%
-  mutate(date := as.IDate(date)) %>% 
+  mutate(date := as.IDate(date)) %>%
   filter(
     r_node_n_type != "Intersection",
     date > "2020-03-01"
@@ -21,7 +20,7 @@ predicted_actual_by_node <- predicted_actual_by_node_orig %>%
   mutate(
     corridor_route = stringr::str_replace(stringr::str_replace(stringr::str_replace(stringr::str_replace(corridor_route, "\\.", " "), "\\.", " "), "T H", "TH"), "U S", "US"),
 
-    scl_volume = scale(volume.predict, center = F),
+    # scl_volume = scale(volume.predict, center = F),
     node_type = case_when(
       r_node_n_type == "Station" ~ "Freeway Segment",
       TRUE ~ r_node_n_type
@@ -32,7 +31,12 @@ predicted_actual_by_node <- predicted_actual_by_node_orig %>%
       volume.diff, "%"
     ),
     District = "MnDOT Metro Freeways"
-  ) %>%
+  )
+
+
+unique_corridors <- unique(predicted_actual_by_node$corridor_route)
+
+predicted_actual_by_node <- predicted_actual_by_node %>%
   group_by(node_type) %>%
   dplyr::group_split(keep = TRUE)
 
