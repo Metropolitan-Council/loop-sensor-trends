@@ -64,7 +64,7 @@ mod_plot_server <- function(input, output, session) {
         data = covid.traffic.trends::predicted_actual_by_region["doy" > 60 & "year" == 2020],
         x = covid.traffic.trends::predicted_actual_by_region$date,
         y = covid.traffic.trends::predicted_actual_by_region$typical_vmt_diff,
-        name = "MnDOT Metro\n(1000+ Stations)\n",
+        name = "MnDOT Metro\nFreeways\n(1000+ Stations)\n",
         mode = "lines+markers",
         line = list(
           width = 3,
