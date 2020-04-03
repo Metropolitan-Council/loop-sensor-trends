@@ -60,6 +60,7 @@ mod_leaflet_server <- function(input, output, session,
   })
   
   current_nodes <- reactive({
+    req(map_inputs$date)
     dat <- purrr::map(
       covid.traffic.trends::predicted_actual_by_node,
       filter, date == map_inputs$date) %>% 
