@@ -57,18 +57,16 @@ Our GAMs consider two trends. One trend happens over the span of a year: in most
 
 ### Contributors
 
-##### App and data development  
-
-  - Liz Roten, Metropolitan Council  
-  - Ashley Asmus, Metropolitan Council  
-  - Brian Kary, MnDOT  
-  - Jonathan Ehrlich, Metropolitan Council   
+  - Liz Roten, app development (Metropolitan Council)  
+  - Ashley Asmus, data and model development (Metropolitan Council)  
+  - Brian Kary, data development and ongoing consultation (MnDOT)  
+  - Jonathan Ehrlich, project management (Metropolitan Council)   
 
 ### Contact  
 
-Email Sara Maaske at Sara.Maaske(at)metc.state.mn.us.  
+Email Sara Maaske at [Sara.Maaske@metc.state.mn.us](mailto:Sara.Maaske@metc.state.mn.us).  
 
-For app concerns, feel free to open an Issue on our [GitHub repository](https://github.com/Metropolitan-Council/loop-sensor-trends) for this project.  
+For app bug reports and new feature requests, feel free to open an Issue on our [GitHub repository](https://github.com/Metropolitan-Council/loop-sensor-trends) for this project.  
 
 
 

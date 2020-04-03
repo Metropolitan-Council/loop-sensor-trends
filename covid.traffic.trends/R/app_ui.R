@@ -74,11 +74,12 @@ app_ui <- function(request) {
         ),
         
         
-        # tags$div("For an accessible version of this information, please contact us at research(at)metc.state.mn.us",
-        #          style = "font-size: 1rem;
-        #      display: block;
-        #      text-align: right;
-        #      padding: 1%;", align = "right"),
+        tags$div("For an accessible version of this information, please contact us at",
+                 tags$a(href = "mailto:public.info@metc.state.mn.us","public.info@metc.state.mn.us"),
+                 style = "font-size: 1rem;
+             display: block;
+             text-align: right;
+             padding: 1%;", align = "right"),
         
         tags$footer(
           #----

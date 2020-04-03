@@ -60,6 +60,7 @@ mod_leaflet_server <- function(input, output, session,
   })
   
   current_nodes <- reactive({
+    req(map_inputs$date)
     dat <- purrr::map(
       covid.traffic.trends::predicted_actual_by_node,
       filter, date == map_inputs$date) %>% 
@@ -90,7 +91,7 @@ mod_leaflet_server <- function(input, output, session,
         data = dat$Freeway_Segment,
         lng = ~r_node_lon,
         lat = ~r_node_lat,
-        color = ~ col_pal(volume.diff),
+        color = ~col_pal(volume.diff),
         stroke = T,
         fillOpacity = 0.75,
         popup = ~ paste(hover_text),
