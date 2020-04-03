@@ -77,7 +77,7 @@ foreach(i = node_files) %dopar% {
   # & this_dat$doy <= 90 # feed it relevant dates - before april 1
   # & this_dat$doy > 1, ] # exclude the one major holiday in here - jan 1
   
-  # 2020 data v. sensitive - exclude some special holidays
+  # 2020 data v. sensitive - exclude some special holidays and weather days
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-01-01", ] # cold snap - exclude
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-01-17", ] # cold snap - exclude
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-01-18", ] # cold snap - exclude

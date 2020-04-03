@@ -109,6 +109,8 @@ foreach(j = chosen_sensors) %dopar% {
                        by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
   
   data.table::fwrite(loops_df, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
+  
+  
 }
 
 stopCluster(cl)
