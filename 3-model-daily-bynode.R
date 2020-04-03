@@ -5,7 +5,12 @@ library(doParallel)
 library(mgcv)
 library(lubridate)
 #############
-
+config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
+config$date<-NULL
+det_config <- unique(config[,.(r_node_name, r_node_n_type, 
+                               r_node_transition, r_node_label, r_node_lon, r_node_lat, 
+                               r_node_lanes, r_node_shift, r_node_s_limit, r_node_station_id, 
+                               r_node_attach_side, corridor_route, corridor_dir)])
 
 node_files <- list.files('data/data_daily_node')
 node_names <- gsub('.csv', '', node_files)
@@ -19,12 +24,17 @@ registerDoParallel(cl)
 
 # node_files <- node_files[1:10] # test
 
+match('rnd_95784.csv', node_files)
+
 
 foreach(i = node_files) %dopar% {
   
   library(data.table)
   library(lubridate)
   library(mgcv)
+  
+  
+  # i <- node_files[[3245]] # test
   
   dailydat <- fread(paste0("data/data_daily_node/", i))
   
@@ -98,6 +108,7 @@ foreach(i = node_files) %dopar% {
   
   # generate predictions
   date_range <- c(seq(as.Date("2018-01-01"), as.Date("2020-12-31"), by = "days"))
+  
   predict_dat <- data.table(date = date_range)
   predict_dat[, date := as.IDate(date)]
   predict_dat[, dow := wday(date)]
@@ -107,10 +118,15 @@ foreach(i = node_files) %dopar% {
   predict_dat[, weekday := factor(weekdays(date))]
   predict_dat[, monthday := format(date, "%b %d")]
   predict_dat[, r_node_name := modeling_dat$r_node_name[[1]]]
+
+  
+  predict_dat <- merge(predict_dat, det_config, all.x = T)
   
   predict_dat[, c("volume.predict", "volume.predict.se") := cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = T))]
   
-  predict_dat <- merge(predict_dat, dailydat, all.x = T)
+  predict_dat <- merge(predict_dat, 
+                       dailydat[,.(r_node_name, date, volume.sum)], all.x = T, 
+                       by = c('r_node_name', 'date'))
   
   # difference from predicted, n volume:
   predict_dat[, volume.diff.raw := (volume.sum - volume.predict)]
