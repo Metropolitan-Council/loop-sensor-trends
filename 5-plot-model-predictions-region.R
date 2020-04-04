@@ -19,9 +19,9 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
-mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
+# mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread('data/Daily_Volume_Change_4-2-2020_update.csv')
+mndotdat <- fread('data/Daily_Volume_Change_4-3-2020_update.csv')
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
@@ -63,51 +63,63 @@ mypng <- readPNG('MetcLogo4C-360x265.png')
 
 # Static plot
 static_plot <-
-ggplot(diffs_4plot[doy>59 & year == 2020], 
-       aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
-  # geom_vline(data = actions, aes(xintercept = as.numeric(date)), color = 'gray50', linetype = 'dashed')+
+  ggplot(diffs_4plot[doy>59 & year == 2020], 
+         aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
+
+  # shaded rectangle for stay-at-home order:
   annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Sys.Date(), ymin = -Inf, ymax = Inf, 
            alpha = .15)+
-  # geom_vline(aes(xintercept = as.Date('2020-03-28')), linetype = 'dashed', color = councilBlue)+
-  theme_minimal()+
-  geom_point(size = 3)+
-  geom_line(size = 1, show.legend = F)+
-  geom_point(data = mndotdat,aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
-  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
+  
+  # horizontal line at zero:
   geom_hline(yintercept = 0)+
-  ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
-  cowplot::theme_cowplot()+
-  theme(legend.position = 'right')+
-  labs(x = "Date", y = "% difference from typical traffic")+
-  scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
-  scale_y_continuous(limits = c(-85, 15), breaks = seq(from = -80, to = 10, by = 10))+
+   
+  # annotations - actions
   geom_segment(data = actions, 
                aes(x = date, xend = date, y = arrow_start+1, yend = arrow_end), 
                arrow = arrow(angle = 20, length = unit(0.75, 'lines'), type = "closed"), color = councilBlue)+
-  geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
-  geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
-
   geom_text(data = actions,
             aes(x = date, y = arrow_start, 
                 label = paste0(format(date, '%b %d'), ": ", action)), 
             hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
-  geom_text(data = actions,
-              aes(x = date, y = arrow_end, 
-                  label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            # hjust = 'center', vjust = -0.7, 
-            color = councilBlue, size = 4, fontface = 'italic')+
+  
+  # series for MnDOT: 
+  geom_point(data = mndotdat,aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
+  geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
+  geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
   geom_text(data = mndotdat[date %in% actions$date & !date == '2020-03-06'],
             aes(x = date, y = `Difference from Typical VMT (%)`, 
                 label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
             # hjust = 'center',vjust = -1.35, 
             color = 'black', size = 3.7, fontface = 'italic')+
+  
+  # series for metro: 
+  geom_point(size = 3)+
+  geom_line(size = 1, show.legend = F)+
+  geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
+  geom_text(data = actions,
+            aes(x = date, y = arrow_end, 
+                label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
+            # hjust = 'center', vjust = -0.7, 
+            color = councilBlue, size = 4, fontface = 'italic')+
+  
+  # global options: 
+  theme_minimal()+
+  cowplot::theme_cowplot()+
+  theme(legend.position = 'right')+
+  ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
+  # axes: 
+  labs(x = "Date", y = "% difference from typical traffic")+
+  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
+  scale_y_continuous(limits = c(-85, 15), breaks = seq(from = -80, to = 10, by = 10))+
+  #  colors:
+  scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
+  
+   # logo
   annotation_raster(mypng, ymin = 2, ymax= 20,xmin = as.numeric(as.Date('2020-03-23')),xmax = as.numeric(as.Date('2020-03-27')))
 
 
 
 ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
-
 ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
 
 
@@ -122,7 +134,7 @@ mndotdat$weekday <- factor(diffs_4plot$weekday, levels = c('Sunday', 'Monday', '
 
 plot2<-
   ggplot(diffs_4plot[date >= '2020-03-22'
-                     & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday'),],
+                     & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'),],
          aes(x = woy,
              y = (`Difference from Typical VMT (%)`), fill = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
   theme_minimal()+

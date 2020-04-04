@@ -47,7 +47,6 @@ unique(diffs_dt[volume.predict < 0, .(r_node_name, r_node_n_type)])
 # diffs_dt <- diffs_dt[!r_node_name == 'rnd_86223'] -- now many more
 diffs_dt <- diffs_dt[!r_node_name %in% unique(diffs_dt[volume.predict < 0, r_node_name])]
 
-
 # get rid of NAs
 diffs_dt <- diffs_dt[!is.na(volume.diff)]
 
