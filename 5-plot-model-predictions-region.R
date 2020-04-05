@@ -21,7 +21,7 @@ yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday)
 
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread('data/Daily_Volume_Change_4-3-2020_update.csv')
+mndotdat <- fread('data/Daily_Volume_Change_4-4-2020_update.csv')
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
