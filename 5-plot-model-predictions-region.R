@@ -6,6 +6,19 @@ library(data.table)
 load('councilcolors.Rdata')
 ##########################
 
+# 1-pull-loop-sensor-data -----
+source('1-pull-loop-sensor-data.R')
+
+# 2-clean-aggregate-mndot-traffic-data
+source('2-clean-aggregate-mndot-traffic-data.R')
+
+# 3-model-daily-bynode
+source('3-model-daily-bynode.R')
+
+# 4-reshape-model-output-for-plotting
+source('4-reshape-model-output-for-plotting.R')
+
+
 ############# DATA #############
 # number of households in metro area (estimated 2018)
 hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Resources/Files-and-reports/2018-Population-Estimates-(FINAL,-July-2019)-(1).aspx
@@ -19,9 +32,9 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
-# mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
+mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread('data/Daily_Volume_Change_4-4-2020_update.csv')
+# mndotdat <- fread('data/Daily_Volume_Change_4-4-2020_update.csv')
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
@@ -115,7 +128,7 @@ static_plot <-
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
   
    # logo
-  annotation_raster(mypng, ymin = 2, ymax= 20,xmin = as.numeric(as.Date('2020-03-23')),xmax = as.numeric(as.Date('2020-03-27')))
+  annotation_raster(mypng, ymin = -90, ymax= -65,xmin = as.numeric(as.Date('2020-03-01')),xmax = as.numeric(as.Date('2020-03-07')))
 
 
 
