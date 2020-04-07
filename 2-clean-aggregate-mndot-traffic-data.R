@@ -35,7 +35,7 @@ foreach(i = node_lut) %dopar% {
   
 
   node_info <- i
-  # node_info <- node_lut[[11]] # test
+  # node_info <- node_lut[[1010]] # test
   this_node <- node_info$r_node_name[[1]]
   
   these_sensors <- paste0('Sensor ', node_info$sensor_name)
@@ -52,7 +52,7 @@ foreach(i = node_lut) %dopar% {
     
     # EXTRACT COLUMNS ----
     # don't need occupancy data, only volume data: 
-    hourlydat_sensor[,c('occupancy.nulls', 'occupancy.sum', 'occupancy.mean', 'occupancy.median'):=NULL]
+    # hourlydat_sensor[,c('occupancy.nulls', 'occupancy.sum', 'occupancy.mean', 'occupancy.median'):=NULL]
     
     # DELETE DUPLICATE OBSERVATIONS ----
     # Find duplicate observations -- multiple pulls are written into the same data file
@@ -79,6 +79,12 @@ foreach(i = node_lut) %dopar% {
     hourlydat_sensor[,date:=as.IDate(fast_strptime(date, "%Y-%m-%d"))] 
     hourlydat_sensor[,year:=year(date)]
     
+    # GET RID OF IMPOSSIBLE VALUES ----
+    hourlydat_sensor <- hourlydat_sensor[,volume.sum:=ifelse(volume.sum>=2300, NA, volume.sum)]
+    # 60 scans per second * 60 secs per min * 60 mins per hour = 216,000 scans per hour
+    hourlydat_sensor <- hourlydat_sensor[,occupancy.sum:=ifelse(occupancy.sum>=216000, NA, occupancy.sum)]
+    
+    
     # GAPFILLING 1: FILL IN MISSING MINUTES WITHIN HOURS ----
     # sometimes a few observations were missing within an hour (volume.nulls). 
     # each hour had 120 30-second observation windows.
@@ -87,15 +93,18 @@ foreach(i = node_lut) %dopar% {
     hourlydat_sensor[,volume.sum.raw:=volume.sum] # copy the column for safekeeping
     hourlydat_sensor[,volume.sum := ifelse(volume.nulls <=100, round(volume.sum.raw + volume.nulls*volume.mean), volume.sum.raw)]
     
+    hourlydat_sensor[,occupancy.sum.raw:=occupancy.sum] # copy the column for safekeeping
+    hourlydat_sensor[,occupancy.sum := ifelse(occupancy.nulls <=100, round(occupancy.sum.raw + occupancy.nulls*occupancy.mean), occupancy.sum.raw)]
+    
+    
     # if more than 100 nulls (>50 minutes missing), call it NA for that hour:
     hourlydat_sensor[,volume.sum := ifelse(volume.nulls>100, NA, volume.sum)]
+    hourlydat_sensor[,occupancy.sum := ifelse(occupancy.nulls>100, NA, occupancy.sum)]
     
-    
-    # GET RID OF IMPOSSIBLE VOLUME VALUES ----
-    hourlydat_sensor <- hourlydat_sensor[,volume.sum:=ifelse(volume.sum>=2300, NA, volume.sum)]
-    
+  
     # DELETE OCCUPANCY COLUMNS - DON'T NEED ----
-    hourlydat_sensor[,c('volume.nulls', 'volume.mean', 'volume.median', 'volume.sum.raw'):=NULL]
+    hourlydat_sensor[,c('volume.nulls', 'volume.mean', 'volume.median', 'volume.sum.raw',
+                        'occupancy.nulls', 'occupancy.mean', 'occupancy.median', 'occupancy.sum.raw'):=NULL]
     
     # GAPFILLING 2: WHOLE HOURS MISSING ----
     # if a whole hour is missing, fill in with average of the two hours on either side of it
@@ -105,21 +114,32 @@ foreach(i = node_lut) %dopar% {
                      by = .(sensor)] # all data downloaded!
     hourlydat_sensor[,volume.sum:=ifelse(is.na(volume.sum), volume.sum.rollmean, volume.sum)]
     
+    hourlydat_sensor[,`:=`(occupancy.sum.rollmean = shift(frollapply(occupancy.sum, 3, mean, align = 'center', na.rm = T, hasNA = T))), 
+                     # by = .(sensor, year)] # when all data is downloaded, and no breaks in the time series, can get rid of by-year argument
+                     by = .(sensor)] # all data downloaded!
+    hourlydat_sensor[,occupancy.sum:=ifelse(is.na(occupancy.sum), occupancy.sum.rollmean, occupancy.sum)]
+    
     # hist(hourlydat_sensor[is.na(volume.sum), hour]) # for some reason a lot of NAs at 0:00 (12 AM). wonder why...?
     # A full ten percent of 12 AM observations missing?? ####
     nrow(hourlydat_sensor[is.na(volume.sum) & hour == 0])/nrow(hourlydat_sensor[hour ==0])
     
     # Best to delete the midnight observations for now, but we should check on this with mndot
     hourlydat_sensor <- hourlydat_sensor[hour > 0]
-    hourlydat_sensor[,c('volume.sum.rollmean'):=NULL]
+    hourlydat_sensor[,c('volume.sum.rollmean', 'occupancy.sum.rollmean'):=NULL]
     
     # WRITE HOURLY DATA ! ----
     # data.table::fwrite(hourlydat_sensor, paste0("data/volume_hourly_clean/Sensor ", j, ".csv"), append = T)
     
-    # AGGREGATE TO NODES ----
+    # MERGE BACK TO CONFIGURATION FILE --- 
     hourlydat_sensor <- merge(hourlydat_sensor, config, all.x = T, all.y = F, 
                               by.x = 'sensor', by.y = 'detector_name')
-    
+   
+    # CALCULATE SPEED --- 
+    hourlydat_sensor[,occupancy.pct := (occupancy.sum/216000)]
+    hourlydat_sensor[,speed:=ifelse(volume.sum != 0, 
+                                  (volume.sum*detector_field)/(5280*occupancy.pct), 0)]
+
+    # AGGREGATE TO NODES ----
     # count number of lanes with data for each hour, at node ----
     hourlydat_sensor[,num_lanes_with_data_this_hr:=sum(!is.na(volume.sum)), 
                      by = .(r_node_name, r_node_station_id, r_node_n_type, r_node_transition, r_node_label, r_node_lanes, 
@@ -137,24 +157,36 @@ foreach(i = node_lut) %dopar% {
     # exclude to only those hourly observations at each node where the number of lanes
     # equals the number of detectors for this year.
     hourlydat_sensor <- hourlydat_sensor[num_lanes_with_data_this_hr == num_sensors_this_year]
-    
-    hourlydat_node <- hourlydat_sensor[,lapply(.SD, sum), 
-                                       .SDcols = 'volume.sum',
+
+    hourlydat_node <- hourlydat_sensor[,as.list(unlist(lapply(.SD,
+                                                              function(x) list(sum = sum(x), 
+                                                                               mean = mean(x))))),
                                        by = .(r_node_name, r_node_station_id, r_node_n_type, r_node_transition, r_node_label, r_node_lanes, 
                                               r_node_lon, r_node_lat,  
                                               corridor_route, corridor_dir,
                                               year, date, hour,
-                                              num_lanes_with_data_this_hr, num_sensors_this_year)]
+                                              num_lanes_with_data_this_hr, num_sensors_this_year),
+                                       .SDcols = c('volume.sum', 'occupancy.sum', 'speed')]
+    hourlydat_node[,c('volume.sum.mean', 'occupancy.sum.mean', 'speed.sum'):=NULL]
+    setnames(hourlydat_node, old = 'volume.sum.sum', new = 'volume.sum')
+    setnames(hourlydat_node, old = 'occupancy.sum.sum', new = 'occupancy.sum')
+    setnames(hourlydat_node, old = 'speed.mean', new = 'speed')
     
     fwrite(hourlydat_node, paste0('data/data_hourly_node/', this_node, '.csv'))
     
     # sum for all hours of the day (daily-scale data) ----
-    dailydat <- hourlydat_node[,lapply(.SD, sum), .SDcols = 'volume.sum', 
-                               by = .(r_node_name, r_node_station_id, r_node_n_type, r_node_transition, r_node_label, r_node_lanes, 
-                                      r_node_lon, r_node_lat, 
-                                      num_sensors_this_year,
-                                      corridor_route, corridor_dir,
-                                      year, date)]
+    dailydat <- hourlydat_node[,as.list(unlist(lapply(.SD,
+                                                        function(x) list(sum = sum(x), 
+                                                                         mean = mean(x))))),
+                                 by = .(r_node_name, r_node_station_id, r_node_n_type, r_node_transition, r_node_label, r_node_lanes, 
+                                        r_node_lon, r_node_lat,  
+                                        corridor_route, corridor_dir,
+                                        year, date),
+                                 .SDcols = c('volume.sum', 'occupancy.sum', 'speed')]
+    dailydat[,c('volume.sum.mean', 'occupancy.sum.mean', 'speed.sum'):=NULL]
+    setnames(dailydat, old = 'volume.sum.sum', new = 'volume.sum')
+    setnames(dailydat, old = 'occupancy.sum.sum', new = 'occupancy.sum')
+    setnames(dailydat, old = 'speed.mean', new = 'speed')
     
     # WRITE DAILY DATA! ----
     fwrite(dailydat, paste0('data/data_daily_node/', this_node, '.csv'))
