@@ -28,7 +28,7 @@ diffs_4plot[,date:=as.IDate(date)]
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 2 # change back to -1 when new data available
+yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
@@ -128,7 +128,7 @@ static_plot <-
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
   
    # logo
-  annotation_raster(mypng, ymin = -90, ymax= -65,xmin = as.numeric(as.Date('2020-03-01')),xmax = as.numeric(as.Date('2020-03-07')))
+  annotation_raster(mypng, ymin = -90, ymax= -62,xmin = as.numeric(as.Date('2020-03-01')),xmax = as.numeric(as.Date('2020-03-08')))
 
 
 
