@@ -1,11 +1,3 @@
-###########################
-library(ggplot2)
-library(plotly)
-library(data.table)
-
-load('councilcolors.Rdata')
-##########################
-
 # 1-pull-loop-sensor-data -----
 source('1-pull-loop-sensor-data.R')
 
@@ -17,6 +9,16 @@ source('3-model-daily-bynode.R')
 
 # 4-reshape-model-output-for-plotting
 source('4-reshape-model-output-for-plotting.R')
+
+
+###########################
+library(ggplot2)
+library(plotly)
+library(data.table)
+
+load('councilcolors.Rdata')
+##########################
+
 
 
 ############# DATA #############
@@ -32,9 +34,9 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
-mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
+# mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-# mndotdat <- fread('data/Daily_Volume_Change_4-4-2020_update.csv')
+mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
@@ -95,9 +97,15 @@ static_plot <-
                 label = paste0(format(date, '%b %d'), ": ", action)), 
             hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
-  # series for MnDOT: 
+  # lines and points for MnDOT: 
   geom_point(data = mndotdat,aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
   geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
+   
+  # lines and points for Metro:
+  geom_point(size = 3)+
+  geom_line(size = 1, show.legend = F)+
+  
+  # large points for State: 
   geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
   geom_text(data = mndotdat[date %in% actions$date & !date == '2020-03-06'],
             aes(x = date, y = `Difference from Typical VMT (%)`, 
@@ -105,9 +113,7 @@ static_plot <-
             # hjust = 'center',vjust = -1.35, 
             color = 'black', size = 3.7, fontface = 'italic')+
   
-  # series for metro: 
-  geom_point(size = 3)+
-  geom_line(size = 1, show.legend = F)+
+  # large points for Metro: 
   geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
   geom_text(data = actions,
             aes(x = date, y = arrow_end, 
