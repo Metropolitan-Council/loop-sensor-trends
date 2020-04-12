@@ -48,19 +48,21 @@ mndotdat[,date:=as.IDate(date)]
 
 # MN state actions ####
 actions <- cbind(
-  date = c('2020-03-06', #1st Confirmed\nCOVID-19 case in MN
-           '2020-03-11', #UMN Suspends\nIn-Person Classes
+  date = c(
+    # '2020-03-06', #1st Confirmed\nCOVID-19 case in MN
+           # '2020-03-11', #UMN Suspends\nIn-Person Classes
            '2020-03-13', #Gov. Walz declares\npeacetime emergency;\ncalls for cancellation\nof events >250 ppl
-           '2020-03-15', #Gov. Walz announces\npublic schools\nwill close by Mar. 18
-           '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
+           '2020-03-18', #Gov. Walz announces\npublic schools\nwill close by Mar. 18
+           # '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
            '2020-03-22',
            '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
            as.character(Sys.Date()-1)),
-  action = c('1st Confirmed\nCOVID-19 case in MN', 
-             'UMN Suspends\nIn-Person Classes', 
-             'Gov. Walz declares peacetime emergency;\ncalls for cancellation of events >250 ppl', 
-             'Gov. Walz & MDH announce public schools\nwill close by Mar. 18',
-             'Gov. Walz & MDH ask all gyms, bars, public spaces\n to close,restaurants limit to take-out',
+  action = c(
+    # '1st Confirmed\nCOVID-19 case in MN', 
+             # 'UMN Suspends\nIn-Person Classes', 
+             'Peacetime\nemergency declared', 
+             'Public schools closed;\nIn-person dining suspended',
+             # 'Gov. Walz & MDH ask all gyms, bars, public spaces\n to close,restaurants limit to take-out',
              '',
              'MN "Stay-at-home" order\ntakes effect',
              '')
@@ -70,7 +72,12 @@ actions <-data.table(actions)
 actions[,date:=as.IDate(date)]
 actions<-merge(actions, diffs_4plot, all.x = T, all.y = F)
 actions[,arrow_end:=`Difference from Typical VMT (%)`-0.1]
-actions[,arrow_start:=c(-5, -16, -27, -38, -49, NA, -80, NA)]
+actions[,arrow_start:=c(
+  # -5, -16, 
+  -27, 
+  # -38, 
+   -49, 
+  NA, -80, NA)]
 
 # add logo
 library(png)
@@ -78,7 +85,7 @@ mypng <- readPNG('MetcLogo4C-360x265.png')
 
 # Static plot
 static_plot <-
-  ggplot(diffs_4plot[doy>59 & year == 2020], 
+  ggplot(diffs_4plot[doy>66 & year == 2020], 
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
 
   # shaded rectangle for stay-at-home order:
@@ -98,8 +105,8 @@ static_plot <-
             hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
   # lines and points for MnDOT: 
-  geom_point(data = mndotdat,aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat, aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
+  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
    
   # lines and points for Metro:
   geom_point(size = 3)+
@@ -129,12 +136,12 @@ static_plot <-
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
   scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
-  scale_y_continuous(limits = c(-85, 15), breaks = seq(from = -80, to = 10, by = 10))+
+  scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
   #  colors:
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
   
    # logo
-  annotation_raster(mypng, ymin = -90, ymax= -62,xmin = as.numeric(as.Date('2020-03-01')),xmax = as.numeric(as.Date('2020-03-08')))
+  annotation_raster(mypng, ymin = -95, ymax= -60,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-12')))
 
 
 
