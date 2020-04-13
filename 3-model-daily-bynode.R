@@ -24,8 +24,6 @@ registerDoParallel(cl)
 
 # node_files <- node_files[1:10] # test
 
-match('rnd_95784.csv', node_files)
-
 
 foreach(i = node_files) %dopar% {
   
@@ -39,7 +37,7 @@ foreach(i = node_files) %dopar% {
   dailydat <- fread(paste0("data/data_daily_node/", i))
   
   # Dealing with date ----
-  dailydat[, date := as.IDate(date)]
+  dailydat[, date := as.IDate(fast_strptime(date, "%Y-%m-%d"))]
   dailydat[, dow := wday(date)]
   dailydat[, doy := yday(date)]
   dailydat[, year := year(date)]
@@ -103,11 +101,11 @@ foreach(i = node_files) %dopar% {
     )
   )
   
-  gam_list[[i]] <- this_gam
+  # gam_list[[i]] <- this_gam
   
   
   # generate predictions
-  date_range <- c(seq(as.Date("2018-01-01"), as.Date("2020-12-31"), by = "days"))
+  date_range <- c(seq(as.Date("2020-01-01"), as.Date("2020-12-31"), by = "days"))
   
   predict_dat <- data.table(date = date_range)
   predict_dat[, date := as.IDate(date)]
@@ -137,12 +135,12 @@ foreach(i = node_files) %dopar% {
   fwrite(predict_dat, file = paste0('output/daily_model_predictions_bynode/', i))
   
   # store difference from normal for 2020 for mapping
-  pred_ls[[i]] <- predict_dat
+  # pred_ls[[i]] <- predict_dat
   
   } # end check for nodes with missing data
 }
 
 
-saveRDS(gam_list, file = paste0('output/gam-models-', Sys.Date(), '.RData'))
+# saveRDS(gam_list, file = paste0('output/gam-models-', Sys.Date(), '.RData'))
 
 stopCluster(cl)

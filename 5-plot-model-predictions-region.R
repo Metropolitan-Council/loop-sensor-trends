@@ -44,6 +44,7 @@ mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
 
 fwrite(mndotdat, paste0("output/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
+
 ###################################
 
 # MN state actions ####
