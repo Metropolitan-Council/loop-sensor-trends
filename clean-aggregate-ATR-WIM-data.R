@@ -103,9 +103,9 @@ allatr[, monthday := format(date, "%b %d")]
 
 # Now find sensors with enough data to model
 # must have 3 years of data, at least 60 days of data in each year ----
-allatr[, "num_days_per_year" := uniqueN(date), by = .(sensor, year)]
+allatr[, "num_days_per_year" :=sum(!is.na(total)), by = .(sensor, year)]
 
-
+allatr$sensor <- as.character(allatr$sensor)
 
 hist(allatr$num_days_per_year)
 
@@ -116,7 +116,8 @@ has_2018_data <- unique(allatr$sensor[allatr$year == 2018])
 has_2019_data <- unique(allatr$sensor[allatr$year == 2019])
 
 dailydat <- allatr[allatr$sensor %in% has_march2020_data & 
-                     allatr$sensor %in% has_2019_data & allatr$sensor %in% has_2018_data, ]
+                   allatr$sensor %in% has_2019_data & 
+                   allatr$sensor %in% has_2018_data, ]
 
 uniqueN(dailydat$sensor) # 40 sensors now.
 
@@ -135,7 +136,6 @@ leaflet(shp_sub) %>%
 
 # now split by sensor
 dailydats <- split(dailydat, dailydat$sensor)
-
 
 # model
 cores <- detectCores()
@@ -166,7 +166,7 @@ rbindlist(foreach(i = dailydats) %dopar% {
       modeling_dat,
       mgcv::gam(
         total ~
-          s(dow, k = 7, by = as.factor(year)) # one knot for each day of the week
+          s(dow, k = 7) # one knot for each day of the week
         + s(doy, bs = 'cs') # general seasonal trend, let it vary by year, allow knots to be set by gam
         + as.factor(year) # intercept for each year
       )
@@ -226,16 +226,22 @@ predictions[,volume.predict.2:=max(volume.predict.2, na.rm = T),
 
 pretot <- predictions[,lapply(.SD, sum), 
                       .SDcols = c('volume.predict','volume.predict.2', 'total'),
-                      by = .(date, dow, doy, year, woy, weekday, monthday, month)]
+                      by = .(date, dow, doy, year, woy, weekday, monthday, month, sensor)]
 
-pretot <- melt(pretot, id.vars = c('date', 'dow','doy', 'year', 'woy', 'weekday', 'monthday', 'month', 'total'),
+pretot <- melt(pretot, id.vars = c('sensor','date', 'dow','doy', 'year', 'woy', 'weekday', 'monthday', 'month', 'total'),
                variable.name = 'Baseline', value.name = 'volume.predict')
+
 pretot$Baseline <- factor(pretot$Baseline, 
                                 levels = c('volume.predict', 'volume.predict.2'),
                                 labels = c('Modeled, Jan 2018-Feb 2020\n(40 sensors)\n', 'Traffic on same month &\nweekday, 2019 (40 sensors)\n'))
 pretot[,volume.diff := ((total - volume.predict)/volume.predict) * 100]
 
-# statenums <- fread('output/diff-vol-state.csv')
+# now average
+pretot <- pretot[,lapply(.SD, mean),
+       .SDcols = 'volume.diff',
+       by = .(date, Baseline)]
+
+statenums <- fread('output/diff-vol-state.csv')
 setnames(statenums, old = 'Difference from Typical VMT (%)', new = 'volume.diff')
 statenums$District<-NULL
 statenums$datasource <- 'MnDOT analysis\n(Difference from same month/weekday 2019)'
@@ -261,15 +267,15 @@ ggplot(pretot[date >= '2020-03-01'], aes(x = date, y = volume.diff, color = Base
   geom_point(size = 2)+
   geom_line(size = 0.75) + 
 
-  # lines and points for Metro:
-  geom_point(data = statenums,aes(color = 'Data from MnDOT (100 sensors)\n'), size = 2)+
-  geom_line(data = statenums, aes(color = 'Data from MnDOT (100 sensors)\n'), size = 0.75, show.legend = F)+
+  # # lines and points for Metro:
+  # geom_point(data = statenums,aes(color = 'Data from MnDOT (100 sensors)\n'), size = 2)+
+  # geom_line(data = statenums, aes(color = 'Data from MnDOT (100 sensors)\n'), size = 0.75, show.legend = F)+
   
   
-  # # lines and points for Metro: 
-  # geom_point(data = diffs_4plot,aes(color = ' Metro Freeways'), size = 2)+
-  # geom_line(data = diffs_4plot, aes(color = ' Metro Freeways'), size = 0.75, show.legend = F)+
-  
+  # # lines and points for Metro:
+  # geom_point(data = diffs_4plot,aes(color = ' Metro Freeways\n'), size = 2)+
+  # geom_line(data = diffs_4plot, aes(color = ' Metro Freeways\n'), size = 0.75, show.legend = F)+
+  # 
   
   # global options: 
   theme_minimal()+
@@ -278,10 +284,11 @@ ggplot(pretot[date >= '2020-03-01'], aes(x = date, y = volume.diff, color = Base
   ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
-  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
-  scale_y_continuous(limits = c(-85, 15), breaks = seq(from = -80, to = 10, by = 10))+
+  scale_x_date(limits = c(as.Date('2020-02-29'), as.Date('2020-04-01')),
+    date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
+  scale_y_continuous(limits = c(-70, 15), breaks = seq(from = -70, to = 10, by = 10))+
   #  colors:
-  scale_color_manual(values = c(suppGray, 'black', mtsRed), name = "Analysis")
+  scale_color_manual(values = c('black', mtsRed, 'gray60'), name = "Baseline")
 
 
 # curious about this number: 
