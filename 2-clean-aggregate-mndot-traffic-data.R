@@ -45,6 +45,7 @@ foreach(i = node_lut) %dopar% {
   
   hourlydat_sensor <- rbindlist(lapply(these_sensor_files, fread))
   hourlydat_sensor[,sensor:=as.character(sensor)]
+  hourlydat_sensor[date == Sys.Date()-1]
   
   # CHECK FOR NODES MISSING ALL DATA
   total_zilch <- sum(!is.na(hourlydat_sensor$hour))
@@ -172,7 +173,7 @@ foreach(i = node_lut) %dopar% {
     setnames(hourlydat_node, old = 'occupancy.sum.sum', new = 'occupancy.sum')
     setnames(hourlydat_node, old = 'speed.mean', new = 'speed')
     
-    fwrite(hourlydat_node, paste0('data/data_hourly_node/', this_node, '.csv'))
+    fwrite(hourlydat_node, paste0('data/data_hourly_node/', this_node, '.csv'), append = T)
     
     # sum for all hours of the day (daily-scale data) ----
     dailydat <- hourlydat_node[,as.list(unlist(lapply(.SD,
@@ -189,7 +190,7 @@ foreach(i = node_lut) %dopar% {
     setnames(dailydat, old = 'speed.mean', new = 'speed')
     
     # WRITE DAILY DATA! ----
-    fwrite(dailydat, paste0('data/data_daily_node/', this_node, '.csv'))
+    fwrite(dailydat, paste0('data/data_daily_node/', this_node, '.csv'), append = T)
     
   } # end check for nodes with no data at all
 }
