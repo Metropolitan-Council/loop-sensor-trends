@@ -79,49 +79,21 @@ usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
 
 
 
-get_mndot_data <- function() {
-  yesterday <- Sys.Date() - 1
-  yesterday <- as.IDate(yesterday)
-  yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
+predicted_actual_by_state <- fread(paste0(
+      "https://mn.gov/covid19/assets/StateofMNResponseDashboardCSV_tcm1148-427143.csv"
+    )) %>% 
+  janitor::clean_names() %>% 
+  filter(covid_team == "Social Distancing",
+         geographic_level == "State") %>% 
+  select(data_date_mm_dd_yyyy, value_number) %>% 
+  mutate(District = "MnDOT Statewide",
+         date = as.IDate(data_date_mm_dd_yyyy, "%m/%d/%Y"),
+         typical_vmt_diff = as.numeric(value_number) * 100,
+         hover_text = paste(
+           sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
+           typical_vmt_diff, "%"
+         )) %>% 
+  select(District, date, typical_vmt_diff, hover_text)
 
-  day_before_yesterday <- Sys.Date() - 2
-  day_before_yesterday <- as.IDate(day_before_yesterday)
-  day_before_yesterday <- paste0(month(day_before_yesterday), "-", mday(day_before_yesterday), "-", year(day_before_yesterday))
-
-  try_today <- try(suppressWarnings(fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"),
-    verbose = FALSE,
-    showProgress = FALSE
-  )),
-  silent = TRUE
-  )
-  if (class(try_today)[1] == "try-error") {
-    message("State data for ", yesterday, " is unavailable")
-    message("Returning state data for ", day_before_yesterday)
-    final <- fread(paste0(
-      "http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_",
-      day_before_yesterday, "_update.csv"
-    ),
-    verbose = FALSE,
-    showProgress = FALSE
-    )
-  } else {
-    final <- try_today
-  }
-  return(final)
-}
-
-predicted_actual_by_state <- get_mndot_data()
-
-predicted_actual_by_state <- predicted_actual_by_state[District %in% c("MnDOT Statewide")]
-predicted_actual_by_state <- melt(predicted_actual_by_state,
-  id.vars = c("District"),
-  variable.name = "date",
-  value.name = "typical_vmt_diff"
-)
-predicted_actual_by_state <- predicted_actual_by_state[, date := as.IDate(date, format = "%m/%d/%Y")] %>%
-  mutate(hover_text = paste(
-    sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
-    typical_vmt_diff, "%"
-  ))
 
 usethis::use_data(predicted_actual_by_state, overwrite = TRUE, compress = "xz")
