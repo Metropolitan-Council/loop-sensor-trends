@@ -32,17 +32,21 @@ stlgreaterMN<- stldat %>%
 stldat2 <- left_join(stlmetro, stlstate)
 stldat2 <- left_join(stldat2, stlgreaterMN)
 
-# merge to regional trends
+# state ATR data:
+atrdat <- fread('output/diff-vol-state.csv')
+atrdat <- atrdat %>% select(date, `Difference from Typical VMT (%)`)%>%
+  rename(diff.pct.atr = `Difference from Typical VMT (%)`)
+
+# loop detector data:
 loopdat <- fread('output/pred-and-act-vol-region.csv')
 loopdat <- loopdat %>% select(date, dow, year, woy, weekday, monthday, vmt.sum, vmt.predict, `Difference from Typical VMT (%)`)%>%
   rename(diff.pct.loop = `Difference from Typical VMT (%)`,
          vmt.sum.loop = vmt.sum,
          vmt.sum.looppred = vmt.predict)
 
-
-# join to STL data: 
+# merge:
 loopstl <- left_join(loopdat, stldat2)
-
+loopstl <- left_join(loopstl, atrdat)
 
 loopstl$weekday <- factor(loopstl$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
 
@@ -68,21 +72,23 @@ ggplot(loopstl, aes(x = diff.pct.loop, y =diff.pct.stl))+
   scale_y_continuous(limits = c(-90, 70))+
   facet_grid(~weekday)
 
-
 ggplot(loopstl, aes(x = date))+
-  geom_point(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties"))+
-  geom_line(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties"))+
+  geom_point(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties\n"))+
+  geom_line(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties\n"))+
   
   # geom_point(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
   # geom_line(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
   
-  geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight,\nGreater MN Counties"))+
-  geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight,\nGreater MN Counties"))+
+  geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight,\nGreater MN Counties\n"))+
+  geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight,\nGreater MN Counties\n"))+
   
-  geom_point(aes(y = diff.pct.loop, color = "Metro Loop Detectors"))+
-  geom_line(aes(y =diff.pct.loop, color = "Metro Loop Detectors"))+
+  geom_point(aes(y = diff.pct.loop, color = "Metro Loop Detectors\n"))+
+  geom_line(aes(y =diff.pct.loop, color = "Metro Loop Detectors\n"))+
   
-  scale_color_manual(values = c(councilBlue, 'gray20', 'gray60'))+
+  geom_point(aes(y = diff.pct.atr, color = "State ATRs\n"))+
+  geom_line(aes(y =diff.pct.atr, color = "State ATRs\n"))+
+  
+  scale_color_manual(values = c(councilBlue, 'black', 'gray50', 'gray70'))+
   
   cowplot::theme_cowplot()+
   geom_hline(yintercept = 0, color = 'black')+
