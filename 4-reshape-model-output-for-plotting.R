@@ -26,6 +26,7 @@ diffs_dt <- rbindlist(foreach(i = node_files) %dopar% {
   # Trim to after March 1 2020:
   dat <- dat[date >= "2020-03-01", ]
   dat <- dat[date <= Sys.Date()-1]
+  dat <- unique(dat)
   dat
 })
 
@@ -75,10 +76,33 @@ diffs_dt <- diffs_dt[!r_node_name %in% unique(diffs_dt[volume.diff > 500 & year 
 
 
 fwrite(diffs_dt, paste0("output/pred-and-act-vol-by-node.csv"))
+
+
+oldiffs <- fread('output/old-output-archive/pred-and-act-vol-by-node-2020-03-31.csv')
+unique(oldiffs$r_node_name[!oldiffs$r_node_name %in% diffs_dt$r_node_name])
+todaynode<-unique(diffs_dt$r_node_name[diffs_dt$date == Sys.Date() -1
+                                       & diffs_dt$volume.sum >0])
+yestnode<-unique(diffs_dt$r_node_name[diffs_dt$date == Sys.Date() -2
+                                      & diffs_dt$volume.sum >0])
+
+yestnode[!yestnode %in% todaynode]
+summary(diffs_dt[date %in% c(Sys.Date()-1, Sys.Date()-2)])
+
 fwrite(diffs_dt, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"))
 
 
 # More data reshaping of model output ----
+daynodes <- diffs_dt[r_node_n_type == "Station" & year == 2020 # this year's data, stations only. ####
+         , lapply(.SD, mean),
+         .SDcols = c("volume.predict"),
+         by = .(date, dow, doy, year, woy, weekday, monthday)
+         ]
+
+wtf <- diffs_dt[date %in% c(Sys.Date()-1, Sys.Date()-2),.(r_node_name, weekday, volume.predict)]
+wtf <- dcast(wtf, r_node_name ~ weekday)
+head(wtf)
+wtf[,diff:=(Tuesday-Monday)/Tuesday*100]
+hist(wtf$diff)
 
 
 # Total difference from expected for whole metro area ----

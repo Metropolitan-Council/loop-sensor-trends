@@ -88,10 +88,12 @@ ggplot(loopstl, aes(x = date))+
   geom_point(aes(y = diff.pct.atr, color = "State ATRs\n"))+
   geom_line(aes(y =diff.pct.atr, color = "State ATRs\n"))+
   
-  scale_color_manual(values = c(councilBlue, 'black', 'gray50', 'gray70'))+
+  scale_color_manual(values = c(councilBlue, 'black', 'gray50', 'gray70'),
+                     name = 'Data Source')+
   
   cowplot::theme_cowplot()+
   geom_hline(yintercept = 0, color = 'black')+
+  scale_y_continuous(breaks = seq(from = -100, to = 100, by = 20), name = '% Difference from Typical')+
   scale_x_date(date_breaks = "1 week", date_labels = "%b %d")
 
 
