@@ -45,7 +45,7 @@ foreach(i = node_lut) %dopar% {
   
   hourlydat_sensor <- rbindlist(lapply(these_sensor_files, fread))
   hourlydat_sensor[,sensor:=as.character(sensor)]
-  hourlydat_sensor[date == Sys.Date()-1]
+  hourlydat_sensor[date == Sys.Date()-1,]
   
   # CHECK FOR NODES MISSING ALL DATA
   total_zilch <- sum(!is.na(hourlydat_sensor$hour))
