@@ -25,7 +25,7 @@ node_names <- gsub('.csv', '', node_files)
 # node_files <- node_files[1:10] # test
 
 
-for(i in node_files){
+foreach(i = node_files){
   
   print(i) 
   flush.console()
