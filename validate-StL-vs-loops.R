@@ -2,7 +2,7 @@
 library(data.table)
 library(tidyverse)
 library(sf)
-
+load('councilcolors.RData')
 stldat <- fread('data/StL_county_vmt_download.csv')
 
 stldat <- stldat %>%
@@ -32,17 +32,21 @@ stlgreaterMN<- stldat %>%
 stldat2 <- left_join(stlmetro, stlstate)
 stldat2 <- left_join(stldat2, stlgreaterMN)
 
+stldat2$date <- as.Date(stldat2$date, format = '%m/%d/%Y')
+
 # state ATR data:
 atrdat <- fread('output/diff-vol-state.csv')
 atrdat <- atrdat %>% select(date, `Difference from Typical VMT (%)`)%>%
-  rename(diff.pct.atr = `Difference from Typical VMT (%)`)
+  rename(diff.pct.atr = `Difference from Typical VMT (%)`) %>%
+  mutate(date = as.Date(date, format = '%Y-%m-%d'))
 
 # loop detector data:
 loopdat <- fread('output/pred-and-act-vol-region.csv')
 loopdat <- loopdat %>% select(date, dow, year, woy, weekday, monthday, vmt.sum, vmt.predict, `Difference from Typical VMT (%)`)%>%
   rename(diff.pct.loop = `Difference from Typical VMT (%)`,
          vmt.sum.loop = vmt.sum,
-         vmt.sum.looppred = vmt.predict)
+         vmt.sum.looppred = vmt.predict)%>%
+  mutate(date = as.Date(date, format = '%Y-%m-%d'))
 
 # merge:
 loopstl <- left_join(loopdat, stldat2)
@@ -108,32 +112,32 @@ cor(loopstl$diff.pct.loop, loopstl$diff.pct.stl, use = "complete.obs") # R = 0.9
 mod <- with(loopstl, lm(diff.pct.loop ~ diff.pct.stl))
 summary(mod) # r2 = 0.87; est = -14, slope = 0.5
 
-
-
-library(DBI)
-db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
-county_shp <- DBI::dbGetQuery(db,"SELECT
-                        *,
-                        SHAPE.STAsText() as geometry
-                        FROM GISLibrary.DBO.Counties;") %>%
-  st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
-  st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
-
-metro_shp <- DBI::dbGetQuery(db,"SELECT
-                        *,
-                        SHAPE.STAsText() as geometry
-                        FROM GISLibrary.DBO.MetropolitanPlanningOrganizationArea;") %>%
-  st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
-  st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
-
-
-config <- fread('Configuration of Metro Detectors 2020-03-24.csv')
-config_shp <- st_as_sf(config, coords = c('r_node_lon', 'r_node_lat'),
-                       crs = 4326)
-
-# join loop detector data to county level data
-loop_counties <- st_join(config_shp, county_shp)
-head(loop_counties)
-uniqueN(loop_counties$CO_NAME) # 34 counties with loop sensors in them
-
-# flag counties that contain loop detector data
+# 
+# 
+# library(DBI)
+# db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
+# county_shp <- DBI::dbGetQuery(db,"SELECT
+#                         *,
+#                         SHAPE.STAsText() as geometry
+#                         FROM GISLibrary.DBO.Counties;") %>%
+#   st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
+#   st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
+# 
+# metro_shp <- DBI::dbGetQuery(db,"SELECT
+#                         *,
+#                         SHAPE.STAsText() as geometry
+#                         FROM GISLibrary.DBO.MetropolitanPlanningOrganizationArea;") %>%
+#   st_as_sf(wkt = "geometry", crs = "+init=epsg:26915") %>%
+#   st_transform(crs = "+init=epsg:26915 +proj=longlat +datum=WGS84")
+# 
+# 
+# config <- fread('Configuration of Metro Detectors 2020-03-24.csv')
+# config_shp <- st_as_sf(config, coords = c('r_node_lon', 'r_node_lat'),
+#                        crs = 4326)
+# 
+# # join loop detector data to county level data
+# loop_counties <- st_join(config_shp, county_shp)
+# head(loop_counties)
+# uniqueN(loop_counties$CO_NAME) # 34 counties with loop sensors in them
+# 
+# # flag counties that contain loop detector data
