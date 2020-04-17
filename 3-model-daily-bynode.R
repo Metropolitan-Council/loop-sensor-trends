@@ -17,15 +17,15 @@ node_names <- gsub('.csv', '', node_files)
 # gam_list <- vector("list", length(node_names))
 # pred_ls <- vector("list", length(node_names))
 
-# cores <- detectCores()
-# cl <- makeCluster(cores)
-# registerDoParallel(cl)
+cores <- detectCores()
+cl <- makeCluster(cores)
+registerDoParallel(cl)
 
 
 # node_files <- node_files[1:10] # test
 
 
-foreach(i = node_files){
+foreach(i = node_files) %dopar% {
   
   print(i) 
   flush.console()

@@ -10,6 +10,7 @@ source('3-model-daily-bynode.R')
 # 4-reshape-model-output-for-plotting
 source('4-reshape-model-output-for-plotting.R')
 
+###### COMPARE WEEKLY TRENDS
 
 ###########################
 library(ggplot2)
@@ -160,18 +161,23 @@ static_plot <-
 ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
 ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
 
+### Plot Weekly Trends
 
-diffs_4plot$woy <- ifelse(diffs_4plot$date >= '2020-03-29', 'This week', 'Last week')
-diffs_4plot$weekday <- factor(diffs_4plot$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
+weekly_diffs <- diffs_4plot[date > '2020-03-01'
+                              & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
+
+weekly_diffs[,woy:=week(date-5)] # adjust to Monday
+
+weekly_diffs$weekday <- factor(weekly_diffs$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
 
 mndotdat[,date:=as.IDate(date)]
 mndotdat$woy <- ifelse(mndotdat$date >= '2020-03-29', 'This week', 'Last week')
 mndotdat[,weekday:=weekdays(date)]
-mndotdat$weekday <- factor(diffs_4plot$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
+mndotdat$weekday <- factor(weekly_diffs$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
 
 
 plot2<-
-  ggplot(diffs_4plot[date >= '2020-03-22'
+  ggplot(weekly_diffs[date >= '2020-03-22'
                      & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'),],
          aes(x = woy,
              y = (`Difference from Typical VMT (%)`), fill = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
