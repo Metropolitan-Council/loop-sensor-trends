@@ -167,31 +167,50 @@ weekly_diffs <- diffs_4plot[date > '2020-03-01'
                               & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
 
 weekly_diffs[,woy:=week(date-5)] # adjust to Monday
-
 weekly_diffs$weekday <- factor(weekly_diffs$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
 
 mndotdat[,date:=as.IDate(date)]
-mndotdat$woy <- ifelse(mndotdat$date >= '2020-03-29', 'This week', 'Last week')
+mndotdat[,woy:=week(date-5)] # adjust to Monday
 mndotdat[,weekday:=weekdays(date)]
-mndotdat$weekday <- factor(weekly_diffs$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
+mndotdat$weekday <- factor(mndotdat$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
 
+weekly_mndot <- mndotdat[date > '2020-03-01'
+                            & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
+
+
+
+# aggregate to weekly scale
+weekly_mndot <- weekly_mndot[,lapply(.SD, mean),
+                             .SDcols = 'Difference from Typical VMT (%)',
+                             by = .(woy)]
+weekly_diffs <- weekly_diffs[,lapply(.SD, mean),
+                             .SDcols = 'Difference from Typical VMT (%)',
+                           by = .(woy)]
+weekly_mndot[,`Traffic Sensor Group`:='MnDOT Statewide\n(105 Stations)\n']
+weekly_diffs[,`Traffic Sensor Group`:='MnDOT Metro Freeways\n(1000+ Stations)\n']
+
+weekly_dat <- rbind(weekly_mndot, weekly_diffs)
 
 plot2<-
-  ggplot(weekly_diffs[date >= '2020-03-22'
-                     & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'),],
+  ggplot(weekly_dat,  
          aes(x = woy,
-             y = (`Difference from Typical VMT (%)`), fill = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
+             y = (`Difference from Typical VMT (%)`), fill = `Traffic Sensor Group`))+
   theme_minimal()+
-  facet_grid(~weekday)+
+  
+  # shaded rectangle for stay-at-home order:
+  annotate("rect", xmin = (12.5), xmax = 15.5, ymin = -Inf, ymax = Inf, 
+           alpha = .15)+
+  
   geom_bar(stat = 'identity', position = 'dodge', width =0.8)+
   geom_hline(yintercept = 0)+
-    scale_y_continuous(limits = c(-55,0), breaks = seq(from = -50, to = 0, by = 10))+
-    scale_x_discrete(position = 'top')+
+    scale_y_continuous(limits = c(-55,10), breaks = seq(from = -50, to = 0, by = 10))+
+    scale_x_discrete(breaks = seq(from = 9, to = 15, by = 1))+
   cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
-  labs(x = "Day", y = "% difference from typical traffic")+
-  geom_text(aes(label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            vjust = 'outward', size = 3.7)+
+  labs(x = "Week", y = "% difference from typical traffic")+
+  geom_text(aes(y = (`Difference from Typical VMT (%)`),
+                label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
+            vjust = 'outward', size = 3.7, hjust = 0.5, position = position_dodge(width = 1))+
   scale_fill_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
     ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
    # scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
