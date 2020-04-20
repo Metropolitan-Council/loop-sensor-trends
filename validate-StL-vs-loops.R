@@ -76,6 +76,7 @@ ggplot(loopstl, aes(x = diff.pct.loop, y =diff.pct.stl))+
   scale_y_continuous(limits = c(-90, 70))+
   facet_grid(~weekday)
 
+loop_compare <- 
 ggplot(loopstl, aes(x = date))+
   geom_point(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties\n"))+
   geom_line(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties\n"))+
@@ -100,6 +101,7 @@ ggplot(loopstl, aes(x = date))+
   scale_y_continuous(breaks = seq(from = -100, to = 100, by = 20), name = '% Difference from Typical')+
   scale_x_date(date_breaks = "1 week", date_labels = "%b %d")
 
+ggsave(paste0('output/streetlight-vs-trafficsensors.png'),loop_compare, height = 7, width = 13, units = 'in', dpi = 300)
 
 # 
 #   geom_abline(slope = 1, linetype = 'dotdash', color = 'black', intercept = -15)+
