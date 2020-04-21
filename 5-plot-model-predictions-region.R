@@ -155,7 +155,7 @@ static_plot <-
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
   
    # logo
-  annotation_raster(mypng, ymin = -95, ymax= -60,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-14')))
+  annotation_raster(mypng, ymin = -95, ymax= -60,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-15')))
 
 
 
