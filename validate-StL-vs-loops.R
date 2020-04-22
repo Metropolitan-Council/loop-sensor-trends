@@ -103,6 +103,7 @@ ggplot(loopstl, aes(x = date))+
 
 ggsave(paste0('output/streetlight-vs-trafficsensors.png'),loop_compare, height = 7, width = 13, units = 'in', dpi = 300)
 
+
 # 
 #   geom_abline(slope = 1, linetype = 'dotdash', color = 'black', intercept = -15)+
 #   geom_abline(slope = 0.5, linetype = 'dash', color = 'gray40', intercept = -14)
