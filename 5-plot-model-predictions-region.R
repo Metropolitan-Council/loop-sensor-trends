@@ -204,13 +204,13 @@ plot2<-
   theme_minimal()+
   
   # shaded rectangle for stay-at-home order:
-  annotate("rect", xmin = 12.5, xmax = 15.5, ymin = -Inf, ymax = Inf,
+  annotate("rect", xmin = 12.5, xmax = 16.5, ymin = -Inf, ymax = Inf,
            alpha = .15)+
   
   geom_bar(stat = 'identity', position = 'dodge', width =0.8)+
   geom_hline(yintercept = 0)+
   scale_y_continuous(limits = c(-55,10), breaks = seq(from = -50, to = 0, by = 10))+
-  scale_x_continuous(limits = c(8.5, 15.5), breaks = seq(from = 9, to = 15, by = 1))+
+  scale_x_continuous(limits = c(8.5, 16.5), breaks = seq(from = 9, to = 16, by = 1))+
   cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
   labs(x = "Week of Year", y = "% difference from typical traffic")+
