@@ -116,7 +116,7 @@ mod_plot_server <- function(input, output, session) {
       ) %>% 
       add_annotations(
         data = covid.traffic.trends::mn_actions,
-        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 25),
+        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 20),
         x = covid.traffic.trends::mn_actions$date,
         y = covid.traffic.trends::mn_actions$typical_vmt_diff,
         showarrow = TRUE,
