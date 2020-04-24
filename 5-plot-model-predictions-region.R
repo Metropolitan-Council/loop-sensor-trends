@@ -146,7 +146,7 @@ static_plot <-
   theme_minimal()+
   cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
-  ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
+  # ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
   scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
@@ -218,7 +218,7 @@ plot2<-
                 label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
             vjust = 'outward', size = 3.7, hjust = 0.5, position = position_dodge(width = 1))+
   scale_fill_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
-    ggtitle(paste0("Weekly Average Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
+    # ggtitle(paste0("Weekly Average Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
    # scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
   annotation_raster(mypng, ymin = 2, ymax= 20,xmin = 5, xmax = 6)
 plot2
