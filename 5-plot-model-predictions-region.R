@@ -42,13 +42,13 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 1 # change back to -1 when new data available
+yesterday <- Sys.Date() - 2 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
+# mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
