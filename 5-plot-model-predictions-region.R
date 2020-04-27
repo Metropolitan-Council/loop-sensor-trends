@@ -30,7 +30,6 @@ diffs_4plot <- fread(paste0('output/pred-and-act-vol-region.csv'))
 diffs_4plot[,date:=as.IDate(date)]
 
 
-diffs_4plot
 
 ggplot(diffs_4plot, aes(x = date))+
   geom_point(aes(y = vmt.predict, color = "Predicted VMT"))+
@@ -42,13 +41,13 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 2 # change back to -1 when new data available
+yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-# mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
+mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
@@ -102,7 +101,7 @@ static_plot <-
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
 
   # shaded rectangle for stay-at-home order:
-  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Sys.Date(), ymin = -Inf, ymax = Inf, 
+  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Sys.Date()+2, ymin = -Inf, ymax = Inf, 
            alpha = .15)+
   
   
@@ -149,7 +148,7 @@ static_plot <-
   # ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
-  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
+  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days", limits = c(as.Date('2020-03-06'), Sys.Date()+2))+
   scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
   #  colors:
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
