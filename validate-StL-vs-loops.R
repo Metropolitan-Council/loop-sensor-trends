@@ -98,8 +98,8 @@ ggplot(loopstl, aes(x = date))+
   
   cowplot::theme_cowplot()+
   geom_hline(yintercept = 0, color = 'black')+
-  scale_y_continuous(breaks = seq(from = -100, to = 100, by = 20), name = '% Difference from Typical')+
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d")
+  scale_y_continuous(breaks = seq(from = -100, to = 0, by = 10), limits = c(-100, 0), name = '% Difference from Typical')+
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d", limits = c(as.Date('2020-04-01'), Sys.Date()))
 
 ggsave(paste0('output/streetlight-vs-trafficsensors.png'),loop_compare, height = 7, width = 13, units = 'in', dpi = 300)
 
