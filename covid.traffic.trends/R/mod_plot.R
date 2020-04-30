@@ -101,6 +101,7 @@ mod_plot_server <- function(input, output, session) {
                            x = covid.traffic.trends::mn_actions$date,
                            y = covid.traffic.trends::mn_actions$typical_vmt_diff,
                            name = "Major Actions and \nEvents",
+                           legendgroup = "Events",
                            mode = "markers",
                            type = "scatter",
                            hoverinfo = "none",
@@ -120,6 +121,7 @@ mod_plot_server <- function(input, output, session) {
       add_annotations(
         data = covid.traffic.trends::mn_actions,
         text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 20),
+        legendgroup = "Events",
         x = covid.traffic.trends::mn_actions$date,
         y = covid.traffic.trends::mn_actions$typical_vmt_diff,
         showarrow = TRUE,
