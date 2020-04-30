@@ -9,6 +9,7 @@ mn_actions <- cbind(
            '2020-03-18', # Gov. Walz & MDH ask all gyms, bars, public spaces to close, restaurants limit to take-out
            '2020-03-27', # Gov. Walz & MDH ask everyone to stay home except for essential needs
            '2020-04-08',  # Gov. Walz & MDH extend stay-at-home order to May 4
+           '2020-04-12',
            '2020-04-27'),
   action = c('MDH confirms 1st COVID-19 case in MN', 
              # 'UMN Suspends In-Person Classes', 
@@ -17,6 +18,7 @@ mn_actions <- cbind(
              'Gov. Walz asks all gyms, bars, public spaces to close, restaurants limit to take-out',
              'Gov. Walz asks everyone to stay home except for essential needs',
              'Gov. Walz extends stay-at-home order to May 4',
+             'Easter Sunday snowstorm',
              'Some workplaces re-open'
   ),
   link = c('https://www.health.state.mn.us/diseases/coronavirus/situation.html',
