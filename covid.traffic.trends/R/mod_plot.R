@@ -61,6 +61,7 @@ mod_plot_server <- function(input, output, session) {
   output$plot <- renderPlotly({
     plot_ly() %>%
       plotly::add_markers(
+        type = "scatter",
         data = covid.traffic.trends::predicted_actual_by_region["doy" > 60 & "year" == 2020],
         x = covid.traffic.trends::predicted_actual_by_region$date,
         y = covid.traffic.trends::predicted_actual_by_region$typical_vmt_diff,
@@ -81,6 +82,7 @@ mod_plot_server <- function(input, output, session) {
         x = covid.traffic.trends::predicted_actual_by_state$date,
         y = covid.traffic.trends::predicted_actual_by_state$typical_vmt_diff,
         name = "MnDOT Statewide\n(105 Stations)\n",
+        type = "scatter",
         mode = "lines+markers",
         hoverinfo = "text",
         text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
@@ -98,8 +100,9 @@ mod_plot_server <- function(input, output, session) {
                            data = covid.traffic.trends::mn_actions,
                            x = covid.traffic.trends::mn_actions$date,
                            y = covid.traffic.trends::mn_actions$typical_vmt_diff,
-                           name = "Minnesota State\nActions",
+                           name = "Major Actions and \nEvents",
                            mode = "markers",
+                           type = "scatter",
                            hoverinfo = "none",
                            marker = list(
                              size = 12,
