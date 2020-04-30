@@ -66,8 +66,9 @@ actions <- cbind(
            '2020-03-13', #Gov. Walz declares\npeacetime emergency;\ncalls for cancellation\nof events >250 ppl
            '2020-03-18', #Gov. Walz announces\npublic schools\nwill close by Mar. 18
            # '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
-           '2020-03-22',
+           '2020-04-12',
            '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
+           '2020-04-27', # Gov. Walz announces 
            as.character(Sys.Date()-1)),
   action = c(
     # '1st Confirmed\nCOVID-19 case in MN', 
@@ -75,8 +76,9 @@ actions <- cbind(
              'Peacetime\nemergency declared', 
              'Public schools closed;\nIn-person dining suspended',
              # 'Gov. Walz & MDH ask all gyms, bars, public spaces\n to close,restaurants limit to take-out',
-             '',
+             'Easter Sunday\nSnowstorm',
              'MN "Stay-at-home" order\ntakes effect',
+             'Some\nworkplaces\nre-open',
              '')
 )
 
@@ -89,7 +91,8 @@ actions[,arrow_start:=c(
   -27, 
   # -38, 
    -49, 
-  NA, -80, NA)]
+  -80, 
+  -85, -60, NA)]
 
 # add logo
 library(png)
@@ -101,7 +104,7 @@ static_plot <-
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
 
   # shaded rectangle for stay-at-home order:
-  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Sys.Date()+2, ymin = -Inf, ymax = Inf, 
+  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = as.Date('2020-05-04'), ymin = -Inf, ymax = Inf, 
            alpha = .15)+
   
   
@@ -148,7 +151,7 @@ static_plot <-
   # ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
-  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days", limits = c(as.Date('2020-03-06'), Sys.Date()+2))+
+  scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days", limits = c(as.Date('2020-03-06'), as.Date('2020-05-04')))+
   scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
   #  colors:
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
@@ -158,8 +161,8 @@ static_plot <-
 
 
 
-ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
-ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 13, units = 'in', dpi = 300)
+ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
+ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
 ### Plot Weekly Trends
 
