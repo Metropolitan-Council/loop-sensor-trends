@@ -20,15 +20,15 @@ mn_actions <- cbind(
              'Gov. Walz extends stay-at-home order to May 4',
              'Easter Sunday snowstorm',
              'Some workplaces re-open'
-  ),
-  link = c('https://www.health.state.mn.us/diseases/coronavirus/situation.html',
-           # 'https://safe-campus.umn.edu/public-health-alerts',
-           'https://mn.gov/governor/assets/EO%2020-01_tcm1055-422957.pdf',
-           'https://mn.gov/governor/news/?id=1055-423071',
-           'https://mn.gov/governor/assets/2020_03_16_EO_20_04_Bars_Restaurants_tcm1055-423380.pdf',
-           'https://mn.gov/governor/assets/3a.%20EO%2020-20%20FINAL%20SIGNED%20Filed_tcm1055-425020.pdf',
-           'https://mn.gov/governor/assets/2a.%20EO%2020-33%20Final_tcm1055-427370.pdf',
-           'https://mn.gov/governor/assets/EO%2020-40%20Final_tcm1055-429564.pdf')
+  )
+  # link = c('https://www.health.state.mn.us/diseases/coronavirus/situation.html',
+  #          # 'https://safe-campus.umn.edu/public-health-alerts',
+  #          'https://mn.gov/governor/assets/EO%2020-01_tcm1055-422957.pdf',
+  #          'https://mn.gov/governor/news/?id=1055-423071',
+  #          'https://mn.gov/governor/assets/2020_03_16_EO_20_04_Bars_Restaurants_tcm1055-423380.pdf',
+  #          'https://mn.gov/governor/assets/3a.%20EO%2020-20%20FINAL%20SIGNED%20Filed_tcm1055-425020.pdf',
+  #          'https://mn.gov/governor/assets/2a.%20EO%2020-33%20Final_tcm1055-427370.pdf',
+  #          'https://mn.gov/governor/assets/EO%2020-40%20Final_tcm1055-429564.pdf')
 ) %>% 
   data.table::as.data.table() %>% 
   dplyr::left_join(predicted_actual_by_region, by = "date") 
