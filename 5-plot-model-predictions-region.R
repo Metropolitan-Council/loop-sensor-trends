@@ -41,10 +41,10 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 1 # change back to -1 when new data available
+yesterday <- Sys.Date() -1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
-yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
-
+# yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
+yesterday <- format(yesterday, format = '%m-%d-%Y')
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
 mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
@@ -77,7 +77,7 @@ actions <- cbind(
              'Public schools closed;\nIn-person dining suspended',
              # 'Gov. Walz & MDH ask all gyms, bars, public spaces\n to close,restaurants limit to take-out',
              'Easter Sunday\nSnowstorm',
-             'MN "Stay-at-home" order\ntakes effect',
+             '"Stay-at-home"\norder takes effect',
              'Some\nworkplaces\nre-open',
              '')
 )
@@ -160,7 +160,7 @@ static_plot <-
   annotation_raster(mypng, ymin = -95, ymax= -70,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-15')))
 
 
-
+static_plot
 ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
@@ -198,31 +198,33 @@ weekly_dat <- merge(weekly_dat, unique(mndotdat[mndotdat$weekday == 'Monday',c('
 weekly_dat[,date:=as.IDate(date)]
 weekly_dat[,week_of:=format(date, '%b %d')]
 weekly_dat[,week_of:=paste0('Week of\n', week_of)]
+weekly_dat[,week_of:=factor(week_of, levels = unique(weekly_dat$week_of))]
+weekly_dat$woy2 <- format(weekly_dat$woy, "%m-%d")
 
 plot2<-
   ggplot(weekly_dat,  
-         aes(x = woy,
+         aes(x = week_of,
              y = (`Difference from Typical VMT (%)`), fill = `Traffic Sensor Group`))+
   theme_minimal()+
   
-  # shaded rectangle for stay-at-home order:
-  annotate("rect", xmin = 12.5, xmax = 16.5, ymin = -Inf, ymax = Inf,
-           alpha = .15)+
+  # # shaded rectangle for stay-at-home order:
+  # annotate("rect", xmin = 12.5, xmax = 17.5, ymin = -Inf, ymax = Inf,
+  #          alpha = .15)+
   
-  geom_bar(stat = 'identity', position = 'dodge', width =0.8)+
+  geom_bar(stat = 'identity', position = 'dodge', width =0.9)+
   geom_hline(yintercept = 0)+
   scale_y_continuous(limits = c(-55,10), breaks = seq(from = -50, to = 0, by = 10))+
-  scale_x_continuous(limits = c(8.5, 16.5), breaks = seq(from = 9, to = 16, by = 1))+
+  # scale_x_continuous(limits = c(8.5, 17.5), breaks = seq(from = 9, to = 17, by = 1))+
   cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
-  labs(x = "Week of Year", y = "% difference from typical traffic")+
+  labs(x = "", y = "% difference from typical traffic")+
   geom_text(aes(y = (`Difference from Typical VMT (%)`),
                 label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            vjust = 'outward', size = 3.7, hjust = 0.5, position = position_dodge(width = 1))+
-  scale_fill_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
+            vjust = 1, size = 3.7, hjust = 0.5, position = position_dodge(width = 1), color = 'gray40')+
+  scale_fill_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")
     # ggtitle(paste0("Weekly Average Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
    # scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
-  annotation_raster(mypng, ymin = 2, ymax= 20,xmin = 5, xmax = 6)
+  # annotation_raster(mypng, ymin = 2, ymax= 20,xmin = 7, xmax = 9)
 plot2
 
 ggsave(paste0('output/weekly-traffic-trends.png'),plot2, height = 7, width = 10, units = 'in', dpi = 300)
