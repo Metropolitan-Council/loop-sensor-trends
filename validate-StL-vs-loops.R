@@ -3,7 +3,7 @@ library(data.table)
 library(tidyverse)
 library(sf)
 load('councilcolors.RData')
-stldat <- fread('data/StL_county_vmt_download.csv')
+stldat <- read.csv('data/StL_county_vmt_download.csv')
 
 stldat <- stldat %>%
   filter(state_name == 'Minnesota')
@@ -78,14 +78,14 @@ ggplot(loopstl, aes(x = diff.pct.loop, y =diff.pct.stl))+
 
 loop_compare <- 
 ggplot(loopstl, aes(x = date))+
-  geom_point(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties\n"))+
-  geom_line(aes(y =diff.pct.stl, color = "StreetLight,\nMetro Counties\n"))+
+  geom_point(aes(y =diff.pct.stl, color = "StreetLight VMT,\nMetro Counties\n"))+
+  geom_line(aes(y =diff.pct.stl, color = "StreetLight VMT,\nMetro Counties\n"))+
   
   # geom_point(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
   # geom_line(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
   
-  geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight,\nGreater MN Counties\n"))+
-  geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight,\nGreater MN Counties\n"))+
+  geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
+  geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
   
   geom_point(aes(y = diff.pct.loop, color = "Metro Loop Detectors\n"))+
   geom_line(aes(y =diff.pct.loop, color = "Metro Loop Detectors\n"))+
@@ -97,9 +97,13 @@ ggplot(loopstl, aes(x = date))+
                      name = 'Data Source')+
   
   cowplot::theme_cowplot()+
+  theme(panel.grid.major.x = element_line(color = 'gray90'),
+        panel.grid.major.y = element_line(color = 'gray90'))+
   geom_hline(yintercept = 0, color = 'black')+
   scale_y_continuous(breaks = seq(from = -100, to = 0, by = 10), limits = c(-100, 0), name = '% Difference from Typical')+
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d", limits = c(as.Date('2020-04-01'), Sys.Date()))
+  scale_x_date(breaks = seq(as.Date('2020-03-29'), as.Date('2020-05-04'),by="week"),
+               date_labels = "%b %d\n(%A)", 
+               limits = c(as.Date('2020-03-29'), Sys.Date()))
 
 ggsave(paste0('output/streetlight-vs-trafficsensors.png'),loop_compare, height = 7, width = 13, units = 'in', dpi = 300)
 
