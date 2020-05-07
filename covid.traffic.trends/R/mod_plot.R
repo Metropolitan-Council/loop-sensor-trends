@@ -133,7 +133,10 @@ mod_plot_server <- function(input, output, session) {
                                    color = "black"
                                  ),
                                  bgcolor = "white",
-                                 stroke = list(suppGray, suppGray, suppGray, suppGray),
+                                 stroke = list(councilR::colors$suppGray,
+                                               councilR::colors$suppGray, 
+                                               councilR::colors$suppGray,
+                                               councilR::colors$suppGray),
                                  padding = list(l = 5, r = 5, b = 5, t = 5)
               ),
               xaxis = list( #----
