@@ -33,7 +33,7 @@ jobs:
       - name: Install Package Dependencies
         working-directory: ${{ env.working-directory }}
         run: |-
-          Rscript -e "remotes::install_deps(dependencies = TRUE, upgrade = 'never', repos = 'https://cran.mtu.edu')"
+          Rscript -e "remotes::install_deps(dependencies = TRUE, upgrade = 'default', repos = 'https://cran.mtu.edu')"
       - name: Check Package
         working-directory: ${{ env.working-directory }}
         run: Rscript -e "rcmdcheck::rcmdcheck(error_on = 'error', check_dir = 'check')"
