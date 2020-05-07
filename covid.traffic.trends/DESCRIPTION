@@ -33,5 +33,5 @@ Suggests:
     data.table (>= 1.12.8)
 VignetteBuilder: knitr
 Remotes: 
-    Metropolitan-Council/council.skeleton
+    Metropolitan-Council/council.skeleton,
     Metropolitan-Council/councilR
