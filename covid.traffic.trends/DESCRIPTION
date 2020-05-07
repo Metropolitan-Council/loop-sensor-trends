@@ -24,7 +24,7 @@ Imports:
     plotly (>= 4.9.2),
     shinyWidgets (>= 0.5.1),
     DT,
-    fs (>= 1.4.1),
+    fs (>= 1.4),
     councilR (>= 0.1.0)
 Suggests: 
     testthat (>= 2.1.0),
