@@ -41,7 +41,7 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() -2 # change back to -1 when new data available
+yesterday <- Sys.Date() -1 # change back to -1 when new data available
 yesterday <- as.IDate(yesterday)
 # yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 yesterday <- format(yesterday, format = '%m-%d-%Y')
@@ -51,10 +51,7 @@ mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
-mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
-mndotdat <- rbind(mndotdat, data.frame('District'  = 'MnDOT Statewide', 
-                                       'date' = as.IDate('2020-05-05')), fill = T)
-mndotdat$`Difference from Typical VMT (%)`[mndotdat$date == '2020-05-05']<-(-29)
+mndotdat[, date := as.IDate(date, format = "%Y-%m-%d")]
 fwrite(mndotdat, paste0("output/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
 
