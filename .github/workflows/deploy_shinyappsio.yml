@@ -7,7 +7,7 @@ on:
    
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       working-directory: ./covid.traffic.trends
     container:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/cache@master
         with:
           path: /usr/local/lib/R/site-library
-          key: ${{ runner.os }}-r-${{ '3.6' }}-${{ hashFiles('covid.traffic.trends/DESCRIPTION') }}
+          key: ${{ runner.os }}-r-${{ '4.0' }}-${{ hashFiles('covid.traffic.trends/DESCRIPTION') }}
       - name: Install System Dependencies
         working-directory: ${{ env.working-directory }}
         run: |
