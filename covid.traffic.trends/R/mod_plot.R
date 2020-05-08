@@ -22,42 +22,9 @@ mod_plot_server <- function(input, output, session) {
   # Color palette values  
   font_family_list <- "Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif"
   
-  ## Council Colors
-  councilBlue   <- "#0054A4" # Council blue
-  cdGreen       <- "#78A22F" # Community Development green
-  mtsRed        <- "#EE3124" # MTS red
-  esBlue        <- "#009AC7" # Environmental Services blue
-  suppYellow    <- "#FFD200"
-  suppBlack     <- "#000000"
-  suppGray      <- "#666666"
-  suppWhite     <- "#FFFFFF"
-  ## Play Features colors
-  playGreen    <- "#7BA529"
-  playBlue     <- "#005AAD"
-  playDaBlue   <- "#00295A"
-  playYellow   <- "#C6DE29"
-  playLiBlue   <- "#009CCE"
-  playSalmon   <- "#E78452"
-  ## Metro Stats colors
-  metroBlue    <- "#0875C3"
-  metroBrown   <- "#A16C4C"
-  metroRed     <- "#A14D5D"
-  metroDaPurp  <- "#643967"
-  metroMePurp  <- "#AC74A6"
-  metroLiPurp  <- "#D8B5D6"
-  metroPink    <- "#F6BD9C"
-  metroTan     <- "#EAE6C8"
-  
-  ## Regional Parks Travel Patterns
-  parkGreen    <- "#008537" # the starting color for all parks
-  menuBlue     <- "#012b5d" # play features dark blue, background for sidebar menu
-  menuHoBlue   <- "#033a7d" # menu item hover color (~2 shades lighter than menuBlue)
-  startRed     <- "#f0c0a8" # starting color for TAZ index values
-  endRed       <- "#6d3112" # ending color for TAZ index values
-  parkYellow   <- "#ffd15d" # yellow for the selected park
   
   whiteSmoke   <- "#F5F5F5"
-  darkGreen    <- "#547121"
+  
   output$plot <- renderPlotly({
     plot_ly() %>%
       plotly::add_markers(
@@ -69,9 +36,9 @@ mod_plot_server <- function(input, output, session) {
         mode = "lines+markers",
         line = list(
           width = 3,
-          color = councilBlue
+          color = councilR::colors$councilBlue
         ),
-        marker = list(color = councilBlue,
+        marker = list(color = councilR::colors$councilBlue,
                       size = 8),
         hoverinfo = "text",
         text = paste(predicted_actual_by_region$hover_text),
@@ -120,7 +87,7 @@ mod_plot_server <- function(input, output, session) {
       ) %>% 
       add_annotations(
         data = covid.traffic.trends::mn_actions,
-        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 20),
+        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 16),
         legendgroup = "Events",
         x = covid.traffic.trends::mn_actions$date,
         y = covid.traffic.trends::mn_actions$typical_vmt_diff,
@@ -147,9 +114,9 @@ mod_plot_server <- function(input, output, session) {
               # title ="Metro Area Traffic: Difference between expected and observed",
               annotations = list(
                 text = paste(
-                             "<i>", "Data last updated", 
-                             max(c(predicted_actual_by_state$date, as.Date(predicted_actual_by_region$date))),
-                             "</i>"),
+                  "<i>", "Data last updated", 
+                  max(c(predicted_actual_by_state$date, as.Date(predicted_actual_by_region$date))),
+                  "</i>"),
                 x = 1, 
                 y = -0.1,
                 showarrow = F,
@@ -166,7 +133,10 @@ mod_plot_server <- function(input, output, session) {
                                    color = "black"
                                  ),
                                  bgcolor = "white",
-                                 stroke = list(suppGray, suppGray, suppGray, suppGray),
+                                 stroke = list(councilR::colors$suppGray,
+                                               councilR::colors$suppGray, 
+                                               councilR::colors$suppGray,
+                                               councilR::colors$suppGray),
                                  padding = list(l = 5, r = 5, b = 5, t = 5)
               ),
               xaxis = list( #----
