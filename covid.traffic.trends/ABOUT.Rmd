@@ -39,10 +39,9 @@ Researchers at the Met Council will continue to update these figures as addition
 the expected traffic level" style="width: 100%">
 
 
-
 ### Data sources  
 
-Traffic are provided by MnDOT. We pull these data using our open-source R package, [tc.sensors](https://github.com/Metropolitan-Council/tc.sensors).  
+Traffic data are provided by MnDOT. We pull these data using our open-source R package, [tc.sensors](https://github.com/Metropolitan-Council/tc.sensors).  
 
 ### Modeling    
   
@@ -52,8 +51,9 @@ Our GAMs consider two trends. One trend happens over the span of a year: in most
 
 #### May 2020 state model update  
 
-Starting May 7, 2020, the model for state data was updated to better reflect expected average conditons. Minnesota experienced significant weather events on two Thursdays in April 2019, which created a low historical baseline to compare current traffic levels against. The result was a large outlier on Thursday, April 30, 2020.  To remedy this issue, daily counter traffic is now compared against the month-day-of-week average from up to 4 years of data (2016-2019) depending on the consistency of traffic and data availability over the time period. 
+Starting May 6, 2020, the model for state data was modified to better reflect expected average conditons. Minnesota experienced significant weather events on two Thursdays in April 2019, which created a low historical baseline to compare current traffic levels against. The result was a large outlier on Thursday, April 30, 2020.  To remedy this issue, daily counter traffic is now compared against the month-day-of-week average from up to 4 years of data (2016-2019) depending on the consistency of traffic and data availability over the time period. 
 
+<img src="mndot-comparison.png" alt="Static plot showing the change traffic reduction when using the May 6, 2020 state model update and the previous state model." style="width: 100%">
 
 ### Resources  
 
