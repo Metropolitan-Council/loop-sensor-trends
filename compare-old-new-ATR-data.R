@@ -1,16 +1,4 @@
-# 1-pull-loop-sensor-data -----
-source('1-pull-loop-sensor-data.R')
 
-# 2-clean-aggregate-mndot-traffic-data
-source('2-clean-aggregate-mndot-traffic-data.R')
-
-# 3-model-daily-bynode
-source('3-model-daily-bynode.R')
-
-# 4-reshape-model-output-for-plotting
-source('4-reshape-model-output-for-plotting.R')
-
-###### COMPARE WEEKLY TRENDS
 
 ###########################
 library(ggplot2)
@@ -115,44 +103,18 @@ static_plot <-
   
   # horizontal line at zero:
   geom_hline(yintercept = 0)+
-   
-  # annotations - actions
-  geom_segment(data = actions, 
-               aes(x = date, xend = date, y = arrow_start+1, yend = arrow_end), 
-               arrow = arrow(angle = 20, length = unit(0.75, 'lines'), type = "closed"), color = councilBlue)+
-  geom_text(data = actions,
-            aes(x = date, y = arrow_start, 
-                label = paste0(format(date, '%b %d'), ": ", action)), 
-            hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
   # lines and points for MnDOT: 
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide, May 5 2020 Update\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide, May 5 2020 Update\n(105 Stations)\n'), size = 1, show.legend = F)+
+  geom_point(data = old_mndotdat[old_mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide:\nPrevious Baseline\n(105 Stations)\n'), size = 3)+
+  geom_line(data = old_mndotdat[old_mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide:\nPrevious Baseline\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   # lines and points for MnDOT: 
-  geom_point(data = old_mndotdat[old_mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide, Previous Model\n(105 Stations)\n'), size = 3)+
-  geom_line(data = old_mndotdat[old_mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide, Previous Model\n(105 Stations)\n'), size = 1, show.legend = F)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide:\nMay 6 2020 Update\n(105 Stations)\n'), size = 3)+
+  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide:\nMay 6 2020 Update\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   
-  # lines and points for Metro:
   geom_point(size = 3)+
   geom_line(size = 1, show.legend = F)+
-  
-  # large points for State: 
-  geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
-  geom_text(data = mndotdat[date %in% actions$date & !date == '2020-03-06'],
-            aes(x = date, y = `Difference from Typical VMT (%)`, 
-                label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            # hjust = 'center',vjust = -1.35, 
-            color = 'black', size = 3.7, fontface = 'italic')+
-  
-  # large points for Metro: 
-  geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
-  geom_text(data = actions,
-            aes(x = date, y = arrow_end, 
-                label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            # hjust = 'center', vjust = -0.7, 
-            color = councilBlue, size = 4, fontface = 'italic')+
   
   # global options: 
   theme_minimal()+
@@ -168,15 +130,14 @@ static_plot <-
                limits = c(as.Date('2020-03-06'), Sys.Date()+1))+
   scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
   #  colors:
-  scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")
+  scale_color_manual(values = c(councilBlue, 'black', mtsRed), name = "Traffic Sensor Group")
   
    # logo
   # annotation_raster(mypng, ymin = -95, ymax= -70,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-15')))
 
 
 static_plot
-ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
-ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
+ggsave(paste0('covid.traffic.trends/inst/app/www/mndot-comparison.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
 ### Plot Weekly Trends
 
