@@ -57,14 +57,20 @@ Starting May 7, 2020, the model for state data was updated to better reflect exp
 
 ### Resources  
 
-[Minnestota COVID-19 Response and Preparation](https://mn.gov/governor/covid-19/)  
-[Minnestoa Department of Health COVID-19 site](https://www.health.state.mn.us/diseases/coronavirus/index.html)  
+[Minnestota COVID-19 Response home page](https://mn.gov/governor/covid-19/)  
+[Minnestoa Department of Health COVID-19 home page](https://www.health.state.mn.us/diseases/coronavirus/index.html)  
+
+#### Other data tools  
+
+[Minnesota COVID-19 Public Dashboard](https://mndps.maps.arcgis.com/apps/opsdashboard/index.html#/f28f84968c1148129932c3bebb1d3a1a)  
+[Minnesota COVID-19 Response and Preparation Capacity dashboard](https://mn.gov/covid19/data/response-prep/index.jsp)  
 
 ### Contributors
 
   - Liz Roten, app development (Metropolitan Council)  
   - Ashley Asmus, data and model development (Metropolitan Council)  
   - Brian Kary, data development and ongoing consultation (MnDOT)  
+  - Ian Vaagenes, data and model development (MnDOT)
   - Jonathan Ehrlich, project management (Metropolitan Council)   
 
 ### Contact  
