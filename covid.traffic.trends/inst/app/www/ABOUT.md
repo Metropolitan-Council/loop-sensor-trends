@@ -44,8 +44,8 @@ the expected traffic level" style="width: 100%">
 
 ### Data sources
 
-Traffic are provided by MnDOT. We pull these data using our open-source
-R package,
+Traffic data are provided by MnDOT. We pull these data using our
+open-source R package,
 [tc.sensors](https://github.com/Metropolitan-Council/tc.sensors).
 
 ### Modeling
@@ -67,18 +67,44 @@ tends to be highest on Fridays, and lowest on Sundays. To allow the
 shapes of these yearly and weekly trends to vary in a location-specific
 way, we created separate models for each traffic monitoring station.
 
+#### May 2020 state model update
+
+Starting May 6, 2020, the model for state data was modified to better
+reflect expected average conditons. Minnesota experienced significant
+weather events on two Thursdays in April 2019, which created a low
+historical baseline to compare current traffic levels against. The
+result was a large outlier on Thursday, April 30. To remedy this issue,
+daily counter traffic is now compared against the month-day-of-week
+average from up to 4 years of data (2016-2019) depending on the
+consistency of traffic and data availability over the time period.
+
+The plot below shows how the model update changed the difference in
+expected traffic levels for statewide sensors. There are relatively
+small changes for dates, and higher traffic value for Thursday, April 30
+is reduced.
+
+<img src="mndot-comparison.png" alt="Static plot showing the change traffic reduction when using the May 6, 2020 state model update and the previous state model." style="width: 80%;margin-left: 10%;margin-right: 10%;">
+
 ### Resources
 
-[Minnestota COVID-19 Response and
-Preparation](https://mn.gov/governor/covid-19/)  
-[Minnestoa Department of Health COVID-19
-site](https://www.health.state.mn.us/diseases/coronavirus/index.html)
+[Minnestota COVID-19 Response home
+page](https://mn.gov/governor/covid-19/)  
+[Minnestoa Department of Health COVID-19 home
+page](https://www.health.state.mn.us/diseases/coronavirus/index.html)
+
+#### Other data tools
+
+[Minnesota COVID-19 Public
+Dashboard](https://mndps.maps.arcgis.com/apps/opsdashboard/index.html#/f28f84968c1148129932c3bebb1d3a1a)  
+[Minnesota COVID-19 Response and Preparation Capacity
+dashboard](https://mn.gov/covid19/data/response-prep/index.jsp)
 
 ### Contributors
 
   - Liz Roten, app development (Metropolitan Council)  
   - Ashley Asmus, data and model development (Metropolitan Council)  
   - Brian Kary, data development and ongoing consultation (MnDOT)  
+  - Ian Vaagenes, data and model development (MnDOT)  
   - Jonathan Ehrlich, project management (Metropolitan Council)
 
 ### Contact
@@ -91,6 +117,6 @@ repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2020-05-06*  
-Build ID: 2020-05-06.roten.65bf78b2  
+*Last updated 2020-05-08*  
+Build ID: 2020-05-08.roten.a85ca1bd  
 </right>
