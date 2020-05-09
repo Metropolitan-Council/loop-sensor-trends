@@ -109,7 +109,7 @@ static_plot <-
   geom_line(data = old_mndotdat[old_mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide:\nPrevious Baseline\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   # lines and points for MnDOT: 
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide:\nMay 6 2020 Update\n(105 Stations)\n'), size = 3)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = ), size = 3)+
   geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide:\nMay 6 2020 Update\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   
@@ -156,18 +156,30 @@ weekly_mndot <- mndotdat[date > '2020-03-01'
                             & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
 
 
+old_mndotdat[,date:=as.IDate(date)]
+old_mndotdat[,woy:=week(date-5)] # adjust to Monday
+old_mndotdat[,weekday:=weekdays(date)]
+old_mndotdat$weekday <- factor(old_mndotdat$weekday, levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'))
+
+old_weekly_mndot <- old_mndotdat[date > '2020-03-01'
+                         & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
 
 # aggregate to weekly scale
+old_weekly_mndot <- old_weekly_mndot[,lapply(.SD, mean),
+                             .SDcols = 'Difference from Typical VMT (%)',
+                             by = .(woy)]
+
 weekly_mndot <- weekly_mndot[,lapply(.SD, mean),
                              .SDcols = 'Difference from Typical VMT (%)',
                              by = .(woy)]
 weekly_diffs <- weekly_diffs[,lapply(.SD, mean),
                              .SDcols = 'Difference from Typical VMT (%)',
                            by = .(woy)]
-weekly_mndot[,`Traffic Sensor Group`:='MnDOT Statewide\n(105 Stations)\n']
+old_weekly_mndot[,`Traffic Sensor Group`:='MnDOT Statewide:\nPrevious Baseline\n(105 Stations)\n']
+weekly_mndot[,`Traffic Sensor Group`:='MnDOT Statewide:\nMay 6 2020 Update\n(105 Stations)\n']
 weekly_diffs[,`Traffic Sensor Group`:='MnDOT Metro Freeways\n(1000+ Stations)\n']
 
-weekly_dat <- rbind(weekly_mndot, weekly_diffs)
+weekly_dat <- rbind(weekly_mndot, old_weekly_mndot, weekly_diffs)
 
 weekly_dat <- merge(weekly_dat, unique(mndotdat[mndotdat$weekday == 'Monday',c('woy', 'date')]))
 weekly_dat[,date:=as.IDate(date)]
@@ -196,7 +208,7 @@ plot2<-
   geom_text(aes(y = (`Difference from Typical VMT (%)`),
                 label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
             vjust = 1, size = 3.7, hjust = 0.5, position = position_dodge(width = 1), color = 'gray40')+
-  scale_fill_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")
+  scale_fill_manual(values = c(councilBlue,'black', mtsRed), name = "Traffic Sensor Group")
     # ggtitle(paste0("Weekly Average Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
    # scale_x_date(date_breaks = "3 days", date_labels = '%m/%d\n(%a)', minor_breaks = "days")+
   # annotation_raster(mypng, ymin = 2, ymax= 20,xmin = 7, xmax = 9)
