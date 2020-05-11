@@ -4,7 +4,9 @@
 <!-- badges: start -->
 
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)![R-CMD-check
+and
+deploy](https://github.com/Metropolitan-Council/loop-sensor-trends/workflows/R-CMD-check%20and%20deploy/badge.svg)
 <!-- badges: end -->
 
 ## Contributing
