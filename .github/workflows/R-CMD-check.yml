@@ -1,18 +1,20 @@
-name: R-CMD-check and deploy
-
 on:
-   push:
-     branches: 
+  pull_request:
+    branches:
       - master
-   
+
+name: R-CMD-check
+
 jobs:
-  build:
+  R-CMD-check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     strategy:
       fail-fast: false
       matrix:
         config: 
+          - {os: windows-latest, r: 'release'}
+          - {os: macOS-latest, r: 'release'}
           - {os: ubuntu-latest, r: 'release', container: rocker/geospatial}
 
     env:
@@ -75,10 +77,3 @@ jobs:
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
           path: check
-      - name: Deploy app
-        working-directory: ${{ env.working-directory }}
-        env:
-          SHINYAPPSIO_TOKEN: ${{ secrets.SHINYAPPSIO_TOKEN }}
-          SHINYAPPSIO_SECRET: ${{ secrets.SHINYAPPSIO_SECRET }}
-        run: |
-         bash ./entrypoint.sh
