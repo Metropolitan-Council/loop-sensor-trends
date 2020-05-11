@@ -33,6 +33,7 @@ jobs:
       - name: Install Package Dependencies
         working-directory: ${{ env.working-directory }}
         run: |-
+          Rscript -e "install.packages('remotes')"
           Rscript -e "remotes::install_deps(dependencies = TRUE, upgrade = 'always', repos = 'https://mirror.las.iastate.edu/CRAN/')"
       - name: Check Package
         working-directory: ${{ env.working-directory }}
