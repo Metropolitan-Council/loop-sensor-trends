@@ -78,9 +78,9 @@ jobs:
         shell: Rscript {0}
 
       - name: Upload check results
-        working-directory: ${{ env.working-directory }}
         if: failure()
         uses: actions/upload-artifact@master
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
           path: check
+          working-directory: ${{ env.working-directory }}
