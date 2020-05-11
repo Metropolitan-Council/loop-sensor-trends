@@ -55,12 +55,6 @@ fwrite(mndotdat, paste0("output/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
 
 
-old_mndotdat <- fread('data/Daily_Volume_Change_05-05-2020_update.csv')
-old_mndotdat <- old_mndotdat[District %in% c("MnDOT Statewide")]
-old_mndotdat <- melt(old_mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
-old_mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
-old_mndotdat[,date:=as.IDate(date)]
-
 
 ###################################
 # MN state actions ####
@@ -126,13 +120,8 @@ static_plot <-
             hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
   # lines and points for MnDOT: 
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide, May 5 2020 Update\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide, May 5 2020 Update\n(105 Stations)\n'), size = 1, show.legend = F)+
-  
-  # lines and points for MnDOT: 
-  geom_point(data = old_mndotdat[old_mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide, Previous Model\n(105 Stations)\n'), size = 3)+
-  geom_line(data = old_mndotdat[old_mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide, Previous Model\n(105 Stations)\n'), size = 1, show.legend = F)+
-  
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
+  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   # lines and points for Metro:
   geom_point(size = 3)+
