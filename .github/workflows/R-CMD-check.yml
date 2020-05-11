@@ -9,7 +9,8 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
-
+    container:
+      image: rocker/geospatial
     strategy:
       fail-fast: false
       matrix:
@@ -70,7 +71,7 @@ jobs:
         working-directory: ${{ env.working-directory }}
         env:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
-        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "warning", check_dir = "check")
+        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "error", check_dir = "check")
         shell: Rscript {0}
 
       - name: Upload check results
