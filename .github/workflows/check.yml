@@ -7,7 +7,7 @@ on:
    
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       working-directory: ./covid.traffic.trends
     container:
@@ -33,7 +33,7 @@ jobs:
       - name: Install Package Dependencies
         working-directory: ${{ env.working-directory }}
         run: |-
-          Rscript -e "remotes::install_deps(dependencies = TRUE, upgrade = 'default', repos = 'https://mirror.las.iastate.edu/CRAN/')"
+          Rscript -e "remotes::install_deps(dependencies = TRUE, upgrade = 'always', repos = 'https://mirror.las.iastate.edu/CRAN/')"
       - name: Check Package
         working-directory: ${{ env.working-directory }}
         run: Rscript -e "rcmdcheck::rcmdcheck(error_on = 'error', check_dir = 'check')"
