@@ -152,7 +152,7 @@ static_plot <-
   # ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
-  scale_x_date(breaks = seq(as.Date('2020-03-08'), as.Date('2020-05-04'),by="week"),
+  scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+1,by="week"),
                date_labels = '%m/%d\n(%a)',
                limits = c(as.Date('2020-03-06'), Sys.Date()+1))+
   scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+

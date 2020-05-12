@@ -3,9 +3,10 @@ library(data.table)
 library(tidyverse)
 library(sf)
 load('councilcolors.RData')
-stldat <- read.csv('data/StL_county_vmt_download.csv')
+stldat <- openxlsx::read.xlsx('data/county_vmt_download_update_5.8.xlsx')
 
 stldat <- stldat %>%
+  mutate(ref_dt = openxlsx::convertToDate(ref_dt))%>%
   filter(state_name == 'Minnesota')
 
 stlmetro <- stldat %>%
