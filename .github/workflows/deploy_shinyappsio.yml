@@ -7,7 +7,7 @@ on:
    
 jobs:
   build:
-     runs-on: ubuntu-groovy
+     runs-on: ubuntu-latest
      container:
        image: rocker/geospatial
      env:
