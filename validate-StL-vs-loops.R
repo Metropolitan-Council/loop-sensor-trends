@@ -3,7 +3,7 @@ library(data.table)
 library(tidyverse)
 library(sf)
 load('councilcolors.RData')
-stldat <- openxlsx::read.xlsx('data/county_vmt_download_update_5.8.xlsx')
+stldat <- openxlsx::read.xlsx('data/county_vmt_download_update_5.11.xlsx')
 
 stldat <- stldat %>%
   mutate(ref_dt = openxlsx::convertToDate(ref_dt))%>%
@@ -102,7 +102,7 @@ ggplot(loopstl, aes(x = date))+
         panel.grid.major.y = element_line(color = 'gray90'))+
   geom_hline(yintercept = 0, color = 'black')+
   scale_y_continuous(breaks = seq(from = -100, to = 0, by = 10), limits = c(-100, 0), name = '% Difference from Typical')+
-  scale_x_date(breaks = seq(as.Date('2020-03-29'), as.Date('2020-05-04'),by="week"),
+  scale_x_date(breaks = seq(as.Date('2020-03-29'), Sys.Date(),by="week"),
                date_labels = "%b %d\n(%A)", 
                limits = c(as.Date('2020-03-29'), Sys.Date()))
 
