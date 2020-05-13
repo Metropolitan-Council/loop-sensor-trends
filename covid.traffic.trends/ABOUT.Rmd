@@ -55,7 +55,7 @@ Starting May 6, 2020, the model for state data was modified to better reflect ex
 
 The plot below shows how the model update changed the difference in expected traffic levels for statewide sensors. There are relatively small changes for dates, and higher traffic value for Thursday, April 30 is reduced.   
 
-<img src="mndot-comparison.png" alt="Static plot showing the change traffic reduction when using the May 6, 2020 state model update and the previous state model." style="width: 80%;margin-left: 10%;margin-right: 10%;">
+<img src="mndot-comparison.png" alt="Static plot showing the change traffic reduction when using the May 6, 2020 state model update and the previous state model." style="width: 70%;margin-left: 15%;margin-right: 15%;">
 
 ### Resources  
 

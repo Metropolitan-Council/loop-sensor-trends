@@ -83,7 +83,7 @@ expected traffic levels for statewide sensors. There are relatively
 small changes for dates, and higher traffic value for Thursday, April 30
 is reduced.
 
-<img src="mndot-comparison.png" alt="Static plot showing the change traffic reduction when using the May 6, 2020 state model update and the previous state model." style="width: 80%;margin-left: 10%;margin-right: 10%;">
+<img src="mndot-comparison.png" alt="Static plot showing the change traffic reduction when using the May 6, 2020 state model update and the previous state model." style="width: 70%;margin-left: 15%;margin-right: 15%;">
 
 ### Resources
 
@@ -117,6 +117,6 @@ repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2020-05-12*  
-Build ID: 2020-05-12.roten.9c9791dc  
+*Last updated 2020-05-13*  
+Build ID: 2020-05-13.roten.b99843d4  
 </right>
