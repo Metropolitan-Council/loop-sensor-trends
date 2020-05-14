@@ -8,3 +8,4 @@ $run_dev.*
 ^README\.Rmd$
 ^app\.R$
 ^entrypoint\.sh$
+^CODE_OF_CONDUCT\.md$

@@ -1,4 +1,4 @@
-name: Check and deploy
+name: R-CMD-check and deploy
 
 on:
    push:
@@ -7,36 +7,65 @@ on:
    
 jobs:
   build:
-    runs-on: ubuntu-18.04
-    env:
-      working-directory: ./covid.traffic.trends
-    container:
-      image: rocker/geospatial
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@master
-      - name: Cache
-        uses: actions/cache@master
+     runs-on: ubuntu-latest
+     container:
+       image: rocker/geospatial
+     env:
+       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+       working-directory: ./covid.traffic.trends
+     steps:
+      - uses: actions/checkout@v2
+
+      - uses: r-lib/actions/setup-r@master
         with:
-          path: /usr/local/lib/R/site-library
-          key: ${{ runner.os }}-r-${{ '3.6' }}-${{ hashFiles('covid.traffic.trends/DESCRIPTION') }}
-      - name: Install System Dependencies
+          r-version: ${{ matrix.config.r }}
+
+      - uses: r-lib/actions/setup-pandoc@master
+
+      - name: Query dependencies
         working-directory: ${{ env.working-directory }}
         run: |
-          sudo apt-get update && apt-get install -y --no-install-recommends \
-          libxml2-dev \
-          libssl-dev \
-          libpng-dev \
-          libudunits2-dev \
-          libcurl4-openssl-dev
-          sudo apt autoremove -y
-      - name: Install Package Dependencies
+          install.packages('remotes')
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE), "../.github/depends.Rds", version = 2)
+        shell: Rscript {0}
+
+      - name: Cache R packages
+        uses: actions/cache@v1
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ matrix.config.r }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-r-${{ matrix.config.r }}-1-
+
+      - name: Install system dependencies
         working-directory: ${{ env.working-directory }}
-        run: |-
-          Rscript -e "remotes::install_deps(dependencies = TRUE, repos = 'https://mirror.las.iastate.edu/CRAN/')"
-      - name: Check Package
+        env:
+          RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
+        run: |
+          Rscript -e "remotes::install_github('r-hub/sysreqs')"
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
+          sudo -s eval "$sysreqs"
+
+      - name: Install dependencies
         working-directory: ${{ env.working-directory }}
-        run: Rscript -e "rcmdcheck::rcmdcheck(error_on = 'error', check_dir = 'check')"
+        run: |
+          remotes::install_deps(dependencies = TRUE)
+          remotes::install_cran("rcmdcheck")
+        shell: Rscript {0}
+
+      - name: Check
+        working-directory: ${{ env.working-directory }}
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+          CI: true
+        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "error", check_dir = "check")
+        shell: Rscript {0}
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
+          path: check
       - name: Deploy app
         working-directory: ${{ env.working-directory }}
         env:

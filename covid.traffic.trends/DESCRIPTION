@@ -1,9 +1,9 @@
 Package: covid.traffic.trends
-Title: Twin Cities Traffic Trends and the COVID190 Pandemic
+Title: Twin Cities Traffic Trends and the COVID-19 Pandemic
 Version: 0.0.0.9000
 Authors@R: c(person("Metropolitan Council", role=c("cph")),
              person('Liz', 'Roten', email = 'liz.roten@metc.state.mn.us', role = c('cre', 'aut')))
-Description: A Shiny app 
+Description: A Shiny app. 
 URL: https://github.com/Metropolitan-Council/loop-sensor-trends/tree/master/covid.traffic.trends
 BugReports: https://github.com/Metropolitan-Council/loop-sensor-trends/issues
 License: MIT + file LICENSE
@@ -12,24 +12,27 @@ LazyData: true
 RoxygenNote: 7.1.0
 Depends: R (>= 3.5.0) 
 Imports: 
-    config,
-    golem,
-    shiny,
-    processx,
-    attempt,
+    config (>= 0.3),
+    golem (>= 0.2.1),
+    shiny (>= 1.4.0),
+    purrr (>= 0.3.3),
+    stringr (>= 1.4.0),
+    dplyr (>= 0.8),
+    htmltools (>= 0.4.0),
+    council.skeleton (>= 0.0.0.9000),
+    leaflet (>= 2.0.3),
+    plotly (>= 4.9.2),
+    shinyWidgets (>= 0.5.1),
     DT,
-    glue,
-    dplyr,
-    htmltools,
-    data.table,
-    skeleton (>= 0.0.0.9000),
-    leaflet,
-    plotly
+    fs (>= 1.4),
+    councilR (>= 0.1.0)
 Suggests: 
     testthat (>= 2.1.0),
     knitr,
-    rmarkdown,
-    tigris,
+    rmarkdown (>= 2.1),
+    tigris (>= 0.9.2),
+    data.table (>= 1.12.8)
 VignetteBuilder: knitr
 Remotes: 
-    eroten/skeleton
+    Metropolitan-Council/council.skeleton,
+    Metropolitan-Council/councilR

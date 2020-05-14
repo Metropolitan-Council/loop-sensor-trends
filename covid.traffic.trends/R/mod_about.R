@@ -5,7 +5,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd 
-#' @import skeleton
+#' @import council.skeleton
 #' @importFrom shiny NS tagList 
 mod_about_ui <- function(id){
   ns <- NS(id)
