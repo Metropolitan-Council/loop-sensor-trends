@@ -23,15 +23,15 @@ mod_leaflet_ui <- function(id) {
 mod_leaflet_server <- function(input, output, session,
                                map_inputs) {
   ns <- session$ns
-  
+
   output$map <- renderLeaflet({
     leaflet() %>%
       fitBounds(-93.521749, 44.854051, -92.899649, 45.081892) %>% # fitting boundary of map to metro area and rochester
       addProviderTiles("CartoDB.DarkMatter",
-                       group = "Carto DarkMatter"
+        group = "Carto DarkMatter"
       ) %>%
       addProviderTiles("CartoDB.Positron",
-                       group = "Carto Positron"
+        group = "Carto Positron"
       ) %>%
       addMapPane("polygons", zIndex = 410) %>%
       addMapPane("points", zIndex = 420) %>%
@@ -58,32 +58,35 @@ mod_leaflet_server <- function(input, output, session,
         options = layersControlOptions(collapsed = T)
       )
   })
-  
+
   current_nodes <- reactive({
     req(map_inputs$date)
     dat <- purrr::map(
       covid.traffic.trends::predicted_actual_by_node,
-      filter, date == map_inputs$date) %>% 
+      filter, date == map_inputs$date
+    ) %>%
       purrr::map(filter, corridor_route %in% c(map_inputs$corridor))
-    
+
     return(dat)
   })
-  
+
   update_map <- reactive({
     dat <- current_nodes()
-    
+
     col_pal <- colorBin( # palette generated with Chroma.js (#ee3124 to #0054a4)
-      palette = c('#840000', '#bd1712', 
-                  '#ed4434', '#fe8466', 
-                  '#fac0b1', '#accdfe',
-                  '#78a3e8', '#497acd', 
-                  '#2353a2', '#002f77'),
+      palette = c(
+        "#840000", "#bd1712",
+        "#ed4434", "#fe8466",
+        "#fac0b1", "#accdfe",
+        "#78a3e8", "#497acd",
+        "#2353a2", "#002f77"
+      ),
       domain = c(-100:100), bins = 10, # suggest white is zero, purple is decrease, orange is increase
       reverse = T
     )
-    
-    
-    map <- leafletProxy("map", session = session) %>% 
+
+
+    map <- leafletProxy("map", session = session) %>%
       clearGroup("Freeway Segment") %>%
       clearGroup("Entrance") %>%
       clearGroup("Exit") %>%
@@ -91,7 +94,7 @@ mod_leaflet_server <- function(input, output, session,
         data = dat$Freeway_Segment,
         lng = ~r_node_lon,
         lat = ~r_node_lat,
-        color = ~col_pal(volume.diff),
+        color = ~ col_pal(volume.diff),
         stroke = T,
         fillOpacity = 0.75,
         popup = ~ paste(hover_text),
@@ -134,19 +137,18 @@ mod_leaflet_server <- function(input, output, session,
         ),
         labFormat = labelFormat(suffix = "%")
       )
-    
+
     return(map)
-    
   })
-  
+
   observeEvent(map_inputs$corridor, {
     # print(map_inputs$corridor)
     # browser()
     update_map()
   })
-  
-  
-  
+
+
+
   observeEvent(map_inputs$date, {
     update_map()
   })

@@ -21,66 +21,68 @@ app_ui <- function(request) {
           council.skeleton::sk_nav_item("download", "Download Data"),
           council.skeleton::sk_nav_item("about", "About")
         ),
-        
+
         council.skeleton::sk_row(
           id = "map_plot",
           width = 12,
           h5("Twin Cities’ freeway travel decreasing across COVID-19 timeline"),
-          
+
           council.skeleton::sk_col("sk_plot_col",
-                                   width = 12,
-                                   
-                                   council.skeleton::sk_col("sk_sidebar_plot",
-                                                            width = 3,
-                                                            mod_sidebar_ui("sidebar_ui_plot", pair = "plot")),
-                                   council.skeleton::sk_col("sk_plot",
-                                                            width = 9,
-                                                            mod_plot_ui("plot_ui_1")
-                                   )
-                                   
+            width = 12,
+
+            council.skeleton::sk_col("sk_sidebar_plot",
+              width = 3,
+              mod_sidebar_ui("sidebar_ui_plot", pair = "plot")
+            ),
+            council.skeleton::sk_col("sk_plot",
+              width = 9,
+              mod_plot_ui("plot_ui_1")
+            )
           ),
           h5("Decreases in freeway travel are occuring across the Twin Cities metropolitan region"),
-          
+
           council.skeleton::sk_col("sk_map_col",
-                                   width = 12,
-                                   council.skeleton::sk_col("sk_sidebar_map",
-                                                            width = 3,
-                                                            mod_sidebar_ui("sidebar_ui_map", pair = "map")),
-                                   
-                                   council.skeleton::sk_col("sk_map",
-                                                            width = 9,
-                                                            mod_leaflet_ui("leaflet_ui")
-                                   )
+            width = 12,
+            council.skeleton::sk_col("sk_sidebar_map",
+              width = 3,
+              mod_sidebar_ui("sidebar_ui_map", pair = "map")
+            ),
+
+            council.skeleton::sk_col("sk_map",
+              width = 9,
+              mod_leaflet_ui("leaflet_ui")
+            )
           )
         ),
-        
+
         council.skeleton::sk_row(
           id = "download",
           sk_col("sk_sidebar_download",
-                 width = 3,
-                 h5("Download the most recent data"),
-                 mod_sidebar_ui("sidebar_ui_table", pair = "table"),
+            width = 3,
+            h5("Download the most recent data"),
+            mod_sidebar_ui("sidebar_ui_table", pair = "table"),
           ),
-          sk_col("sk_table", 
-                 width = 9,
-                 mod_table_ui("table_ui_1")
+          sk_col("sk_table",
+            width = 9,
+            mod_table_ui("table_ui_1")
           )
         ),
-        
-        
+
+
         council.skeleton::sk_row(
           id = "about",
           mod_about_ui("about_ui")
         ),
-        
-        
+
+
         tags$div("For an accessible version of this information, please contact us at",
-                 tags$a(href = "mailto:public.info@metc.state.mn.us","public.info@metc.state.mn.us"),
-                 style = "font-size: 1rem;
+          tags$a(href = "mailto:public.info@metc.state.mn.us", "public.info@metc.state.mn.us"),
+          style = "font-size: 1rem;
              display: block;
              text-align: right;
-             padding: 1%;", align = "right"),
-        
+             padding: 1%;", align = "right"
+        ),
+
         tags$footer(
           #----
           tags$a(
@@ -109,7 +111,7 @@ golem_add_external_resources <- function() {
   add_resource_path(
     "www", app_sys("app/www")
   )
-  
+
   suppressDependencies()
   tags$head(
     favicon(),
