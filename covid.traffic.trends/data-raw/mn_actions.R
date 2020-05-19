@@ -2,25 +2,28 @@
 ## actions taken by the governor and MDH
 
 mn_actions <- cbind(
-  date = c('2020-03-06', # MN Dept. of Health confirms 1st COVID-19 case in MN
-           # '2020-03-11', # UMN Suspends In-Person Classes
-           '2020-03-13', # Gov. Walz declares peacetime emergency; calls for cancellation of events >250 ppl
-           '2020-03-18', # Gov. Walz & MDH ask all gyms, bars, public spaces to close, restaurants limit to take-out
-           '2020-03-27', # Gov. Walz & MDH ask everyone to stay home except for essential needs
-           '2020-04-08',  # Gov. Walz & MDH extend stay-at-home order to May 4
-           '2020-04-12',
-           '2020-04-27'
-           # '2020-04-30'
-           ),
-  action = c('MDH confirms 1st COVID-19 case in MN', 
-             # 'UMN Suspends In-Person Classes', 
-             'Peacetime emergency declared', 
-             'Public schools close. In-person dining suspended',
-             'Stay at home order begins',
-             'Stay at home order extends to May 4',
-             'Easter Sunday snowstorm',
-             'Some workplaces re-open'
-             # 'Stay at home order extends to May 18'
+  date = c(
+    "2020-03-06", # MN Dept. of Health confirms 1st COVID-19 case in MN
+    # '2020-03-11', # UMN Suspends In-Person Classes
+    "2020-03-13", # Gov. Walz declares peacetime emergency; calls for cancellation of events >250 ppl
+    "2020-03-18", # Gov. Walz & MDH ask all gyms, bars, public spaces to close, restaurants limit to take-out
+    "2020-03-27", # Gov. Walz & MDH ask everyone to stay home except for essential needs
+    "2020-04-08", # Gov. Walz & MDH extend stay-at-home order to May 4
+    "2020-04-12",
+    "2020-04-27",
+    "2020-05-18"
+    # '2020-04-30'
+  ),
+  action = c(
+    "MDH confirms 1st COVID-19 case in MN",
+    # 'UMN Suspends In-Person Classes',
+    "Peacetime emergency declared",
+    "Public schools close. In-person dining suspended",
+    "Stay at home order begins",
+    "Stay at home order extends to May 4",
+    "Easter Sunday snowstorm",
+    "Some workplaces re-open",
+    "Stay at home order expires"
   )
   # link = c('https://www.health.state.mn.us/diseases/coronavirus/situation.html',
   #          # 'https://safe-campus.umn.edu/public-health-alerts',
@@ -30,9 +33,9 @@ mn_actions <- cbind(
   #          'https://mn.gov/governor/assets/3a.%20EO%2020-20%20FINAL%20SIGNED%20Filed_tcm1055-425020.pdf',
   #          'https://mn.gov/governor/assets/2a.%20EO%2020-33%20Final_tcm1055-427370.pdf',
   #          'https://mn.gov/governor/assets/EO%2020-40%20Final_tcm1055-429564.pdf')
-) %>% 
-  data.table::as.data.table() %>% 
-  dplyr::left_join(predicted_actual_by_region, by = "date") 
+) %>%
+  data.table::as.data.table() %>%
+  dplyr::left_join(predicted_actual_by_region, by = "date")
 
 
 
