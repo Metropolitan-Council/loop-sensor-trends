@@ -12,7 +12,7 @@ det_config <- unique(config[,.(r_node_name, r_node_n_type,
                                r_node_lanes, r_node_shift, r_node_s_limit, r_node_station_id, 
                                r_node_attach_side, corridor_route, corridor_dir)])
 
-node_files <- list.files('data/data_daily_node')
+node_files <- list.files('D:/data/data_daily_node')
 node_names <- gsub('.csv', '', node_files)
 # gam_list <- vector("list", length(node_names))
 # pred_ls <- vector("list", length(node_names))
@@ -36,7 +36,7 @@ foreach(i = node_files) %dopar% {
   
   # i <- node_files[[3245]] # test
   # i <- "rnd_1805.csv"
-  dailydat <- fread(paste0("data/data_daily_node/", i))
+  dailydat <- fread(paste0("D:/data/data_daily_node/", i))
   dailydat <- unique(dailydat)
   if(nrow(dailydat) == 0){} else{
     
@@ -57,7 +57,7 @@ foreach(i = node_files) %dopar% {
   dailydat[, "num_days_per_year" := uniqueN(date), by = .(r_node_name, year)]
   dailydat <- dailydat[num_days_per_year > 60]
   
-  has_2020_data <- unique(dailydat$r_node_name[dailydat$year == 2020])
+  has_2020_data <- unique(dailydat$r_node_name[dailydat$year == 2020 & dailydat$date < "2020-03-01"])
   has_2018_data <- unique(dailydat$r_node_name[dailydat$year == 2018])
   has_2019_data <- unique(dailydat$r_node_name[dailydat$year == 2019])
   

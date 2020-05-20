@@ -50,3 +50,5 @@ output/daily_model_predictions_bynode/
 output/gam-models-2020-04-02.RData
 
 hourly-model-example.jpeg
+
+db-connect.R

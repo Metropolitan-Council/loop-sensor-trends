@@ -47,7 +47,7 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 # yesterday <- format(yesterday, format = '%m-%d-%Y')
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread(paste0('data/Daily_Volume_Change_', yesterday, '_update.csv'))
+mndotdat <- fread(paste0('data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'))
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
 mndotdat[, date := as.IDate(date, format = "%Y-%m-%d")]
@@ -69,7 +69,9 @@ actions <- cbind(
            '2020-04-12',
            '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
            '2020-04-27', # Gov. Walz announces 
-           as.character(Sys.Date()-1)),
+           '2020-05-18'
+           ),
+           # ,  as.character(Sys.Date()-1)),
   action = c(
     # '1st Confirmed\nCOVID-19 case in MN', 
              # 'UMN Suspends\nIn-Person Classes', 
@@ -79,7 +81,9 @@ actions <- cbind(
              'Easter Sunday\nSnowstorm',
              '"Stay-at-home"\norder takes effect',
              'Some\nworkplaces\nre-open',
-             '')
+             '"Stay-at-home"\norder expires;"Stay-safe"\norder takes effect'
+  )
+             # , '')
 )
 
 actions <-data.table(actions)
@@ -92,11 +96,13 @@ actions[,arrow_start:=c(
   # -38, 
    -49, 
   -80, 
-  -85, -60, NA)]
+  -85, -75, -70
+)]
+  # , NA)]
 
 # add logo
-library(png)
-mypng <- readPNG('MetcLogo4C-360x265.png')
+# library(png)
+# mypng <- readPNG('MetcLogo4C-360x265.png')
 
 # Static plot
 static_plot <-
@@ -104,9 +110,12 @@ static_plot <-
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
 
   # shaded rectangle for stay-at-home order:
-  annotate("rect", xmin = (as.Date('2020-03-28')), xmax = Sys.Date()+1, ymin = -Inf, ymax = Inf, 
+  annotate("rect", xmin = as.Date('2020-03-28'), xmax = as.Date('2020-05-18'), ymin = -Inf, ymax = Inf, 
            alpha = .15)+
   
+  # shaded rectangle for stay-safe order:
+  annotate("rect", xmin = as.Date('2020-05-18'), xmax = Sys.Date()+3, ymin = -Inf, ymax = Inf, 
+           fill = councilBlue, alpha = .15)+
   
   # horizontal line at zero:
   geom_hline(yintercept = 0)+
@@ -153,20 +162,21 @@ static_plot <-
   # ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
-  scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+1,by="week"),
+  scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="week"),
                date_labels = '%m/%d\n(%a)',
-               limits = c(as.Date('2020-03-06'), Sys.Date()+1))+
+               limits = c(as.Date('2020-03-06'), Sys.Date()+3))+
   scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
   #  colors:
-  scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")
+  scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
+  theme(legend.position = 'bottom', legend.direction = 'horizontal', legend.justification = 'center')
   
    # logo
   # annotation_raster(mypng, ymin = -95, ymax= -70,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-15')))
 
 
 static_plot
-ggsave(paste0('output/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
-ggsave(paste0('covid.traffic.trends/inst/app/www/traffic-trends-actions.png'),static_plot, height = 7, width = 14, units = 'in', dpi = 300)
+ggsave('output/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
+ggsave('covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
 ### Plot Weekly Trends
 

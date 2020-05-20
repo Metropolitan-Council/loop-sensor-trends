@@ -108,7 +108,7 @@ foreach(j = chosen_sensors) %dopar% {
                                                                      median = median(x, na.rm = T))))),
                        by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
   
-  data.table::fwrite(loops_df, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
+  data.table::fwrite(loops_df, paste0("D:/data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
   
   
 }
