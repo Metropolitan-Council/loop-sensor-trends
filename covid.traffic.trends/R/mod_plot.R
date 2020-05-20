@@ -100,7 +100,7 @@ mod_plot_server <- function(input, output, session) {
         axref = "x",
         ayref = "y",
         ax = as.Date(covid.traffic.trends::mn_actions$date) - 1,
-        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 15,
+        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 18,
         # xshift = -20,
         # yshift = -30,
         font = list(
