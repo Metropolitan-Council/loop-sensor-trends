@@ -179,7 +179,6 @@ ggsave('output/traffic-trends-actions.png',static_plot, height = 7, width = 14, 
 ggsave('covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
 ### Plot Weekly Trends
-
 weekly_diffs <- diffs_4plot[date > '2020-03-01'
                               & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
 
