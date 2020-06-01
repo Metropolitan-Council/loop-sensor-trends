@@ -33,9 +33,9 @@ registerDoParallel(cl)
 foreach(this_node = chosen_nodes) %dopar% {
   
   # Find list of sensors for that node
-  this_node <- "rnd_792"
+  # this_node <- "rnd_792"
   chosen_sensors <- chosen_sensors_dt$detector_name[chosen_sensors_dt$r_node_name == this_node]
-  date_range <- c(Sys.Date()-1) # yesterday's data
+  date_range <- c(Sys.Date()-1, Sys.Date()-2, Sys.Date()-3) # yesterday's data
   
   n <- length(date_range)
   loops_ls <- vector("list", n)
