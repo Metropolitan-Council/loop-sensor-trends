@@ -68,7 +68,7 @@ registerDoParallel(cl)
 
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
-  date_range <- c(Sys.Date()-1, Sys.Date()-2, Sys.Date()-3) # yesterday's data
+  date_range <- c(Sys.Date()-1) # yesterday's data
   # date_range <- c(seq(as.Date("2020-05-18"), as.Date("2020-05-21"), by = "days"))
   #                 seq(as.Date("2019-07-01"), as.Date("2019-12-15"), by = "days"))
   
