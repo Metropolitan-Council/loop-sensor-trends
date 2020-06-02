@@ -38,7 +38,7 @@ unique_corridors <- unique(predicted_actual_by_node$corridor_route)
 
 predicted_actual_by_node <- predicted_actual_by_node %>%
   group_by(node_type) %>%
-  dplyr::group_split(keep = TRUE)
+  dplyr::group_split(.keep = TRUE)
 
 
 names(predicted_actual_by_node) <- c("Entrance", "Exit", "Freeway_Segment")
