@@ -17,7 +17,7 @@ library(ggplot2)
 library(plotly)
 library(data.table)
 
-load('councilcolors.Rdata')
+load('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/councilcolors.Rdata')
 ##########################
 
 
@@ -26,7 +26,7 @@ load('councilcolors.Rdata')
 # number of households in metro area (estimated 2018)
 hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Resources/Files-and-reports/2018-Population-Estimates-(FINAL,-July-2019)-(1).aspx
 
-diffs_4plot <- fread(paste0('output/pred-and-act-vol-region.csv'))
+diffs_4plot <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv'))
 diffs_4plot[,date:=as.IDate(date)]
 
 
@@ -47,12 +47,12 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 # yesterday <- format(yesterday, format = '%m-%d-%Y')
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread(paste0('data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'))
+mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'))
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
-mndotdat[, date := as.IDate(date, format = "%Y-%m-%d")]
-fwrite(mndotdat, paste0("output/diff-vol-state.csv"), row.names = F)
-fwrite(mndotdat, paste0("covid.traffic.trends/data-raw/diff-vol-state.csv"), row.names = F)
+mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
+fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/diff-vol-state.csv"), row.names = F)
+fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
 
 
@@ -175,8 +175,8 @@ static_plot <-
 
 
 static_plot
-ggsave('output/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
-ggsave('covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
+ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
+ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
 ### Plot Weekly Trends
 weekly_diffs <- diffs_4plot[date > '2020-03-01'
@@ -240,6 +240,6 @@ plot2<-
   # annotation_raster(mypng, ymin = 2, ymax= 20,xmin = 7, xmax = 9)
 plot2
 
-ggsave(paste0('output/weekly-traffic-trends.png'),plot2, height = 7, width = 10, units = 'in', dpi = 300)
+ggsave(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/weekly-traffic-trends.png'),plot2, height = 7, width = 10, units = 'in', dpi = 300)
 
 
