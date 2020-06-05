@@ -30,8 +30,6 @@ foreach(j = chosen_sensors) %dopar% {
     loops_ls[[i]] <- tc.sensors::pull_sensor(j, date_range[[i]])
   }
 
-    
-   
   empty_dates <- cbind(hour = rep(0:23, each = 120), 
                        min = rep(seq(from = 0, to = 59.5, by = 0.5), 24))
   empty_dates <- merge(date_range, empty_dates)

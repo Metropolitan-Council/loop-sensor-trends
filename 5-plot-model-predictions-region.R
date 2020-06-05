@@ -50,7 +50,7 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'))
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
-mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
+mndotdat[, date := as.IDate(date, format = "%Y-%m-%d")]
 fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/diff-vol-state.csv"), row.names = F)
 fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
