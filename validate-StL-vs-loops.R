@@ -3,7 +3,7 @@ library(data.table)
 library(tidyverse)
 library(sf)
 load('councilcolors.RData')
-stldat <- openxlsx::read.xlsx('data/county_vmt_download_update_5.11.xlsx')
+stldat <- openxlsx::read.xlsx('data/county_vmt_download_update2_6.3.xlsx')
 
 stldat <- stldat %>%
   mutate(ref_dt = openxlsx::convertToDate(ref_dt))%>%
@@ -85,14 +85,14 @@ ggplot(loopstl, aes(x = date))+
   # geom_point(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
   # geom_line(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
   
-  geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
-  geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
+  # geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
+  # geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
   
   geom_point(aes(y = diff.pct.loop, color = "Metro Loop Detectors\n"))+
   geom_line(aes(y =diff.pct.loop, color = "Metro Loop Detectors\n"))+
   
-  geom_point(aes(y = diff.pct.atr, color = "State ATRs\n"))+
-  geom_line(aes(y =diff.pct.atr, color = "State ATRs\n"))+
+  # geom_point(aes(y = diff.pct.atr, color = "State ATRs\n"))+
+  # geom_line(aes(y =diff.pct.atr, color = "State ATRs\n"))+
   
   scale_color_manual(values = c(councilBlue, 'black', 'gray50', 'gray70'),
                      name = 'Data Source')+
