@@ -52,3 +52,5 @@ output/gam-models-2020-04-02.RData
 hourly-model-example.jpeg
 
 db-connect.R
+
+covid.traffic.trends/inst/app/www/Thumbs.db
