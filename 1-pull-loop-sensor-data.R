@@ -69,9 +69,8 @@ registerDoParallel(cl)
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
   date_range <- c(Sys.Date()-1) # yesterday's data
-  # date_range <- c(seq(as.Date("2020-05-18"), as.Date("2020-05-21"), by = "days"))
-  #                 seq(as.Date("2019-07-01"), as.Date("2019-12-15"), by = "days"))
-  
+  # date_range <- c(seq(as.Date("2020-05-18"), as.Date(Sys.Date()-1), by = "days"))
+
   n <- length(date_range)
   loops_ls <- vector("list", n)
   
@@ -108,7 +107,7 @@ foreach(j = chosen_sensors) %dopar% {
                                                                      median = median(x, na.rm = T))))),
                        by=.(date, hour, sensor), .SDcols=c("volume", "occupancy")]
   
-  data.table::fwrite(loops_df, paste0("D:/data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
+  data.table::fwrite(loops_df, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
   
   
 }

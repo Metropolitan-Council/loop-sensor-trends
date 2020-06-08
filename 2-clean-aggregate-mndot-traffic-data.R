@@ -9,7 +9,7 @@ library(lubridate)
 config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
 config$date<-NULL
 
-sensor_files <- list.files('D:/data/data_hourly_raw')
+sensor_files <- list.files('data/data_hourly_raw')
 sensor_names <- gsub('.csv', '', sensor_files)
 sensor_names <- gsub('Sensor ', '', sensor_names)
 
@@ -41,7 +41,7 @@ foreach(i = node_lut) %dopar% {
   these_sensors <- paste0('Sensor ', node_info$sensor_name)
   
   
-  these_sensor_files <- paste0(paste0('D:/data/data_hourly_raw/', these_sensors, '.csv'))
+  these_sensor_files <- paste0(paste0('data/data_hourly_raw/', these_sensors, '.csv'))
   
   hourlydat_sensor <- rbindlist(lapply(these_sensor_files, fread))
   hourlydat_sensor[,sensor:=as.character(sensor)]
@@ -173,7 +173,7 @@ foreach(i = node_lut) %dopar% {
     setnames(hourlydat_node, old = 'occupancy.sum.sum', new = 'occupancy.sum')
     setnames(hourlydat_node, old = 'speed.mean', new = 'speed')
     
-    fwrite(hourlydat_node, paste0('D:/data/data_hourly_node/', this_node, '.csv'), append = T)
+    fwrite(hourlydat_node, paste0('data/data_hourly_node/', this_node, '.csv'), append = T)
     
     # sum for all hours of the day (daily-scale data) ----
     dailydat <- hourlydat_node[,as.list(unlist(lapply(.SD,
@@ -190,7 +190,7 @@ foreach(i = node_lut) %dopar% {
     setnames(dailydat, old = 'speed.mean', new = 'speed')
     
     # WRITE DAILY DATA! ----
-    fwrite(dailydat, paste0('D:/data/data_daily_node/', this_node, '.csv'), append = T)
+    fwrite(dailydat, paste0('data/data_daily_node/', this_node, '.csv'), append = T)
     
   } # end check for nodes with no data at all
 }
