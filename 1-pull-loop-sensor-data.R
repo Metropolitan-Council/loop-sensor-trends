@@ -9,7 +9,7 @@ library(odbc)
 library(leaflet)
 library(tidyverse)
 
-
+setwd('N:\\MTS\\Working\\Modeling\\MetroLoopDetectors\\loop-sensor-trends')
 sensor_config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
 
 # Select sensors in Metro Area Only ####
@@ -68,8 +68,8 @@ registerDoParallel(cl)
 
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
-  date_range <- c(Sys.Date()-1) # yesterday's data
-  # date_range <- c(seq(as.Date("2020-05-18"), as.Date(Sys.Date()-1), by = "days"))
+  # date_range <- c(Sys.Date()-1) # yesterday's data
+  date_range <- c(seq(Sys.Date()-4, as.Date(Sys.Date()-1), by = "days"))
 
   n <- length(date_range)
   loops_ls <- vector("list", n)
