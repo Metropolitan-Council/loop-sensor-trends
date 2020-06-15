@@ -1,18 +1,4 @@
-# 1-pull-loop-sensor-data -----
-source('1-pull-loop-sensor-data.R')
 
-# 2-clean-aggregate-mndot-traffic-data
-source('2-clean-aggregate-mndot-traffic-data.R')
-
-# 3-model-daily-bynode
-source('3-model-daily-bynode.R')
-
-# 4-reshape-model-output-for-plotting
-source('4-reshape-model-output-for-plotting.R')
-
-###### COMPARE WEEKLY TRENDS
-
-###########################
 library(ggplot2)
 library(plotly)
 library(data.table)

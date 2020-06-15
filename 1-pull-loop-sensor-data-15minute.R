@@ -12,6 +12,19 @@ chosen_sensors_dt <- read.csv('data/Configuration of Metro Detectors 2020-03-24.
 
 chosen_sensors <- chosen_sensors_dt$detector_name
 
+date_range <- c(Sys.Date()-1, Sys.Date()-2) # yesterday's data
+# date_range <- c(seq(as.Date("2020-05-18"), as.Date("2020-05-21"), by = "days"))
+
+num_dates <- length(date_range)
+loops_ls <- vector("list", num_dates)
+
+# construct an empty data frame of hours, days and minutes
+empty_dates <- expand.grid(date = date_range, 
+                           hour = 0:23, 
+                           min = seq(from = 0, to = 59.5, by = 0.5))
+empty_dates <- data.table(empty_dates)
+
+
 cores <- detectCores()
 cl <- makeCluster(cores-1)
 registerDoParallel(cl)
@@ -19,25 +32,16 @@ registerDoParallel(cl)
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
   library(data.table)
-  date_range <- c(Sys.Date()-1, Sys.Date()-2) # yesterday's data
-  # date_range <- c(seq(as.Date("2020-05-18"), as.Date("2020-05-21"), by = "days"))
-  #                 seq(as.Date("2019-07-01"), as.Date("2019-12-15"), by = "days"))
-  
-  num_dates <- length(date_range)
-  loops_ls <- vector("list", num_dates)
   
   for (i in 1:num_dates) {
     loops_ls[[i]] <- tc.sensors::pull_sensor(j, date_range[[i]])
-  }
-
-  empty_dates <- cbind(hour = rep(0:23, each = 120), 
-                       min = rep(seq(from = 0, to = 59.5, by = 0.5), 24))
-  empty_dates <- merge(date_range, empty_dates)
-  names(empty_dates) <- c('date', 'hour', 'min')
-  empty_dates <- data.table(empty_dates)
+    }
   
+    
   loops_df <- data.table::rbindlist(loops_ls)
   loops_df <- merge.data.table(empty_dates, loops_df, all.x = T)
+  
+  loops_df$sensor <- j
   
   # Fifteen minute bins ----
   # create bins
