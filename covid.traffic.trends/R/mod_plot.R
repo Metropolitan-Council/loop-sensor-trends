@@ -88,7 +88,7 @@ mod_plot_server <- function(input, output, session) {
       ) %>%
       add_annotations(
         data = covid.traffic.trends::mn_actions,
-        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 16),
+        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 14),
         legendgroup = "Events",
         x = covid.traffic.trends::mn_actions$date,
         y = covid.traffic.trends::mn_actions$typical_vmt_diff,
@@ -99,8 +99,8 @@ mod_plot_server <- function(input, output, session) {
         standoff = 5,
         axref = "x",
         ayref = "y",
-        ax = as.Date(covid.traffic.trends::mn_actions$date) - 1,
-        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 18,
+        ax = as.Date(covid.traffic.trends::mn_actions$date) - 1.9,
+        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 17,
         # xshift = -20,
         # yshift = -30,
         font = list(
@@ -136,7 +136,7 @@ mod_plot_server <- function(input, output, session) {
                x1 = "2020-05-18",
                xref = "x",
                y0 = 6,
-               y1 = -85,
+               y1 = -75,
                yref = "y")
         ),
         hovermode = "closest",
