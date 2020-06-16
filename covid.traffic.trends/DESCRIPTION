@@ -21,7 +21,7 @@ Imports:
     council.skeleton (>= 0.0.0.9000),
     councilR (>= 0.1.0),
     dplyr (>= 0.8),
-    DT,
+    DT (>= 0.13),
     fs (>= 1.4),
     golem (>= 0.2.1),
     htmltools (>= 0.4.0),
@@ -33,7 +33,7 @@ Imports:
     stringr (>= 1.4.0)
 Suggests: 
     data.table (>= 1.12.8),
-    knitr,
+    knitr (>= 1.28),
     rmarkdown (>= 2.1),
     testthat (>= 2.1.0),
     tigris (>= 0.9.2)
