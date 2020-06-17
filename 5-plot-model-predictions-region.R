@@ -164,6 +164,11 @@ static_plot
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
+
+pdf('CovidPanel/PresentationFigures/traffic.pdf', width =12, height = 5, family = "ArialMT")
+static_plot
+dev.off()
+
 ### Plot Weekly Trends
 weekly_diffs <- diffs_4plot[date > '2020-03-01'
                               & weekday %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')]
