@@ -165,7 +165,7 @@ ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/tra
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
 
 
-pdf('CovidPanel/PresentationFigures/traffic.pdf', width =12, height = 5, family = "ArialMT")
+pdf('C:/Users/AsmusAL/OneDrive - Metropolitan Council/TBIHouseholdSurvey/CovidPanel/PresentationFigures/traffic.pdf', width =12, height = 5, family = "ArialMT")
 static_plot
 dev.off()
 
