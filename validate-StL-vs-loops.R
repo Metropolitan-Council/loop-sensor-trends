@@ -3,11 +3,13 @@ library(data.table)
 library(tidyverse)
 library(sf)
 load('councilcolors.RData')
-stldat <- openxlsx::read.xlsx('data/county_vmt_download_update2_6.3.xlsx')
+stldat <- openxlsx::read.xlsx('data/county_vmt_download_4.20.xlsx')
 
 stldat <- stldat %>%
   mutate(ref_dt = openxlsx::convertToDate(ref_dt))%>%
   filter(state_name == 'Minnesota')
+
+stldat %>% filter(county_name == "Hennepin") %>% select(jan_avg_vmt) %>% unique()
 
 stlmetro <- stldat %>%
   filter(county_name %in% c('Anoka', 'Dakota', 'Hennepin', 'Ramsey', 'Scott', 'Washington', 'Carver'))%>%
@@ -106,7 +108,43 @@ ggplot(loopstl, aes(x = date))+
                date_labels = "%b %d\n(%A)", 
                limits = c(as.Date('2020-03-29'), Sys.Date()))
 
+loop_compare
 ggsave(paste0('output/streetlight-vs-trafficsensors.png'),loop_compare, height = 7, width = 13, units = 'in', dpi = 300)
+
+
+
+loop_compare2 <- 
+  ggplot(loopstl, aes(x = date))+
+  geom_point(aes(y =diff.pct.stl, color = "StreetLight VMT,\nMetro Counties\n"))+
+  geom_line(aes(y =diff.pct.stl, color = "StreetLight VMT,\nMetro Counties\n"))+
+  
+  # geom_point(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
+  # geom_line(aes(y =diff.pct.stl.state, color = "StreetLight,\nAll MN Counties"))+
+  
+  # geom_point(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
+  # geom_line(aes(y =diff.pct.stl.gmn, color = "StreetLight VMT,\nGreater MN Counties\n"))+
+  
+  geom_point(aes(y = diff.pct.loop, color = "Metro Loop Detectors\n"))+
+  geom_line(aes(y =diff.pct.loop, color = "Metro Loop Detectors\n"))+
+  
+  # geom_point(aes(y = diff.pct.atr, color = "State ATRs\n"))+
+  # geom_line(aes(y =diff.pct.atr, color = "State ATRs\n"))+
+  
+  scale_color_manual(values = c(councilBlue, 'black', 'gray50', 'gray70'),
+                     name = 'Data Source')+
+  
+  cowplot::theme_cowplot()+
+  theme(panel.grid.major.x = element_line(color = 'gray90'),
+        panel.grid.major.y = element_line(color = 'gray90'))+
+  geom_hline(yintercept = 0, color = 'black')+
+  scale_y_continuous(breaks = seq(from = -100, to = 0, by = 10), limits = c(-100, 0), name = '% Difference from Typical')+
+  scale_x_date(breaks = seq(as.Date('2020-05-31'), Sys.Date(),by="day"),
+               date_labels = "%b %d\n(%a)", 
+               limits = c(as.Date('2020-05-31'), Sys.Date()))
+
+loop_compare2
+ggsave(paste0('output/streetlight-vs-trafficsensors.png'),loop_compare, height = 7, width = 13, units = 'in', dpi = 300)
+
 
 
 # 
