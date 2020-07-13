@@ -49,24 +49,24 @@ actions <- cbind(
   date = c(
     # '2020-03-06', #1st Confirmed\nCOVID-19 case in MN
            # '2020-03-11', #UMN Suspends\nIn-Person Classes
-           '2020-03-13', #Gov. Walz declares\npeacetime emergency;\ncalls for cancellation\nof events >250 ppl
-           '2020-03-18', #Gov. Walz announces\npublic schools\nwill close by Mar. 18
+           # '2020-03-13', #Gov. Walz declares\npeacetime emergency;\ncalls for cancellation\nof events >250 ppl
+           # '2020-03-18', #Gov. Walz announces\npublic schools\nwill close by Mar. 18
            # '2020-03-18', #Gov. Walz & MDH ask\nall gyms, bars, public spaces to close,\nrestaurants limit to take-out
-           '2020-04-12',
+           # '2020-04-12',
            '2020-03-28', #Gov. Walz announces a "stay-at-home" order\nwill take effect Mar. 27
-           '2020-04-27', # Gov. Walz announces 
+           # '2020-04-27', # Gov. Walz announces 
            '2020-05-18'
            ),
            # ,  as.character(Sys.Date()-1)),
   action = c(
     # '1st Confirmed\nCOVID-19 case in MN', 
              # 'UMN Suspends\nIn-Person Classes', 
-             'Peacetime\nemergency declared', 
-             'Public schools closed;\nIn-person dining suspended',
+             # 'Peacetime\nemergency declared', 
+             # 'Public schools closed;\nIn-person dining suspended',
              # 'Gov. Walz & MDH ask all gyms, bars, public spaces\n to close,restaurants limit to take-out',
-             'Easter Sunday\nSnowstorm',
+             # 'Easter Sunday\nSnowstorm',
              '"Stay-at-home"\norder takes effect',
-             'Some\nworkplaces\nre-open',
+             # 'Some\nworkplaces\nre-open',
              '"Stay-at-home"\norder expires;"Stay-safe"\norder takes effect'
   )
              # , '')
@@ -78,11 +78,13 @@ actions<-merge(actions, diffs_4plot, all.x = T, all.y = F)
 actions[,arrow_end:=`Difference from Typical VMT (%)`-0.1]
 actions[,arrow_start:=c(
   # -5, -16, 
-  -27, 
+  # -27, 
   # -38, 
-   -49, 
-  -80, 
-  -85, -75, -70
+   # -49, 
+  # -80, 
+  -85, 
+  # -75,
+  -70
 )]
   # , NA)]
 
@@ -149,7 +151,7 @@ static_plot <-
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
   scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="week"),
-               date_labels = '%m/%d\n(%a)',
+               date_labels = '%m/%d',
                limits = c(as.Date('2020-03-06'), Sys.Date()+3))+
   scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
   #  colors:
