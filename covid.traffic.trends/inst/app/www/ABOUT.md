@@ -117,6 +117,6 @@ repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2020-07-28*  
-Build ID: 2020-07-28.roten.73dc288f  
+*Last updated 2020-08-04*  
+Build ID: 2020-08-04.roten.a7ddc159  
 </right>
