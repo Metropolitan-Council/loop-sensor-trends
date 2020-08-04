@@ -6,24 +6,26 @@ mn_actions <- cbind(
     "2020-03-06", # MN Dept. of Health confirms 1st COVID-19 case in MN
     # '2020-03-11', # UMN Suspends In-Person Classes
     "2020-03-13", # Gov. Walz declares peacetime emergency; calls for cancellation of events >250 ppl
-    "2020-03-18", # Gov. Walz & MDH ask all gyms, bars, public spaces to close, restaurants limit to take-out
+    # "2020-03-18", # Gov. Walz & MDH ask all gyms, bars, public spaces to close, restaurants limit to take-out
     "2020-03-27", # Gov. Walz & MDH ask everyone to stay home except for essential needs
-    "2020-04-08", # Gov. Walz & MDH extend stay-at-home order to May 4
-    "2020-04-12",
+    # "2020-04-08", # Gov. Walz & MDH extend stay-at-home order to May 4
+    # "2020-04-12",
     "2020-04-27",
-    "2020-05-18"
-    # '2020-04-30'
+    "2020-05-18",
+    # '2020-04-30',
+    "2020-06-10" # restaurants, salons, and other workplaces open with restrictions
   ),
   action = c(
     "MDH confirms 1st COVID-19 case in MN",
     # 'UMN Suspends In-Person Classes',
     "Peacetime emergency declared",
-    "Public schools close. In-person dining suspended",
+    # "Public schools close. In-person dining suspended",
     "Stay at home order begins",
-    "Stay at home order extends to May 4",
-    "Easter Sunday snowstorm",
-    "Some workplaces re-open",
-    "Stay at home order expires"
+    # "Stay at home order extends to May 4",
+    # "Easter Sunday snowstorm",
+    "Some workplaces open with restrictions",
+    "Stay at home order expires",
+    "Restaurants, salons, and other workplaces open with restrictions"
   )
   # link = c('https://www.health.state.mn.us/diseases/coronavirus/situation.html',
   #          # 'https://safe-campus.umn.edu/public-health-alerts',
