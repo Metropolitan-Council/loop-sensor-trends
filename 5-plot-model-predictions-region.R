@@ -27,7 +27,7 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 2# change back to -1 when new data available
+yesterday <- Sys.Date() - 1# change back to -1 when new data available
 # yesterday <- as.IDate(yesterday)
 # yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 # yesterday <- format(yesterday, format = '%m-%d-%Y')
