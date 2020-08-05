@@ -61,6 +61,8 @@ jobs:
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("rsconnect")
+          remotes::install_cran("tigris")
+          remotes::install_cran("rgdal")
         shell: Rscript {0}
 
       - name: Check
