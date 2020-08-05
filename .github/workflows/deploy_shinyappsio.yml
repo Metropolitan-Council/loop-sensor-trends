@@ -6,10 +6,15 @@ on:
       - master
    
 jobs:
-  build:
-     runs-on: ubuntu-latest
-     container:
-       image: rocker/geospatial:latest
+R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    strategy:
+      fail-fast: false
+      matrix:
+        config: 
+          - {os: ubuntu-latest, r: 'release', container: rocker/geospatial:4.0.0}
+
      env:
        R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
        working-directory: ./covid.traffic.trends
