@@ -45,6 +45,16 @@ jobs:
           key: ${{ runner.os }}-r-${{ matrix.config.r }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-r-${{ matrix.config.r }}-1-
 
+      - name: Install system dependencies
+        working-directory: ${{ env.working-directory }}
+        if: runner.os == 'Linux'
+        env:
+          RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
+        run: |
+          Rscript -e "remotes::install_github('r-hub/sysreqs')"
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
+          sudo -s eval "$sysreqs"
+
       - name: Install dependencies
         working-directory: ${{ env.working-directory }}
         run: |
@@ -55,20 +65,7 @@ jobs:
           remotes::install_cran("rgdal")
         shell: Rscript {0}
 
-      - name: Check
-        working-directory: ${{ env.working-directory }}
-        env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
-          CI: true
-        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "error", check_dir = "check")
-        shell: Rscript {0}
-
-      - name: Upload check results
-        if: failure()
-        uses: actions/upload-artifact@master
-        with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
-          path: check
+     
       - name: Deploy app
         working-directory: ${{ env.working-directory }}
         env:
