@@ -21,8 +21,6 @@ jobs:
         with:
           r-version: ${{ env.r-version }}
 
-      - uses: r-lib/actions/setup-pandoc@master
-
       - name: Query dependencies
         working-directory: ${{ env.working-directory }}
         run: |
