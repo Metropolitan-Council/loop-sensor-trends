@@ -17,10 +17,6 @@ jobs:
      steps:
       - uses: actions/checkout@v2
 
-      - uses: r-lib/actions/setup-r@master
-        with:
-          r-version: ${{ env.r-version }}
-
       - name: Query dependencies
         working-directory: ${{ env.working-directory }}
         run: |
