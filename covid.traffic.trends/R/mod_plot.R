@@ -35,17 +35,37 @@ mod_plot_server <- function(input, output, session) {
         name = "MnDOT Metro\nFreeways\n(1000+ Stations)\n",
         mode = "lines+markers",
         line = list(
-          width = 3,
-          color = councilR::colors$councilBlue
+          width = 2,
+          color = councilR::colors$councilBlue,
+          dash = "dot"
         ),
         marker = list(
           color = councilR::colors$councilBlue,
-          size = 8
+          size = 6
         ),
         hoverinfo = "text",
         text = paste(predicted_actual_by_region$hover_text),
         showlegend = TRUE
       ) %>%
+      plotly::add_lines(
+        data = covid.traffic.trends::predicted_actual_by_region,
+        x = covid.traffic.trends::predicted_actual_by_region$date,
+        y = covid.traffic.trends::predicted_actual_by_region$roll_avg,
+        name = "MnDOT Metro\nFreeways\n7-day rolling average",
+        # type = "scatter",
+        mode = "lines",
+        hoverinfo = "none",
+        # text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
+        line = list(
+          width = 2,
+          color = councilR::colors$councilBlue
+        )
+        # marker = list(
+        #   size = 0,
+        #   color = "black"
+        # )
+      ) %>% 
+      
       plotly::add_markers(
         data = covid.traffic.trends::predicted_actual_by_state,
         x = covid.traffic.trends::predicted_actual_by_state$date,
@@ -56,59 +76,78 @@ mod_plot_server <- function(input, output, session) {
         hoverinfo = "text",
         text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
         line = list(
-          width = 3,
-          color = "black"
+          width = 2,
+          color = "black",
+          dash = "dot"
         ),
         marker = list(
           color = "black",
-          size = 8
+          size = 6
         )
       ) %>%
-      plotly::add_markers( ## mn actions -----
-        data = covid.traffic.trends::mn_actions,
-        x = covid.traffic.trends::mn_actions$date,
-        y = covid.traffic.trends::mn_actions$typical_vmt_diff,
-        name = "Major Actions and \nEvents",
-        legendgroup = "Events",
-        mode = "markers",
-        type = "scatter",
+      plotly::add_lines(
+        data = covid.traffic.trends::predicted_actual_by_state,
+        x = covid.traffic.trends::predicted_actual_by_state$date,
+        y = covid.traffic.trends::predicted_actual_by_state$roll_avg,
+        name = "MnDOT Statewide\n7-day rolling average",
+        # type = "scatter",
+        mode = "lines",
         hoverinfo = "none",
-        marker = list(
-          size = 12,
-          color = whiteSmoke,
-          line = list(
-            color = "black",
-            width = 1
-          )
-        ),
-        # text = ~paste(
-        #   "<b>", format(as.Date(date), "%B %d"), "</b>", format(typical_vmt_diff, digits = 1) , "<br>",
-        #   stringr::str_wrap(action, width = 20)
-        # )
-      ) %>%
-      add_annotations(
-        data = covid.traffic.trends::mn_actions,
-        text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 14),
-        legendgroup = "Events",
-        x = covid.traffic.trends::mn_actions$date,
-        y = covid.traffic.trends::mn_actions$typical_vmt_diff,
-        showarrow = TRUE,
-        xanchor = "right",
-        yanchor = "top",
-        arrowside = "none",
-        standoff = 5,
-        axref = "x",
-        ayref = "y",
-        ax = as.Date(covid.traffic.trends::mn_actions$date) - 1.9,
-        ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 17,
-        # xshift = -20,
-        # yshift = -30,
-        font = list(
-          size = 12,
-          family = font_family_list,
+        # text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
+        line = list(
+          width = 2,
           color = "black"
-        )
-      ) %>%
+          )
+        # marker = list(
+        #   size = 0,
+        #   color = "black"
+        # )
+        ) %>% 
+      # plotly::add_markers( ## mn actions -----
+      #   data = covid.traffic.trends::mn_actions,
+      #   x = covid.traffic.trends::mn_actions$date,
+      #   y = covid.traffic.trends::mn_actions$typical_vmt_diff,
+      #   name = "Major Actions and \nEvents",
+      #   legendgroup = "Events",
+      #   mode = "markers",
+      #   type = "scatter",
+      #   hoverinfo = "none",
+      #   marker = list(
+      #     size = 12,
+      #     color = whiteSmoke,
+      #     line = list(
+      #       color = "black",
+      #       width = 1
+      #     )
+      #   ),
+      #   # text = ~paste(
+      #   #   "<b>", format(as.Date(date), "%B %d"), "</b>", format(typical_vmt_diff, digits = 1) , "<br>",
+      #   #   stringr::str_wrap(action, width = 20)
+      #   # )
+      # ) %>%
+      # add_annotations(
+      #   data = covid.traffic.trends::mn_actions,
+      #   text = stringr::str_wrap(covid.traffic.trends::mn_actions$action, width = 14),
+      #   legendgroup = "Events",
+      #   x = covid.traffic.trends::mn_actions$date,
+      #   y = covid.traffic.trends::mn_actions$typical_vmt_diff,
+      #   showarrow = TRUE,
+      #   xanchor = "right",
+      #   yanchor = "top",
+      #   arrowside = "none",
+      #   standoff = 5,
+      #   axref = "x",
+      #   ayref = "y",
+      #   ax = as.Date(covid.traffic.trends::mn_actions$date) - 1.9,
+      #   ay = covid.traffic.trends::mn_actions$typical_vmt_diff - 17,
+      #   # xshift = -20,
+      #   # yshift = -30,
+      #   font = list(
+      #     size = 12,
+      #     family = font_family_list,
+      #     color = "black"
+      #   )
+      # ) %>%
       layout( #-----
         margin = list(l = 10, r = 45, b = 10, t = 10, pad = 10), # l = left; r = right; t = top; b = bottom
         # title ="Metro Area Traffic: Difference between expected and observed",
