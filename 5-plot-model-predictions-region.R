@@ -15,7 +15,8 @@ hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Re
 diffs_4plot <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv'))
 diffs_4plot[,date:=as.IDate(date)]
 
-
+diffs_4plot[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04')), NA, `Difference from Typical VMT (%)`)]
+diffs_4plot[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
 ggplot(diffs_4plot, aes(x = date))+
   geom_point(aes(y = vmt.predict, color = "Predicted VMT"))+
@@ -41,7 +42,8 @@ fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-
 fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
 
-
+mndotdat[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04')), NA, `Difference from Typical VMT (%)`)]
+mndotdat[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
 ###################################
 # MN state actions ####
@@ -102,44 +104,45 @@ static_plot <-
            alpha = .15)+
   
   # shaded rectangle for stay-safe order:
-  annotate("rect", xmin = as.Date('2020-05-18'), xmax = Sys.Date()+3, ymin = -Inf, ymax = Inf, 
-           fill = councilBlue, alpha = .15)+
+  # annotate("rect", xmin = as.Date('2020-05-18'), xmax = Sys.Date()+3, ymin = -Inf, ymax = Inf, 
+  #          fill = councilBlue, alpha = .15)+
   
   # horizontal line at zero:
   geom_hline(yintercept = 0)+
    
   # annotations - actions
-  geom_segment(data = actions, 
-               aes(x = date, xend = date, y = arrow_start+1, yend = arrow_end), 
-               arrow = arrow(angle = 20, length = unit(0.75, 'lines'), type = "closed"), color = councilBlue)+
-  geom_text(data = actions,
-            aes(x = date, y = arrow_start, 
-                label = paste0(format(date, '%b %d'), ": ", action)), 
-            hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
+  # geom_segment(data = actions, 
+  #              aes(x = date, xend = date, y = arrow_start+1, yend = arrow_end), 
+  #              arrow = arrow(angle = 20, length = unit(0.75, 'lines'), type = "closed"), color = councilBlue)+
+  # geom_text(data = actions,
+  #           aes(x = date, y = arrow_start, 
+  #               label = paste0(format(date, '%b %d'), ": ", action)), 
+  #           hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
   # lines and points for MnDOT: 
   geom_point(data = mndotdat[mndotdat$date > '2020-03-06',],aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
+  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 0.5, linetype = 'dotted', show.legend = F)+
+  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(y = rollingavg, color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   # lines and points for Metro:
   geom_point(size = 3)+
-  geom_line(size = 1, show.legend = F)+
-  
-  # large points for State: 
-  geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
-  geom_text(data = mndotdat[date %in% actions$date & !date == '2020-03-06'],
-            aes(x = date, y = `Difference from Typical VMT (%)`, 
-                label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            # hjust = 'center',vjust = -1.35, 
-            color = 'black', size = 3.7, fontface = 'italic')+
-  
-  # large points for Metro: 
-  geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
-  geom_text(data = actions,
-            aes(x = date, y = arrow_end, 
-                label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
-            # hjust = 'center', vjust = -0.7, 
-            color = councilBlue, size = 4, fontface = 'italic')+
+  geom_line(size = 0.5, linetype = 'dotted', show.legend = F)+
+  geom_line(aes(y = rollingavg), size = 1, show.legend = F)+
+  # # large points for State: 
+  # geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
+  # geom_text(data = mndotdat[date %in% actions$date & !date == '2020-03-06'],
+  #           aes(x = date, y = `Difference from Typical VMT (%)`, 
+  #               label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
+  #           # hjust = 'center',vjust = -1.35, 
+  #           color = 'black', size = 3.7, fontface = 'italic')+
+  # 
+  # # large points for Metro: 
+  # geom_point(data = diffs_4plot[date %in% actions$date], pch = 21, fill = 'white', size = 11, show.legend = F)+
+  # geom_text(data = actions,
+  #           aes(x = date, y = arrow_end, 
+  #               label = paste0(formatC(round(`Difference from Typical VMT (%)`), flag = "+"),'%')),
+  #           # hjust = 'center', vjust = -0.7, 
+  #           color = councilBlue, size = 4, fontface = 'italic')+
   
   # global options: 
   theme_minimal()+
@@ -150,10 +153,10 @@ static_plot <-
   # ggtitle(paste0("Traffic on MnDOT Roads\nUpdated ", Sys.Date()))+
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
-  scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="week"),
+  scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="2 weeks"),
                date_labels = '%m/%d',
                limits = c(as.Date('2020-03-06'), Sys.Date()+3))+
-  scale_y_continuous(limits = c(-90, 15), breaks = seq(from = -90, to = 10, by = 10))+
+  scale_y_continuous(limits = c(-75, 15), breaks = seq(from = -70, to = 10, by = 10))+
   #  colors:
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
   theme(legend.position = 'bottom', legend.direction = 'horizontal', legend.justification = 'center')
@@ -164,13 +167,13 @@ static_plot <-
 
 static_plot
 
-ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
-ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 14, units = 'in', dpi = 300)
-pdf('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic.pdf', width =12, height = 5, family = "ArialMT")
+ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
+ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
+pdf('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic.pdf', width =10, height = 7, family = "ArialMT")
 static_plot
 dev.off()
 
-pdf('C:/Users/AsmusAL/OneDrive - Metropolitan Council/TBIHouseholdSurvey/CovidPanel/PresentationFigures/traffic.pdf', width =12, height = 5, family = "ArialMT")
+pdf('C:/Users/AsmusAL/OneDrive - Metropolitan Council/TBIHouseholdSurvey/CovidPanel/PresentationFigures/traffic.pdf', width =10, height = 7, family = "ArialMT")
 static_plot
 dev.off()
 
