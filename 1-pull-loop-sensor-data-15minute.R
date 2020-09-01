@@ -21,11 +21,16 @@ tbidb = ROracle::dbConnect(
   password = rstudioapi::askForPassword("database password")
 )
 
+
+Sys.setenv(TZ = "GMT")
+Sys.setenv(ORA_SDTZ = "GMT")
+
+
 # Start test ---------------------------------------------
 # Chosen sensor List ####
 chosen_sensors_dt <- read.csv('data/Configuration of Metro Detectors 2020-03-24.csv') %>%
   filter(!detector_category == "CD")
-
+config <- pull_configuration()
 chosen_sensors <- chosen_sensors_dt$detector_name
 
 date_range <- c(Sys.Date()-1) # yesterday's data
@@ -41,17 +46,16 @@ empty_dates <- expand.grid(date = date_range,
 empty_dates <- data.table(empty_dates)
 
 
-Sys.setenv(TZ = "GMT")
-Sys.setenv(ORA_SDTZ = "GMT")
 
 tictoc::tic()
 
 for(s in 1:length(chosen_sensors)){
   
   for (d in 1:num_dates) {
-    loops_ls[[d]] <- suppressMessages(tc.sensors::pull_sensor(chosen_sensors[[s]], date_range[[d]]))
+  raw_sensor_dat <- tc.sensors::pull_sensor(chosen_sensors[[s]], date_range[[d]])
+  agg_sensor_dat <- aggregate_sensor(raw_sensor_dat, interval_length = 0.25, config = chosen_sensors_dt)
+  loops_ls[[d]] <- scrub_sensor(raw_sensor_dat, interval_length = 0.25)
     }
-  
     
   loops_df <- data.table::rbindlist(loops_ls)
   loops_df <- merge.data.table(empty_dates, loops_df, all.x = T)
