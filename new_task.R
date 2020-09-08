@@ -163,7 +163,7 @@ foreach(i = node_lut) %dopar% {
   
   hourlydat_sensor <- rbindlist(lapply(these_sensor_files, fread))
   hourlydat_sensor[,sensor:=as.character(sensor)]
-  hourlydat_sensor[date == Sys.Date()-1,]
+  # hourlydat_sensor[date == Sys.Date()-1,] # test - look for data.
   
   # CHECK FOR NODES MISSING ALL DATA
   total_zilch <- sum(!is.na(hourlydat_sensor$hour))
@@ -188,14 +188,15 @@ foreach(i = node_lut) %dopar% {
                               sensor = unique(hourlydat_sensor$sensor),
                               hour = 0:23)
     master_mat <- data.table(master_mat)
-    master_mat <- master_mat[,lapply(.SD, as.character), .SDcols = c('date', 'sensor'), by = 'hour']
+    master_mat[,date:=as.IDate(date)]
+    master_mat <- master_mat[,sensor:=as.character(sensor)]
     
     # merge master to hourly data to fill in NA values for missing observations
     hourlydat_sensor <- merge(hourlydat_sensor, master_mat, by = c('date', 'sensor', 'hour'), all = T)
     
     # FORMAT DATE ----
     # dealing with date
-    hourlydat_sensor[,date:=as.IDate(fast_strptime(date, "%Y-%m-%d"))] 
+    # hourlydat_sensor[,date:=as.IDate(fast_strptime(date, "%Y-%m-%d"))] 
     hourlydat_sensor[,year:=year(date)]
     
     # GET RID OF IMPOSSIBLE VALUES ----
@@ -222,8 +223,8 @@ foreach(i = node_lut) %dopar% {
     
     
     # DELETE OCCUPANCY COLUMNS - DON'T NEED ----
-    hourlydat_sensor[,c('volume.nulls', 'volume.mean', 'volume.median', 'volume.sum.raw',
-                        'occupancy.nulls', 'occupancy.mean', 'occupancy.median', 'occupancy.sum.raw'):=NULL]
+    hourlydat_sensor[,c('volume.nulls', 'volume.mean', 'volume.median', 
+                        'occupancy.nulls', 'occupancy.mean', 'occupancy.median', 'occupancy.sum.raw', 'volume.sum.raw'):=NULL]
     
     # GAPFILLING 2: WHOLE HOURS MISSING ----
     # if a whole hour is missing, fill in with average of the two hours on either side of it
@@ -313,8 +314,6 @@ foreach(i = node_lut) %dopar% {
   } # end check for nodes with no data at all
 }
 
-
-
 stopCluster(cl)
 
 ##############
@@ -353,14 +352,14 @@ foreach(i = node_files) %dopar% {
   library(mgcv)
   
   
-  # i <- node_files[[3245]] # test
+  # i <- node_files[[3244]] # test
   # i <- "rnd_1805.csv"
   dailydat <- fread(paste0("data/data_daily_node/", i))
   dailydat <- unique(dailydat)
   if(nrow(dailydat) == 0){} else{
     
     # Dealing with date ----
-    dailydat[, date := as.IDate(fast_strptime(date, "%Y-%m-%d"))]
+    # dailydat[, date := as.IDate(fast_strptime(date, "%Y-%m-%d"))]
     dailydat[, dow := wday(date)]
     dailydat[, doy := yday(date)]
     dailydat[, year := year(date)]
