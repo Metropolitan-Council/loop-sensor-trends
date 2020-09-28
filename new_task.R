@@ -69,7 +69,7 @@ registerDoParallel(cl)
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
   # date_range <- c(Sys.Date()-1) # yesterday's data
-  date_range <- c(seq(as.Date("2020-08-17"), Sys.Date()-1, by = "days"))
+  date_range <- c(seq(as.Date("2020-09-07"), Sys.Date()-1, by = "days"))
   # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
   
   n <- length(date_range)
@@ -292,7 +292,7 @@ foreach(i = node_lut) %dopar% {
     setnames(hourlydat_node, old = 'occupancy.sum.sum', new = 'occupancy.sum')
     setnames(hourlydat_node, old = 'speed.mean', new = 'speed')
     
-    # fwrite(hourlydat_node, paste0('data/data_hourly_node/', this_node, '.csv'), append = T)
+    fwrite(hourlydat_node, paste0('data/data_hourly_node/', this_node, '.csv'))
     
     # sum for all hours of the day (daily-scale data) ----
     dailydat <- hourlydat_node[,as.list(unlist(lapply(.SD,
