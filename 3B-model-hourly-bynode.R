@@ -6,9 +6,33 @@ library(mgcv)
 library(lubridate)
 library(ggplot2)
 library(gridExtra)
+library(tidyverse)
 #############
 
-hourlydat <- fread('data/data_hourly_bynode_clean.csv')
+
+# Let's just do two corridors - I94 and I494
+config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
+nodes_94 <- config %>%
+  filter(corridor_route %in% c("I-494")) %>%
+  filter(corridor_dir == "EB") %>%
+  select(r_node_name) %>% unique()
+
+cores <- detectCores()
+cl <- makeCluster(cores)
+registerDoParallel(cl)
+
+hourlydat <- rbindlist(foreach(i = nodes_94$r_node_name) %dopar% {
+  library(data.table)
+  dat <- fread(paste0('data/data_hourly_node/', i, '.csv'))
+  # dat[, date := as.IDate(date)]
+  # # Trim to after March 1 2020:
+  # dat <- dat[date >= "2020-03-01", ]
+  # dat <- dat[date <= Sys.Date()-1]
+  # dat <- unique(dat)
+  dat
+})
+
+stopCluster(cl)
 
 # Dealing with date ----
 hourlydat[,date:=as.IDate(date)]
@@ -19,12 +43,10 @@ hourlydat[,woy:=week(date)]
 hourlydat[,weekday:=factor(weekdays(date))]
 hourlydat[,monthday:=format(date, "%b %d")]
 
-
 # get rid of 2017 data: (december 15-31 included in this pull) ----
 hourlydat <- hourlydat[year>2017,]
 
 # get rid of december data: ----
-hourlydat <- hourlydat[doy<100,]
 
 dim(hourlydat) # 17254564       21
 
@@ -33,6 +55,12 @@ dim(hourlydat) # 17254564       21
 #   geom_density(alpha = 0.5)
 # some very high numbers
 hourlydat[volume.sum>num_sensors_this_year * 2000] # reasonable though
+
+
+
+# Ok let's just do some year-over-year averages for September now vs previous year
+hourlyav <- hourlydat[year ,lapply(.SD, mean(x))]
+
 
 
 # must have 3 years of data, at least 60 days of data in each year ----
@@ -73,10 +101,12 @@ for(s in seq_along(hourlydat_s)){
   this_gam <- with(modeling_dat,
                    mgcv::gam(volume.sum ~ 
                                s(hour, by = as.factor(dow))
-                             + s(dow, k = 7, by = as.factor(year)) # one knot for each day of the week
-                             + s(doy, by = as.factor(year)) #general seasonal trend, let it vary by year, allow knots to be set by gam
+                             + s(dow, k = 7) # one knot for each day of the week
+                             + s(doy, by = as.factor(year)), 
+                              family = tw()) #general seasonal trend, let it vary by year, allow knots to be set by gam
                              # + as.factor(year) # intercept for each year
-                   ))
+                   )
+
   
   gam_list[[s]] <- this_gam
   
@@ -92,99 +122,34 @@ for(s in seq_along(hourlydat_s)){
   this_diff <- this_dat
   diffs_ls[[s]]<-this_diff
   
-  predicted_and_observed_plot<-
-    ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.sum, color = factor(woy)))+
-    theme_minimal()+
-    geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
-                alpha = 0.5, color = NA)+
-    geom_point()+
-    geom_line()+
-    facet_wrap(year~dow, scales = "free_x", nrow = 3)
-
-  diff_from_normal_plot<-
-    ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.diff, color = factor(woy)))+
-    theme_minimal()+
-    geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
-                alpha = 0.5, color = NA)+
-    geom_point()+
-    geom_line()+
-    facet_wrap(year~dow, scales = "free_x", nrow = 3)
-
-  grid.arrange(predicted_and_observed_plot, diff_from_normal_plot, nrow = 1)
+  # predicted_and_observed_plot<-
+  #   ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.sum, color = factor(woy)))+
+  #   theme_minimal()+
+  #   geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
+  #               alpha = 0.5, color = NA)+
+  #   geom_point()+
+  #   geom_line()+
+  #   facet_wrap(year~dow, scales = "free_x", nrow = 3)
+  # 
+  # diff_from_normal_plot<-
+  #   ggplot(this_dat[doy>7*5], aes(x = hour, y = volume.diff, color = factor(woy)))+
+  #   theme_minimal()+
+  #   geom_ribbon(aes(ymin = volume.predict-volume.predict.se, ymax = volume.predict + volume.predict.se, fill = factor(woy)),
+  #               alpha = 0.5, color = NA)+
+  #   geom_point()+
+  #   geom_line()+
+  #   facet_wrap(year~dow, scales = "free_x", nrow = 3)
+  # 
+  # grid.arrange(predicted_and_observed_plot, diff_from_normal_plot, nrow = 1)
 }
 
 diffs_dt <- rbindlist(diffs_ls)
-saveRDS(gam_list, file = paste0('data/gam-models-hourly-', Sys.Date(), '.RData'))
-
-# some very high numbers? 
-# hist(diffs_dt[,volume.diff])
-# summary(diffs_dt[,volume.diff])
-unique(diffs_dt[volume.diff < (-100),.(r_node_name, r_node_n_type)])
-# r_node_name r_node_n_type
-# 1:    rnd_1576          Exit
-# 2:    rnd_5932          Exit
-# 3:    rnd_5948          Exit
-# 4:    rnd_5950      Entrance
-# 5:     rnd_841      Entrance
-# 6:   rnd_85131          Exit
-# 7:   rnd_85435      Entrance
-# 8:   rnd_85649       Station
-# 9:   rnd_85657       Station
-# 10:   rnd_86223       Station
-# 11:   rnd_86797      Entrance
-# 12:   rnd_87263       Station
-# 13:   rnd_87273       Station
-# 14:   rnd_87565      Entrance
-# 15:   rnd_87915      Entrance
-# 16:   rnd_89115      Entrance
-# 17:   rnd_89281          Exit
-# 18:   rnd_89289      Entrance
-# 19:   rnd_91110          Exit
-# 20:   rnd_95341          Exit
-
-unique(diffs_dt[volume.predict<0, .(r_node_name, r_node_n_type)])
-# negative predicted values -- one spurious node 
-# diffs_dt <- diffs_dt[!r_node_name == 'rnd_86223'] -- now many more
-diffs_dt<-diffs_dt[!r_node_name %in% unique(diffs_dt[volume.predict<0, r_node_name])]
-
-# other spurious observations (8 of them)
-# diffs_dt<-diffs_dt[volume.diff < (100)]
-# another problematic node:
-# diffs_dt <- diffs_dt[!r_node_name %in% c('rnd_86469', 'rnd_95784')]
-
-# very high values
-summary(diffs_dt[volume.diff>100 & year == 2020,.(volume.predict, volume.diff)])
-# how many of these?
-unique(diffs_dt[volume.diff>500 & year == 2020, .(r_node_name, r_node_n_type, date)])
-# r_node_name r_node_n_type       date
-# 1:     rnd_849          Exit 2020-03-15
-# 2:     rnd_849          Exit 2020-03-16
-# 3:     rnd_849          Exit 2020-03-17
-# 4:     rnd_849          Exit 2020-03-18
-# 5:     rnd_849          Exit 2020-03-19
-# 6:     rnd_849          Exit 2020-03-20
-# 7:   rnd_86283      Entrance 2020-01-01
-# 8:   rnd_86283      Entrance 2020-01-02
-# 9:   rnd_88037      Entrance 2020-03-14
-# 10:   rnd_88037      Entrance 2020-03-15
-# 11:   rnd_88037      Entrance 2020-03-17
-# 12:   rnd_88037      Entrance 2020-03-18
-# 13:   rnd_89451      Entrance 2020-03-22
-
-# get rid of thse as well
-diffs_dt<-diffs_dt[!r_node_name %in% unique(diffs_dt[volume.diff>500 & year == 2020, r_node_name])]
-diffs_dt[,date:=as.IDate(date)]
-# Trim to after March 1 2020:
-diffs_dt <- diffs_dt[date>='2020-03-01',]
-
-fwrite(diffs_dt, paste0('output/hourly-pred-and-act-vol-by-node-', Sys.Date(), '.csv'))
 
 
-# More data reshaping of model output ----
-
+# saveRDS(gam_list, file = paste0('data/gam-models-hourly-', Sys.Date(), '.RData'))
 
 # Total difference from expected for whole metro area ----
-diffs_4plot <- diffs_dt[r_node_n_type == "Station" & year == 2020 # this year's data, stations only. ####
+diffs_4plot <- diffs_dt[r_node_n_type == "Station" & year == 2020 # this month's data, stations only. ####
                         ,lapply(.SD, FUN = function(x) sum(x, na.rm = T)),
                        .SDcols = c('volume.sum', 'volume.predict'), 
                        by = .(date, hour, dow, doy, year, woy, weekday, monthday)]
