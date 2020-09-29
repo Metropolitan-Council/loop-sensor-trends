@@ -196,7 +196,7 @@ geom_line(data= plot_dat,
 
 static_plot
 
-ggsave("output/AMPO/plot.png", static_plot, height = 12, width = 17, units = "in", dpi = 300)
+ggsave("output/AMPO/plot.png", static_plot, height = 10, width = 17, units = "in", dpi = 300)
 # ggsave('/Volumes/shared/MTS//Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
 
 # pdf("/output/AMPO/traffic.pdf", width = 12, height = 17)
