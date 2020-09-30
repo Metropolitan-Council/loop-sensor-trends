@@ -100,7 +100,7 @@ actions[, arrow_start := c(
 my_shapes <- c(16,16)
 my_linetype <- c(
   0,
-  4)
+  0)
 
 
 plot_dat <- diffs_4plot[doy > 66 & year == 2020] %>% 
@@ -136,13 +136,6 @@ geom_point(data = plot_dat,
            size = 3) +
   
   ## LINES -----------------------------------------------------------------------
-geom_line(data= plot_dat,
-          aes(x = date,
-              y = `Difference from Typical VMT (%)`,
-              color = source,
-              linetype = "act"),
-          size = 1,
-          show.legend = TRUE) +
   geom_line(data = plot_dat,
             aes(x = date,
                 y = rollingavg,
@@ -157,18 +150,19 @@ geom_line(data= plot_dat,
   # axes:
   labs(x = "",
        y = "% difference from typical traffic") +
-  scale_x_date(breaks = seq(as.Date("2020-03-08"), max(mndotdat[,date]) + 3, by = "2 weeks"),
+  scale_x_date(breaks = seq(as.Date("2020-03-08"),
+                            max(mndotdat[,date]) + 3, by = "2 weeks"),
                date_labels = "%m/%d",
                limits = c(as.Date("2020-03-06"), max(mndotdat[,date]) + 3)) +
   scale_y_continuous(limits = c(-75, 15),
                      breaks = seq(from = -70, to = 10, by = 10)) +
   #  colors:
-  scale_linetype_manual(values = c(3,1),
+  scale_linetype_manual(values = 1,
                         name = "Trend Line",
-                        labels = c("Observed change", 
-                                   "7-day rolling average"),
+                        labels = c("7-day rolling average"),
                         guide = guide_legend(order = 2,
                                              nrow = 2,
+                                             linetype = 0,
                                              title.position = "top")
   ) + 
   scale_color_manual(
