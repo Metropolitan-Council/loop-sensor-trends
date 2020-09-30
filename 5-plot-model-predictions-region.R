@@ -15,7 +15,7 @@ hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Re
 diffs_4plot <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv'))
 diffs_4plot[,date:=as.IDate(date)]
 
-diffs_4plot[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04')), NA, `Difference from Typical VMT (%)`)]
+diffs_4plot[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07')), NA, `Difference from Typical VMT (%)`)]
 diffs_4plot[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
 ggplot(diffs_4plot, aes(x = date))+
@@ -28,21 +28,23 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- Sys.Date() - 1# change back to -1 when new data available
+yesterday <- as.Date('2020-09-27')
+# yesterday <- Sys.Date() - 1# change back to -1 when new data available
 # yesterday <- as.IDate(yesterday)
 # yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
 # yesterday <- format(yesterday, format = '%m-%d-%Y')
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'))
+mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'), 
+                  header = T)
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
-mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
+mndotdat[, date := as.IDate(date, format = "%Y-%m-%d")]
 fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/diff-vol-state.csv"), row.names = F)
 fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/diff-vol-state.csv"), row.names = F)
 mndotdat[,date:=as.IDate(date)]
 
-mndotdat[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04')), NA, `Difference from Typical VMT (%)`)]
+mndotdat[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07')), NA, `Difference from Typical VMT (%)`)]
 mndotdat[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
 ###################################
