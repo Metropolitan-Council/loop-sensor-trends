@@ -13,19 +13,19 @@ load("/Volumes/shared/MTS//Working/Modeling/MetroLoopDetectors/loop-sensor-trend
 # number of households in metro area (estimated 2018)
 hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Resources/Files-and-reports/2018-Population-Estimates-(FINAL,-July-2019)-(1).aspx
 
-diffs_4plot <- fread(paste0("/Volumes/shared/MTS//Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv"))
+diffs_4plot <- fread(paste0("/Volumes/shared/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv"))
 diffs_4plot[, date := as.IDate(date)]
 
 diffs_4plot[, diffvol_use := ifelse(date %in% c(as.Date("2020-07-03"), as.Date("2020-07-04")), NA, `Difference from Typical VMT (%)`)]
 diffs_4plot[, rollingavg := shift(frollapply(diffvol_use, 7, mean, align = "left", na.rm = T))]
 
-ggplot(diffs_4plot, aes(x = date)) +
-  geom_point(aes(y = vmt.predict, color = "Predicted VMT")) +
-  geom_line(aes(y = vmt.predict, color = "Predicted VMT")) +
-  geom_point(aes(y = vmt.sum, color = "Actual VMT")) +
-  geom_line(aes(y = vmt.sum, color = "Actual VMT")) +
-  scale_x_date(date_breaks = "3 days") +
-  scale_color_manual(values = c(mtsRed, "black"))
+# ggplot(diffs_4plot, aes(x = date)) +
+#   geom_point(aes(y = vmt.predict, color = "Predicted VMT")) +
+#   geom_line(aes(y = vmt.predict, color = "Predicted VMT")) +
+#   geom_point(aes(y = vmt.sum, color = "Actual VMT")) +
+#   geom_line(aes(y = vmt.sum, color = "Actual VMT")) +
+#   scale_x_date(date_breaks = "3 days") +
+#   scale_color_manual(values = c(mtsRed, "black"))
 
 #########################
 # MNDOT Traffic Trends
@@ -35,12 +35,13 @@ yesterday <- Sys.Date() - 1 # change back to -1 when new data available
 # yesterday <- format(yesterday, format = '%m-%d-%Y')
 # mndotdat <- fread(paste0("http://www.dot.state.mn.us/traffic/data/reports/COVID19/Daily_Volume_Change_", yesterday, "_update.csv"))
 
-mndotdat <- fread(paste0("/Volumes/shared/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_2020-09-07_update.csv"))
+mndotdat <- fread(paste0("/Volumes/shared/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_2020-09-27_update.csv"),header = TRUE)
 # , yesterday, "_update.csv"))
 
 
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
-mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
+mndotdat <- melt(mndotdat, id.vars = c("District"),
+                 variable.name = "date", value.name = "Difference from Typical VMT (%)")
 mndotdat[, date := as.IDate(date, format = "%m/%d/%Y")]
 # fwrite(mndotdat, paste0("/Volumes/shared/MTS//Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/diff-vol-state.csv"), row.names = F)
 # fwrite(mndotdat, paste0("/Volumes/shared/MTS//Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/diff-vol-state.csv"), row.names = F)
@@ -97,6 +98,10 @@ actions[, arrow_start := c(
 # add logo
 # library(png)
 # mypng <- readPNG('MetcLogo4C-360x265.png')
+
+
+# Static plot -------------------------------------------------------------------
+
 my_shapes <- c(16,16)
 my_linetype <- c(
   0,
@@ -116,7 +121,8 @@ plot_dat <- diffs_4plot[doy > 66 & year == 2020] %>%
              source,
              rollingavg))
 
-# Static plot -------------------------------------------------------------------
+
+
 static_plot <-
   ggplot() +
   # shaded rectangle for stay-at-home order:
@@ -153,7 +159,7 @@ geom_point(data = plot_dat,
   scale_x_date(breaks = seq(as.Date("2020-03-08"),
                             max(mndotdat[,date]) + 3, by = "2 weeks"),
                date_labels = "%m/%d",
-               limits = c(as.Date("2020-03-06"), max(mndotdat[,date]) + 3)) +
+               limits = c(as.Date("2020-03-06"), max(mndotdat$date) + 3)) +
   scale_y_continuous(limits = c(-75, 15),
                      breaks = seq(from = -70, to = 10, by = 10)) +
   #  colors:
