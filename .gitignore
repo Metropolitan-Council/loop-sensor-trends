@@ -55,4 +55,8 @@ db-connect.R
 
 covid.traffic.trends/inst/app/www/Thumbs.db
 
+output/hourly_model_predictions_bynode/
+
+output/hrtestplots/
+
 .DS_Store
