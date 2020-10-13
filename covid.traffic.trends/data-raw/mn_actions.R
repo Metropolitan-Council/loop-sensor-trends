@@ -37,6 +37,7 @@ mn_actions <- cbind(
   #          'https://mn.gov/governor/assets/EO%2020-40%20Final_tcm1055-429564.pdf')
 ) %>%
   data.table::as.data.table() %>%
+  dplyr::mutate(date = as.IDate(date)) %>% 
   dplyr::left_join(predicted_actual_by_region, by = "date")
 
 
