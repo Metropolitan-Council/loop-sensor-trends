@@ -70,7 +70,9 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.c
       round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Metro Freeways"
-  )
+  ) %>% 
+  arrange(date) %>% 
+  mutate(roll_avg = zoo::rollmean(typical_vmt_diff,k = 7, fill = NA))
 
 usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
 
@@ -87,7 +89,9 @@ predicted_actual_by_state <- fread(paste0("./data-raw/diff-vol-state.csv")) %>%
       round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Statewide"
-  )
+  ) %>% 
+  arrange(date) %>% 
+  mutate(roll_avg = zoo::rollmean(typical_vmt_diff,k = 7, fill = NA))
 
 # predicted_actual_by_state <- fread(paste0(
 #       "https://mn.gov/covid19/assets/StateofMNResponseDashboardCSV_tcm1148-427143.csv"
