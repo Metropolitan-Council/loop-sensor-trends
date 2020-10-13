@@ -38,17 +38,17 @@ hourlydat <-
       dat <- dat[date %in% c(
         seq(
           from = as.Date('2018-08-01'),
-          to = as.Date('2018-09-30'),
+          to = as.Date('2018-09-26'),
           by = 'days'
         ),
         seq(
           from = as.Date('2019-08-01'),
-          to = as.Date('2019-09-30'),
+          to = as.Date('2019-09-26'),
           by = 'days'
         ),
         seq(
           from = as.Date('2020-08-01'),
-          to = as.Date('2020-09-30'),
+          to = as.Date('2020-09-26'),
           by = 'days'
         )
       ), ]
@@ -62,8 +62,8 @@ hourlydat <-
       # Average volume for this day of week and hour in 2018-2019:
       dat_av <- dat[year(date) %in% c(2018:2019), lapply(.SD, mean),
                     .SDcols = c('volume.sum'),
-                    by = c('r_node_name', 'dow', 'wk', 'hour')]
-      names(dat_av) <- c('r_node_name', 'dow', 'wk', 'hour', 'vol_18_19')
+                    by = c('r_node_name', 'dow', 'hour')]
+      names(dat_av) <- c('r_node_name', 'dow', 'hour', 'vol_18_19')
       # Actual volume for this day of week and hour in 2020: 
       dat_20 <- dat[year(date) == 2020, lapply(.SD, mean),
                     .SDcols = c('volume.sum'),
@@ -87,9 +87,7 @@ hourlydat <- hourlydat %>% mutate(dow = wday(as.Date(date)))
 # add a date for day of week: 
 hourlydat <- hourlydat %>% 
   mutate(weekof= cut(as.Date(date), "week", start.on.monday = FALSE)) %>%
-  mutate(weekof = format.Date(weekof, "%B %d")) %>%
-  arrange(date) %>%
-  mutate(weekof = factor(weekof, unique(weekof)))
+  mutate(weekof = format.Date(weekof, "%B %d"))
 
 # Aggregate up from nodes to corridors: add up all the observed and expected traffic for each date
 hr_corr_sum <- hourlydat %>%
@@ -112,18 +110,15 @@ hr_corr_av <- hr_corr_diff  %>%
   group_by(corridor_route, weekof, day_type, hour) %>%
   summarize(vol_diff_av = mean(vol_diff, na.rm = T), 
             vol_diff_pct_av = mean(vol_diff_pct, na.rm = T)) %>%
-  ungroup()
-
+  ungroup() %>%
+  droplevels()
 
 # Plot for each corridor:
-ggplot(hr_corr_av, aes(x = hour, y = vol_diff_av, 
-                       color = weekof)) +
+ggplot(hr_corr_av, aes(x = hour, y = vol_diff_av, color = factor(weekof))) +
   geom_line() +
   geom_hline(yintercept = 0)+
   facet_grid(corridor_route ~ day_type, scales = 'free_y') +
-  cowplot::theme_cowplot() + 
-  scale_color_brewer(palette = "Spectral")
-
+  cowplot::theme_cowplot()
 
 
 
@@ -154,20 +149,8 @@ hr_sys_av <- hr_sys_diff  %>%
   droplevels()
 
 # Plot for each corridor:
-ggplot(hr_sys_av, aes(x = hour, y = vol_diff_av, color = weekof)) +
+ggplot(hr_sys_av, aes(x = hour, y = vol_diff_av, color = factor(weekof))) +
   geom_line() +
   geom_hline(yintercept = 0)+
   facet_grid( ~ day_type) +
-  cowplot::theme_cowplot() + 
-  scale_color_brewer(palette = "Spectral")
-
-
-# Plot for each corridor:
-ggplot(hr_sys_av, aes(x = hour, y = vol_diff_pct_av, color = weekof)) +
-  geom_line() +
-  geom_hline(yintercept = 0)+
-  facet_grid( ~ day_type) +
-  cowplot::theme_cowplot() + 
-  scale_color_brewer(palette = "Spectral")
-
-
+  cowplot::theme_cowplot()
