@@ -60,3 +60,23 @@ output/hourly_model_predictions_bynode/
 output/hrtestplots/
 
 .DS_Store
+
+Thumbs.db
+
+hourly_volume_system_bymonth.jpeg
+
+hourly_volume_system_bymonth.png
+
+hourly_volume_system_bymonth_wknd.png
+
+volume_differences_by_hr_corridor_overtime.png
+
+output/hourly-pred-and-act-vol-corridor.csv
+
+volume_differences_by_hr_system_overtime.png
+
+Rplots.pdf
+
+node_map.png
+
+.RData
