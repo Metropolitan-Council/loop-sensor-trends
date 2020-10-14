@@ -80,3 +80,9 @@ Rplots.pdf
 node_map.png
 
 .RData
+
+select_corridors_map.png
+
+output/traffic.pdf
+
+*.png
