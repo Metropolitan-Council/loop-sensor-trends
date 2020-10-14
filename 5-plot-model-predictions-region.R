@@ -28,7 +28,7 @@ ggplot(diffs_4plot, aes(x = date))+
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- as.Date('2020-09-27')
+yesterday <- as.Date('2020-10-04')
 # yesterday <- Sys.Date() - 1# change back to -1 when new data available
 # yesterday <- as.IDate(yesterday)
 # yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
@@ -122,14 +122,14 @@ static_plot <-
   #           hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
   # lines and points for MnDOT: 
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], size = 3)+
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 3)+
-  geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 0.5, linetype = 'dotted', show.legend = F)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], size = 2)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 2)+
+  # geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 0.5, linetype = 'dotted', show.legend = F)+
   geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(y = rollingavg, color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   # lines and points for Metro:
-  geom_point(size = 3)+
-  geom_line(size = 0.5, linetype = 'dotted', show.legend = F)+
+  geom_point(size = 2)+
+  # geom_line(size = 0.5, linetype = 'dotted', show.legend = F)+
   geom_line(aes(y = rollingavg), size = 1, show.legend = F)+
   # # large points for State: 
   # geom_point(data = mndotdat[date %in% actions$date], pch = 21, fill = 'white', color = 'black',size = 11, show.legend = F)+
@@ -148,8 +148,6 @@ static_plot <-
   #           color = councilBlue, size = 4, fontface = 'italic')+
   
   # global options: 
-  theme_minimal()+
-  cowplot::theme_cowplot()+
   theme(legend.position = 'right')+
   theme(panel.grid.major.x = element_line(color = 'gray90'),
         panel.grid.major.y = element_line(color = 'gray90'))+
@@ -162,7 +160,13 @@ static_plot <-
   scale_y_continuous(limits = c(-75, 15), breaks = seq(from = -70, to = 10, by = 10))+
   #  colors:
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
-  theme(legend.position = 'bottom', legend.direction = 'horizontal', legend.justification = 'center')
+  theme(legend.position = 'bottom', legend.direction = 'horizontal', legend.justification = 'center') + 
+  theme_minimal() +
+  theme(legend.position = 'right') +
+  theme(
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
   
    # logo
   # annotation_raster(mypng, ymin = -95, ymax= -70,xmin = as.numeric(as.Date('2020-03-06')),xmax = as.numeric(as.Date('2020-03-15')))
@@ -170,13 +174,13 @@ static_plot <-
 
 static_plot
 
-ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
+ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, width = 10, height = 4, bg = "transparent")
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
 pdf('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic.pdf', width =10, height = 7, family = "ArialMT")
 static_plot
 dev.off()
 
-pdf('C:/Users/AsmusAL/OneDrive - Metropolitan Council/TBIHouseholdSurvey/CovidPanel/PresentationFigures/traffic.pdf', width =10, height = 7, family = "ArialMT")
+pdf('C:/Users/AsmusAL/OneDrive - Metropolitan Council/TBIHouseholdSurvey/CovidPanel/PresentationFigures/traffic.pdf', width = 10, height = 4, bg = "transparent", family = "ArialMT")
 static_plot
 dev.off()
 
