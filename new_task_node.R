@@ -33,24 +33,20 @@ sensor_names <- gsub('Sensor ', '', sensor_names)
 # Node-Sensor Lookup Table ----
 node_lut <- config[, .(r_node_name, detector_name)]
 node_lut <- node_lut[, sensor_name := as.character(detector_name)]
-node_lut <- node_lut[detector_name %in% sensor_names, ]
+node_lut <- node_lut[detector_name %in% sensor_names,]
 node_lut <- split(node_lut, node_lut$r_node_name)
-
+# node_lut <- node_lut[100:120] # test
 
 cores <- detectCores()
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
 
-# node_lut <- node_lut[100:120] # test
 
-# CLEAN UP TIME -----
-
-foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sensors")) %dopar% {
-  
-  library(data.table)
-  library(lubridate)
-  library(dplyr)
+foreach(
+  i = node_lut,
+  .packages = c("data.table", "lubridate", "dplyr", "tc.sensors")
+) %dopar% {
   
   # select dates:
   # date_range <- c(Sys.Date()-1) # yesterday's data
@@ -58,19 +54,19 @@ foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sens
     c(seq(as.Date("2020-10-15"), Sys.Date() - 1, by = "days"))
   # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
   
-  # node_info <- i
+  node_info <- i
   # for(i in 1:length(node_lut)){
   # node_info <- node_lut[[i]] # when a for loop instead of in parallel - testing
-  node_info <- node_lut[[1020]] # test - one node
+  # node_info <- node_lut[[1020]] # test - one node
+  
   this_node <- node_info$r_node_name[[1]]
-    
+  
   
   # GET NEW DATA ----
   n_sensors <- length(node_info$sensor_name)
   new_node_data_ls <- vector("list", n_sensors)
   
   for (j in node_info$sensor_name) {
-    
     n_dates <- length(date_range)
     new_data_ls <- vector("list", n_dates)
     
@@ -89,7 +85,9 @@ foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sens
     }
     
     new_data <- data.table::rbindlist(new_data_ls)
-    fwrite(new_data, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
+    fwrite(new_data,
+           paste0("data/data_hourly_raw/Sensor ", j, ".csv"),
+           append = T)
     
     new_node_data_ls[[j]] <- new_data
   }
@@ -122,12 +120,10 @@ foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sens
     # AGGREGATE TO NODES ----
     # count number of lanes with data for each hour, at node ----
     hourlydat_sensor[, num_lanes_with_data_this_hr := sum(!is.na(volume.sum)),
-                     by = list(
-                       r_node_name,
-                       year,
-                       date,
-                       hour
-                     )]
+                     by = list(r_node_name,
+                               year,
+                               date,
+                               hour)]
     
     
     # sometimes more lanes than the node is reported to have from mndot (r_node_lanes). sometimes less. Confusing!
@@ -147,15 +143,19 @@ foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sens
                                                                       mean = mean(x))))),
                                        by = .(r_node_name, year, date, hour),
                                        .SDcols = c('volume.sum', 'occupancy.sum', 'speed')]
-    # remove some columns: 
+    # remove some columns:
     hourlydat_node[, c('volume.sum.mean', 'occupancy.sum.mean', 'speed.sum') :=
                      NULL]
     setnames(hourlydat_node, old = 'volume.sum.sum', new = 'volume.sum')
     setnames(hourlydat_node, old = 'occupancy.sum.sum', new = 'occupancy.sum')
     setnames(hourlydat_node, old = 'speed.mean', new = 'speed')
     
-    fwrite(hourlydat_node,
-              paste0('data/data_hourly_node/', this_node, '.csv'), append = T, row.names=T)
+    fwrite(
+      hourlydat_node,
+      paste0('data/data_hourly_node/', this_node, '.csv'),
+      append = T,
+      row.names = T
+    )
     
     # sum for all hours of the day (daily-scale data) ----
     dailydat <- hourlydat_node[, as.list(unlist(lapply(.SD,
@@ -173,15 +173,27 @@ foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sens
     setnames(dailydat, old = 'speed.mean', new = 'speed')
     
     # WRITE DAILY DATA! ----
-    fwrite(dailydat,
-           paste0('data/data_daily_node/', this_node, '.csv'), append = T, row.names=T)
+    fwrite(
+      dailydat,
+      paste0('data/data_daily_node/', this_node, '.csv'),
+      append = T,
+      row.names = T
+    )
     
-  
+    
     # MERGE TO PREDICTIONS
-    predict_dat <- fread(paste0('output/daily_model_predictions_bynode/', this_node, ".csv"))
-    predict_dat <- setDT(predict_dat)[dailydat, `:=`(volume.sum = ifelse(is.na(volume.sum), i.volume.sum, volume.sum), 
-                                      occupancy.sum = ifelse(is.na(occupancy.sum), i.occupancy.sum, occupancy.sum)), 
-                       on=c("r_node_name", "date")][]
+    predict_dat <-
+      fread(paste0(
+        'output/daily_model_predictions_bynode/',
+        this_node,
+        ".csv"
+      ))
+    predict_dat <-
+      setDT(predict_dat)[dailydat, `:=`(
+        volume.sum = ifelse(is.na(volume.sum) | date %in% date_range, i.volume.sum, volume.sum),
+        occupancy.sum = ifelse(is.na(occupancy.sum) | date %in% date_range, i.occupancy.sum, occupancy.sum)
+      ),
+      on = c("r_node_name", "date")][]
     
     # difference from predicted, n volume:
     predict_dat[, volume.diff.raw := (volume.sum - volume.predict)]
@@ -189,33 +201,24 @@ foreach(i = node_lut, .packages = c("data.table", "lubridate", "dplyr", "tc.sens
     # difference from predicted, in %:
     predict_dat[, volume.diff := round(((volume.sum - volume.predict) / volume.predict) * 100, 1)]
     
-    fwrite(predict_dat, paste0('output/daily_model_predictions_bynode/', this_node, ".csv"))
-   
+    fwrite(
+      predict_dat,
+      paste0(
+        'output/daily_model_predictions_bynode/',
+        this_node,
+        ".csv"
+      )
+    )
+    
+  }# ends check for missing data
 }
 
+  
 stopCluster(cl)
-
-
-
-
-
-##############
-library(data.table)
-library(foreach)
-library(doParallel)
-library(mgcv)
-library(lubridate)
-#############
 
 node_files <- list.files('output/daily_model_predictions_bynode')
 node_names <- gsub('.csv', '', node_files)
 
-cores <- detectCores()
-cl <- makeCluster(cores)
-registerDoParallel(cl)
-
-
-# node_files <- node_files[1:10] # test
 
 
 # rbindlist(lapply(node_files, function(i)
@@ -289,18 +292,21 @@ summary(diffs_dt[volume.diff > 100 &
 # 8:   rnd_88037      Entrance 2020-03-17
 # 9:   rnd_88037      Entrance 2020-03-18
 
-# get rid of thse as well
+# get rid of these as well
 diffs_dt <-
   diffs_dt[!r_node_name %in% unique(diffs_dt[volume.diff > 500 &
                                                year == 2020, r_node_name])]
 summary(diffs_dt)
 
 
-fwrite(diffs_dt, paste0("output/pred-and-act-vol-by-node.csv"))
-fwrite(diffs_dt,
-       paste0(
-         "covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"
-       ))
+# fwrite(diffs_dt, paste0("output/pred-and-act-vol-by-node.csv"))
+
+fwrite(
+  diffs_dt,
+  paste0(
+    "covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"
+  )
+)
 
 
 # More data reshaping of model output ----
@@ -329,12 +335,12 @@ diffs_4plot[, c("vmt.sum", "vmt.predict") := list(volume.sum * 0.5, volume.predi
 diffs_4plot[, "Difference from Typical VMT (%)" := round(100 * (vmt.sum - vmt.predict) / vmt.predict, 2)]
 diffs_4plot[, difference_text := ifelse(
   `Difference from Typical VMT (%)` < 0,
-  paste0(abs(round(
-    `Difference from Typical VMT (%)`, 1
-  )), " % less than typical"),
-  paste0(abs(round(
-    `Difference from Typical VMT (%)`, 1
-  )), " % more than typical")
+  paste0(abs(
+    round(`Difference from Typical VMT (%)`, 1)
+  ), " % less than typical"),
+  paste0(abs(
+    round(`Difference from Typical VMT (%)`, 1)
+  ), " % more than typical")
 )]
 
 
