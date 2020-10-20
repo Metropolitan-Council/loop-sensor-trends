@@ -31,9 +31,7 @@ registerDoParallel(cl)
 
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
-  # date_range <- c(Sys.Date()-1) # yesterday's data
-  date_range <- c(seq(as.Date("2020-10-15"), Sys.Date()-1, by = "days"))
-  # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
+
   
   n <- length(date_range)
   loops_ls <- vector("list", n)
@@ -63,11 +61,7 @@ foreach(j = chosen_sensors) %dopar% {
   # don't need occupancy data, only volume data: 
   # hourlydat_sensor[,c('occupancy.nulls', 'occupancy.sum', 'occupancy.mean', 'occupancy.median'):=NULL]
   
-  # DELETE DUPLICATE OBSERVATIONS ----
-  # Find duplicate observations -- multiple pulls are written into the same data file
-  # example  -- hourlydat_sensor[date == '2020-03-19' & sensor == 100]
-  # get only the second observation:
-  hourlydat_sensor <- hourlydat_sensor[!duplicated(hourlydat_sensor, by = c('date', 'hour', 'sensor'), fromLast=TRUE)]
+
   
   # EXPAND DATASET FOR MISSING DAYS OF DATA (takes about 2 minutes)----
   # for whole days with no observations, "hour" is NA. Get rid of these for now, then fill in
@@ -149,10 +143,8 @@ stopCluster(cl)
 # tictoc::toc()
 
 ##############
-library(data.table)
 library(foreach)
 library(doParallel)
-library(lubridate)
 #############
 
 # READ DATA (takes about 1.5 minutes)----
@@ -174,6 +166,9 @@ cores <- detectCores()
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
+
+
+
 # node_lut <- node_lut[100:120] # test
 
 # CLEAN UP TIME -----
@@ -182,18 +177,35 @@ foreach(i = node_lut)%dopar%{
 
   library(data.table)
   library(lubridate)
+  
+  # node_info <- i
+  
+  # select dates:
+  # date_range <- c(Sys.Date()-1) # yesterday's data
+  date_range <- c(seq(as.Date("2020-10-15"), Sys.Date()-1, by = "days"))
+  # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
+  
 
-  
-# for(i in 1:length(node_lut)){
-  
-  node_info <- i
-  # node_info <- node_lut[[i]] # when a for loop instead of in parallel
-  # # node_info <- node_lut[[1010]] # test
+  # for(i in 1:length(node_lut)){
+  # node_info <- node_lut[[i]] # when a for loop instead of in parallel - testing 
+  node_info <- node_lut[[1010]] # test
   this_node <- node_info$r_node_name[[1]]
   these_sensors <- paste0('Sensor ', node_info$sensor_name)
   these_sensor_files <- paste0(paste0('data/data_hourly_raw/', these_sensors, '.csv'))
   
   hourlydat_sensor <- rbindlist(lapply(these_sensor_files, fread))
+ 
+  # DELETE DUPLICATE OBSERVATIONS ----
+  # Find duplicate observations -- multiple pulls are written into the same data file
+  # example  -- hourlydat_sensor[date == '2020-03-19' & sensor == 100]
+  # get only the second observation:
+  hourlydat_sensor <- hourlydat_sensor[!duplicated(hourlydat_sensor, by = c('date', 'hour', 'sensor'), fromLast=TRUE)]
+  
+  
+  # DELETE OBSERVATIONS IN DATE RANGE ----
+  hourlydat_sensor <- hourlydat_sensor[!date %in% date_range,]
+  
+  # Sensor reads as numeric - switch to character
   hourlydat_sensor[,sensor:=as.character(sensor)]
   
   # CHECK FOR NODES MISSING ALL DATA
