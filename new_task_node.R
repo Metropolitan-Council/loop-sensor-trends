@@ -26,20 +26,6 @@ chosen_sensors_dt <- data.table(chosen_sensors_dt)
 chosen_sensors <- chosen_sensors_dt$detector_name
 
 
-cores <- detectCores()
-cl <- makeCluster(cores)
-registerDoParallel(cl)
-
-# tictoc::tic()
-
-
-stopCluster(cl)
-# tictoc::toc()
-
-##############
-library(foreach)
-library(doParallel)
-#############
 
 # READ DATA (takes about 1.5 minutes)----
 config <-
@@ -69,11 +55,10 @@ registerDoParallel(cl)
 # CLEAN UP TIME -----
 
 foreach(i = node_lut) %dopar% {
+  
   library(data.table)
   library(lubridate)
   library(dplyr)
-  
-  # node_info <- i
   
   # select dates:
   # date_range <- c(Sys.Date()-1) # yesterday's data
@@ -81,6 +66,9 @@ foreach(i = node_lut) %dopar% {
     c(seq(as.Date("2020-10-15"), Sys.Date() - 1, by = "days"))
   # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
   
+  # node_info <- i
+  
+   
   
   # for(i in 1:length(node_lut)){
   # node_info <- node_lut[[i]] # when a for loop instead of in parallel - testing
@@ -119,72 +107,22 @@ foreach(i = node_lut) %dopar% {
           replace_impossible = T,
           interpolate_missing = TRUE,
           config = sensor_config
-        )
+        ) %>%
+        mutate(hour = interval_bin) %>%
+        mutate(year = year(date)) %>%
+        select(date, sensor, hour, volume.sum, occupancy.sum, year)
       
     }
     
     new_data <- data.table::rbindlist(new_data_ls)
   }
   
-  # This part me - gapfill:
-  library(data.table)
-  loops_df[, date := as.IDate(date)]
-  setorder(loops_df, date)
-  loops_df[, year := year(date)]
+  new_data[,sensor:=as.character(sensor)]
+  old_data[,sensor:=as.character(sensor)]
+  hourlydat_sensor <- merge(old_data, new_data, all= T)
   
-  # this part me - aggregate to hourly:
-  hourlydat_sensor <-
-    loops_df[, as.list(unlist(lapply(.SD, function(x)
-      list(
-        nulls = sum(is.na(x)),
-        sum = sum(x, na.rm = T),
-        mean = mean(x, na.rm = T),
-        median = median(x, na.rm = T)
-      )))),
-      by = .(date, hour, sensor), .SDcols = c("volume", "occupancy")]
-  
-  # data.table::fwrite(loops_df, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = T)
-  
-  # EXTRACT COLUMNS ----
-  # don't need occupancy data, only volume data:
-  # hourlydat_sensor[,c('occupancy.nulls', 'occupancy.sum', 'occupancy.mean', 'occupancy.median'):=NULL]
-  
-  
-  
-  # EXPAND DATASET FOR MISSING DAYS OF DATA (takes about 2 minutes)----
-  # for whole days with no observations, "hour" is NA. Get rid of these for now, then fill in
-  hourlydat_sensor <- hourlydat_sensor[!is.na(hour)]
-  
-  # create master matrix of dates and sensors, empty of data.
-  master_mat <- expand.grid(
-    date = unique(hourlydat_sensor$date),
-    sensor = unique(hourlydat_sensor$sensor),
-    hour = 0:23
-  )
-  master_mat <- data.table(master_mat)
-  master_mat[, date := as.IDate(date)]
-  master_mat <- master_mat[, sensor := as.character(sensor)]
-  
-  # merge master to hourly data to fill in NA values for missing observations
-  hourlydat_sensor <-
-    merge(
-      hourlydat_sensor,
-      master_mat,
-      by = c('date', 'sensor', 'hour'),
-      all = T
-    )
-  
-  # FORMAT DATE ----
-  # dealing with date
-  # hourlydat_sensor[,date:=as.IDate(fast_strptime(date, "%Y-%m-%d"))]
-  hourlydat_sensor[, year := year(date)]
-  
-  # GET RID OF IMPOSSIBLE VALUES ----
-  hourlydat_sensor <-
-    hourlydat_sensor[, volume.sum := ifelse(volume.sum >= 2300, NA, volume.sum)]
-  # 60 scans per second * 60 secs per min * 60 mins per hour = 216,000 scans per hour
-  hourlydat_sensor <-
-    hourlydat_sensor[, occupancy.sum := ifelse(occupancy.sum >= 216000, NA, occupancy.sum)]
+  # write over data: 
+  # data.table::fwrite(hourlydat_sensor, paste0("data/data_hourly_raw/Sensor ", j, ".csv"), append = F)
   
   
   # GAPFILLING 1: FILL IN MISSING MINUTES WITHIN HOURS ----
