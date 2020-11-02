@@ -7,7 +7,7 @@ library(dplyr)
 
 ## by node -----
 
-predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv")) # our golden ticket!
+predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv"))[,volume_difference:=(volume_difference/predicted_volume) * 100] # our golden ticket!
 
 
 
@@ -28,7 +28,7 @@ predicted_actual_by_node <- predicted_actual_by_node_orig %>%
     hover_text = paste(
       sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
       node_type, " on ", corridor_route, " at ", r_node_label, "<br>",
-      volume.diff, "%"
+      round(volume_difference), "%"
     ),
     District = "MnDOT Metro Freeways"
   )
@@ -37,9 +37,9 @@ predicted_actual_by_node <- predicted_actual_by_node_orig %>%
 unique_corridors <- unique(predicted_actual_by_node$corridor_route)
 
 predicted_actual_by_node <- predicted_actual_by_node %>%
+  filter(node_type != "") %>% 
   group_by(node_type) %>%
   dplyr::group_split(.keep = TRUE)
-
 
 names(predicted_actual_by_node) <- c("Entrance", "Exit", "Freeway_Segment")
 
