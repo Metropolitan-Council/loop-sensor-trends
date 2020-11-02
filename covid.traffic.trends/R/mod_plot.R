@@ -64,8 +64,7 @@ mod_plot_server <- function(input, output, session) {
         #   size = 0,
         #   color = "black"
         # )
-      ) %>% 
-      
+      ) %>%
       plotly::add_markers(
         data = covid.traffic.trends::predicted_actual_by_state,
         x = covid.traffic.trends::predicted_actual_by_state$date,
@@ -97,12 +96,12 @@ mod_plot_server <- function(input, output, session) {
         line = list(
           width = 2,
           color = "black"
-          )
+        )
         # marker = list(
         #   size = 0,
         #   color = "black"
         # )
-        ) %>% 
+      ) %>%
       # plotly::add_markers( ## mn actions -----
       #   data = covid.traffic.trends::mn_actions,
       #   x = covid.traffic.trends::mn_actions$date,
@@ -164,19 +163,21 @@ mod_plot_server <- function(input, output, session) {
           xanchor = "right", yanchor = "auto",
           xshift = 0, yshift = -10
         ),
-        
+
         shapes = list(
-          list(type = "rect",
-               fillcolor = councilR::colors$suppGray,
-               opacity = 0.1,
-               line = list(color = councilR::colors$suppGray),
-               opacity = 0.3,
-               x0 = "2020-03-27",
-               x1 = "2020-05-18",
-               xref = "x",
-               y0 = 6,
-               y1 = -75,
-               yref = "y")
+          list(
+            type = "rect",
+            fillcolor = councilR::colors$suppGray,
+            opacity = 0.1,
+            line = list(color = councilR::colors$suppGray),
+            opacity = 0.3,
+            x0 = "2020-03-27",
+            x1 = "2020-05-18",
+            xref = "x",
+            y0 = 6,
+            y1 = -75,
+            yref = "y"
+          )
         ),
         hovermode = "closest",
         hoverdistance = "10",

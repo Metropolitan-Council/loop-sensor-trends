@@ -7,7 +7,7 @@ library(dplyr)
 
 ## by node -----
 
-predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv"))[,volume_difference:=(volume_difference/predicted_volume) * 100] # our golden ticket!
+predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv"))[, volume_difference := (volume_difference / predicted_volume) * 100] # our golden ticket!
 
 
 
@@ -37,7 +37,7 @@ predicted_actual_by_node <- predicted_actual_by_node_orig %>%
 unique_corridors <- unique(predicted_actual_by_node$corridor_route)
 
 predicted_actual_by_node <- predicted_actual_by_node %>%
-  filter(node_type != "") %>% 
+  filter(node_type != "") %>%
   group_by(node_type) %>%
   dplyr::group_split(.keep = TRUE)
 
@@ -70,9 +70,9 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.c
       round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Metro Freeways"
-  ) %>% 
-  arrange(date) %>% 
-  mutate(roll_avg = zoo::rollmean(typical_vmt_diff,k = 7, fill = NA))
+  ) %>%
+  arrange(date) %>%
+  mutate(roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA))
 
 usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
 
@@ -89,9 +89,9 @@ predicted_actual_by_state <- fread(paste0("./data-raw/diff-vol-state.csv")) %>%
       round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Statewide"
-  ) %>% 
-  arrange(date) %>% 
-  mutate(roll_avg = zoo::rollmean(typical_vmt_diff,k = 7, fill = NA))
+  ) %>%
+  arrange(date) %>%
+  mutate(roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA))
 
 # predicted_actual_by_state <- fread(paste0(
 #       "https://mn.gov/covid19/assets/StateofMNResponseDashboardCSV_tcm1148-427143.csv"
