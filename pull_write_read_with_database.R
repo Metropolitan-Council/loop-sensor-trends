@@ -162,6 +162,9 @@ node_config <- raw_sensor_config %>%
   select(-detector_name, -detector_label, -detector_category, -detector_lane, -detector_field, -detector_abandoned, 
          -r_node_lanes, -r_node_shift, -r_node_attach_side, -date)%>%
   unique()
+diffs_dt <- merge(diffs_dt, node_config, all.x = T, all.y = F)
+diffs_dt[,volume_difference:=(volume_difference/predicted_volume) * 100]
+
 
 
 fwrite(diffs_dt, paste0("output/pred-and-act-vol-by-node.csv"))
@@ -267,6 +270,5 @@ static_plot <-
 
 
 
-static_plot
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, width = 10, height = 4, bg = "transparent")
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
