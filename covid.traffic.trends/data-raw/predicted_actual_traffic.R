@@ -7,7 +7,7 @@ library(dplyr)
 
 ## by node -----
 
-predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv"))[, volume_difference := (volume_difference / predicted_volume) * 100] # our golden ticket!
+predicted_actual_by_node_orig <- fread(paste0("./data-raw/pred-and-act-vol-by-node.csv")) # our golden ticket!
 
 
 
