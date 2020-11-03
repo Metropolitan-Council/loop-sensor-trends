@@ -72,7 +72,8 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.c
     District = "MnDOT Metro Freeways"
   ) %>%
   arrange(date) %>%
-  mutate(roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA))
+  mutate(`date` = as.Date(date),
+    roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA))
 
 usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
 

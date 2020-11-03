@@ -10,8 +10,9 @@ library(dplyr)
 table_data <- rbind(
   predicted_actual_by_region %>%
     mutate(
-      `date` = as.character(`date`),
-      weekday = lubridate::wday(date)
+      weekday = format.Date(date, "%A"),
+      `date` = as.character(`date`)
+      
     ) %>%
     select(
       date,
