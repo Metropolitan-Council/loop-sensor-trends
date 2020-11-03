@@ -38,11 +38,26 @@ Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
 # Get Nodes Without Data -------------------------------------
-need_data <- ROracle::dbReadTable(tbidb, 'RTMC_SENSORS_WITHOUT_DATA')
-need_data$new_date <- substr(need_data$PREDICT_DATE, start = 1, stop = 11)
+need_data <- ROracle::dbReadTable(tbidb, 'RTMC_SENSORS_WITHOUT_DATA') 
+need_data_raw <- need_data  # making a copy
+need_data <- data.table(need_data)
+need_data[,PREDICT_DATE:=as.Date(PREDICT_DATE)]
+# need_data$new_date <- substr(need_data$PREDICT_DATE, start = 1, stop = 11)
 #239,702
-need_data <- need_data[need_data$new_date == Sys.Date()-1,]
-# 6658 rows
+
+# anything missing from yesterday, and the past week:
+need_data <- need_data[need_data$PREDICT_DATE %in% c(Sys.Date()-1,
+                                                     Sys.Date()-2,
+                                                     Sys.Date()-3,
+                                                     Sys.Date()-5,
+                                                     Sys.Date()-6,
+                                                     Sys.Date()-7),]
+# 11,174 rows
+
+# for a month (overnight data downloads): 
+# need_data <- need_data[need_data$PREDICT_DATE >= '2020-02-01' & 
+#                          need_data$PREDICT_DATE < '2020-03-01']
+# 31707/(60 * 60) = 8.8 hours/month of data, = 4.4 days per year of data!
 
 pb <-
   txtProgressBar(
@@ -59,7 +74,7 @@ for (s in 1:nrow(need_data)) {
     sensor_day_dat <-
       pull_sensor(
         sensor = need_data$DETECTOR_NAME[[s]],
-        pull_date = need_data$new_date[[s]],
+        pull_date = need_data$PREDICT_DATE[[s]],
         fill_gaps = T,
         .quiet = T
       ) %>%
@@ -128,68 +143,76 @@ for (s in 1:nrow(need_data)) {
 
 tictoc::toc()
 
-# Insert new data from temporary -> permanent table ---------------------------------------------
-ROracle::dbSendQuery(tbidb,
-                     paste0(
-                       "insert into rtmc_5min",
-                       " select * from rtmc_5min_temp",
-                       " where", 
-                       " not exists (",
-                         " select * from rtmc_5min",
-                         " where  rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
-                         " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name",
-                       ") and",
-                       " rowid in (",
-                         "select max(rowid)",
-                         " from   rtmc_5min_temp",
-                         " group  by detector_name, start_datetime)"
-                     )
-                     )
-ROracle::dbSendQuery(tbidb,
-                     "commit"
-)
+# # Insert new data from temporary -> permanent table ---------------------------------------------
+# ROracle::dbSendQuery(tbidb,
+#                      paste0(
+#                        "insert into rtmc_5min",
+#                        " select * from rtmc_5min_temp",
+#                        " where", 
+#                        " not exists (",
+#                        " select * from rtmc_5min",
+#                        " where  rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
+#                        " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name",
+#                        ") and",
+#                        " rowid in (",
+#                        "select max(rowid)",
+#                        " from   rtmc_5min_temp",
+#                        " group  by detector_name, start_datetime)"
+#                      )
+# )
+# 
+# ROracle::dbSendQuery(tbidb, "commit")
 
 
 # Truncate Temporary Table Here ---------------------------------------------
-# ??????????
+# # ??????????
+# ROracle::dbSendQuery(tbidb,
+#                      "delete from rtmc_5min_temp where extract(month from start_datetime) = 11"
+# )
+
 
 # Pull Daily Node Data ---------------------------------------------
-diffs_dt <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_NODE_DIFF")
-diffs_dt <- data.table(diffs_dt)
-setnames(diffs_dt, old = c('NODE_NAME', 'DATA_DATE', 'TOTAL_VOLUME', 'VOLUME_PREDICT', 'VOLUME_DIFF'),
+tictoc::tic()
+
+node_diffs <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_NODE_DIFF")
+node_diffs <- data.table(node_diffs)
+setnames(node_diffs, old = c('NODE_NAME', 'DATA_DATE', 'TOTAL_VOLUME', 'VOLUME_PREDICT', 'VOLUME_DIFF'),
          new = c('r_node_name', 'date', 'total_volume', 'predicted_volume', 'volume_difference'))
 node_config <- raw_sensor_config %>%
   select(-detector_name, -detector_label, -detector_category, -detector_lane, -detector_field, -detector_abandoned, 
          -r_node_lanes, -r_node_shift, -r_node_attach_side, -date)%>%
   unique()
+node_diffs <- merge(node_diffs, node_config, all.x = T, all.y = F)
+node_diffs[,volume_difference:=(volume_difference/predicted_volume) * 100]
 
 
-fwrite(diffs_dt, paste0("output/pred-and-act-vol-by-node.csv"))
-fwrite(diffs_dt, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"))
+# write to flat files: 
+fwrite(node_diffs, paste0("output/pred-and-act-vol-by-node.csv"))
+fwrite(node_diffs, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"))
 
 
 
 # Pull Daily System Data ---------------------------------------------
-diffs_4plot <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_SYSTEM_DIFF")
-diffs_4plot <- data.table(diffs_4plot)
-setnames(diffs_4plot, old = c('DATA_DATE', 'TOTAL_VOLUME', 'TOTAL_PREDICTED_VOLUME', 'TOTAL_VOLUME_DIFF'),
+system_diffs <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_SYSTEM_DIFF")
+system_diffs <- data.table(system_diffs)
+setnames(system_diffs, old = c('DATA_DATE', 'TOTAL_VOLUME', 'TOTAL_PREDICTED_VOLUME', 'TOTAL_VOLUME_DIFF'),
          new = c('date', 'volume.sum', 'volume.predict', 'volume.diff'))
 
 
-diffs_4plot[, c("vmt.sum", "vmt.predict") := list(volume.sum * 0.5, volume.predict * 0.5)]
-diffs_4plot[, "Difference from Typical VMT (%)" := round(100 * (vmt.sum - vmt.predict) / vmt.predict, 2)]
-diffs_4plot[, difference_text := ifelse(`Difference from Typical VMT (%)` < 0, paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % less than typical"),
+system_diffs[, c("vmt.sum", "vmt.predict") := list(volume.sum * 0.5, volume.predict * 0.5)]
+system_diffs[, "Difference from Typical VMT (%)" := round(100 * (vmt.sum - vmt.predict) / vmt.predict, 2)]
+system_diffs[, difference_text := ifelse(`Difference from Typical VMT (%)` < 0, paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % less than typical"),
                                         paste0(abs(round(`Difference from Typical VMT (%)`, 1)), " % more than typical")
 )]
 
+# write to flat files: 
+fwrite(system_diffs, paste0("output/pred-and-act-vol-region.csv"))
+fwrite(system_diffs, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-region.csv"))
 
-fwrite(diffs_4plot, paste0("output/pred-and-act-vol-region.csv"))
-fwrite(diffs_4plot, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-region.csv"))
-
-diffs_4plot[,date:=as.Date(date)]
+system_diffs[,date:=as.Date(date)]
 
 # Plot System Data (Check) ---------------------------------------------
-ggplot(diffs_4plot, aes(x = date))+
+ggplot(system_diffs, aes(x = date))+
   geom_point(aes(y = volume.predict, color = "Predicted VMT"))+
   geom_line(aes(y = volume.predict, color = "Predicted VMT"))+
   geom_point(aes(y = volume.sum, color = "Actual VMT"))+
@@ -216,15 +239,15 @@ mndotdat[,date:=as.IDate(date)]
 # 7-Day Rolling Average Calculations  ---------------------------------------------
 holidays <- c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07'))
 
-diffs_4plot[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical VMT (%)`)]
-diffs_4plot[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
+system_diffs[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical VMT (%)`)]
+system_diffs[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
 mndotdat[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical VMT (%)`)]
 mndotdat[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
 # Static Daily Plot  ---------------------------------------------
 static_plot <-
-  ggplot(diffs_4plot, 
+  ggplot(system_diffs, 
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
   
   # shaded rectangle for stay-at-home order:
@@ -267,6 +290,9 @@ static_plot <-
 
 
 
-static_plot
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, width = 10, height = 4, bg = "transparent")
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
+
+
+ROracle::dbDisconnect(tbidb)
+tictoc::toc()
