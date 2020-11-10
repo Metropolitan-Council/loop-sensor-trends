@@ -28,7 +28,8 @@ tbidb = ROracle::dbConnect(
   dbDriver("Oracle"),
   dbname = connect.string,
   username = 'mts_planning_data',
-  # mts_planning_view for viewing data only, no write priviliges. mts_planning_data is the username for write privlieges.
+  # mts_planning_view for viewing data only, no write priviliges. 
+  # mts_planning_data is the username for write privlieges.
   password = rstudioapi::askForPassword("database password")
 )
 
@@ -38,21 +39,30 @@ Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
 # Get Nodes Without Data -------------------------------------
-need_data <- ROracle::dbReadTable(tbidb, 'RTMC_SENSORS_WITHOUT_DATA') 
-need_data_raw <- need_data  # making a copy
-need_data <- data.table(need_data)
-need_data[,PREDICT_DATE:=as.Date(PREDICT_DATE)]
-# need_data$new_date <- substr(need_data$PREDICT_DATE, start = 1, stop = 11)
-#239,702
+# Either fill in from sensors with no data at all -- 
+need_data1 <- ROracle::dbReadTable(tbidb, 'RTMC_SENSORS_WITHOUT_DATA') # 284,117
+need_data1 <- data.table(need_data1)
+need_data1 <- need_data1[,.(PREDICT_DATE, DETECTOR_NAME, NODE_NAME)]
+need_data1[,PREDICT_DATE:=as.Date(PREDICT_DATE)]
+# some missing detector names -- no longer in config file? 
+uniqueN(need_data1$NODE_NAME[is.na(need_data1$DETECTOR_NAME)]) # just 1, rnd 46
+need_data1 <- need_data1[!is.na(DETECTOR_NAME),]
+# And/or fill in the gaps from sensors that have some data for a date, but it's incomplete -- 
+need_data2 <- ROracle::dbReadTable(tbidb, 'RTMC_SENSORS_MISSING_HOURS') # 36,889
+need_data2 <- data.table(need_data2)
+need_data2[,PREDICT_DATE:=as.Date(PREDICT_DATE)]
+need_data2 <- need_data2[,.(PREDICT_DATE, DETECTOR_NAME, NODE_NAME)]
 
-# anything missing from yesterday, and the past week:
-need_data <- need_data[need_data$PREDICT_DATE %in% c(Sys.Date()-1,
-                                                     Sys.Date()-2,
-                                                     Sys.Date()-3,
-                                                     Sys.Date()-5,
-                                                     Sys.Date()-6,
-                                                     Sys.Date()-7),]
-# 11,174 rows
+need_data <- merge(need_data1, need_data2, all = T)
+
+
+need_data_raw <- need_data  # making a copy
+# need_data <- need_data_raw
+
+
+# anything missing from yesterday, and the past two weeks:
+need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-60,]
+
 
 # for a month (overnight data downloads): 
 # need_data <- need_data[need_data$PREDICT_DATE >= '2020-02-01' & 
@@ -223,7 +233,7 @@ ggplot(system_diffs, aes(x = date))+
 
 # Download/Re-Shape MnDOT Data ---------------------------------------------
 # yesterday <- as.Date('2020-10-25')
-yesterday <- Sys.Date() - 1# change back to -1 when new data available
+yesterday <- Sys.Date() - 2# change back to -1 when new data available
 
 mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'), 
                   header = T)
