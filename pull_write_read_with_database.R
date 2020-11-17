@@ -61,7 +61,7 @@ need_data_raw <- need_data  # making a copy
 
 
 # anything missing from yesterday, and the past two weeks:
-need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-60,]
+need_data <- need_data[need_data$PREDICT_DATE >= '2020-11-01',]
 
 
 # for a month (overnight data downloads): 
@@ -197,8 +197,8 @@ node_diffs[,volume_difference:=(volume_difference/predicted_volume) * 100]
 
 
 # write to flat files: 
-fwrite(node_diffs, paste0("output/pred-and-act-vol-by-node.csv"))
-fwrite(node_diffs, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"))
+fwrite(node_diffs, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-by-node.csv"))
+fwrite(node_diffs, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/pred-and-act-vol-by-node.csv"))
 
 
 
@@ -216,8 +216,8 @@ system_diffs[, difference_text := ifelse(`Difference from Typical VMT (%)` < 0, 
 )]
 
 # write to flat files: 
-fwrite(system_diffs, paste0("output/pred-and-act-vol-region.csv"))
-fwrite(system_diffs, paste0("covid.traffic.trends/data-raw/pred-and-act-vol-region.csv"))
+fwrite(system_diffs, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv"))
+fwrite(system_diffs, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/data-raw/pred-and-act-vol-region.csv"))
 
 system_diffs[,date:=as.Date(date)]
 
@@ -232,10 +232,10 @@ ggplot(system_diffs, aes(x = date))+
   theme_minimal()
 
 # Download/Re-Shape MnDOT Data ---------------------------------------------
-# yesterday <- as.Date('2020-10-25')
-yesterday <- Sys.Date() - 2# change back to -1 when new data available
-
-mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/Daily_Volume_Change_', yesterday, '_update.csv'), 
+mndot_files <- list.files('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/')
+# max = most recent mndot file
+mndotdat <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/data/mndot-data/', 
+                         max(mndot_files)), 
                   header = T)
 mndotdat <- mndotdat[District %in% c("MnDOT Statewide")]
 mndotdat <- melt(mndotdat, id.vars = c("District"), variable.name = "date", value.name = "Difference from Typical VMT (%)")
@@ -250,10 +250,10 @@ mndotdat[,date:=as.IDate(date)]
 holidays <- c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07'))
 
 system_diffs[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical VMT (%)`)]
-system_diffs[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
+system_diffs[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'right', na.rm = T))]
 
 mndotdat[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical VMT (%)`)]
-mndotdat[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
+mndotdat[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'right', na.rm = T))]
 
 # Static Daily Plot  ---------------------------------------------
 static_plot <-
