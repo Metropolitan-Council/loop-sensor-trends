@@ -61,7 +61,7 @@ need_data_raw <- need_data  # making a copy
 
 
 # anything missing from yesterday, and the past two weeks:
-need_data <- need_data[need_data$PREDICT_DATE >= '2020-11-01',]
+need_data <- need_data[need_data$PREDICT_DATE >= '2020-11-15' & need_data$PREDICT_DATE < Sys.Date(),]
 
 
 # for a month (overnight data downloads): 
@@ -153,32 +153,48 @@ for (s in 1:nrow(need_data)) {
 
 tictoc::toc()
 
-# # Insert new data from temporary -> permanent table ---------------------------------------------
-# ROracle::dbSendQuery(tbidb,
-#                      paste0(
-#                        "insert into rtmc_5min",
-#                        " select * from rtmc_5min_temp",
-#                        " where", 
-#                        " not exists (",
-#                        " select * from rtmc_5min",
-#                        " where  rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
-#                        " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name",
-#                        ") and",
-#                        " rowid in (",
-#                        "select max(rowid)",
-#                        " from   rtmc_5min_temp",
-#                        " group  by detector_name, start_datetime)"
-#                      )
-# )
-# 
-# ROracle::dbSendQuery(tbidb, "commit")
 
+# Delete data in permanent table where more complete data are now available -------------------
+ROracle::dbSendQuery(
+  tbidb,
+  paste0(
+    "delete from rtmc_5min where rowid in (",
+    " select rtmc_5min.rowid from rtmc_5min",
+    " inner join rtmc_5min_temp on",
+    " (rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
+    " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name)",
+    " where rtmc_5min_temp.volume_sum <> rtmc_5min.volume_sum",
+    " and rtmc_5min.volume_pctnull> rtmc_5min_temp.volume_pctnull)"
+  )
+)
+ROracle::dbSendQuery(tbidb, "commit")
+
+  
+# Insert new data from temporary -> permanent table ---------------------------------------------
+ROracle::dbSendQuery(tbidb,
+                     paste0(
+                       "insert into rtmc_5min",
+                       " select * from rtmc_5min_temp",
+                       " where",
+                       " not exists (",
+                       " select * from rtmc_5min",
+                       " where  rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
+                       " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name",
+                       ") and",
+                       " rowid in (",
+                       "select max(rowid)",
+                       " from   rtmc_5min_temp",
+                       " group  by detector_name, start_datetime)"
+                     )
+)
+
+ROracle::dbSendQuery(tbidb, "commit")
 
 # Truncate Temporary Table Here ---------------------------------------------
 # # ??????????
-# ROracle::dbSendQuery(tbidb,
-#                      "delete from rtmc_5min_temp where extract(month from start_datetime) = 11"
-# )
+ROracle::dbSendQuery(tbidb,
+                     "delete from rtmc_5min_temp where extract(year from start_datetime) = 2020"
+)
 
 
 # Pull Daily Node Data ---------------------------------------------
@@ -186,8 +202,10 @@ tictoc::tic()
 
 node_diffs <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_NODE_DIFF")
 node_diffs <- data.table(node_diffs)
+
 setnames(node_diffs, old = c('NODE_NAME', 'DATA_DATE', 'TOTAL_VOLUME', 'VOLUME_PREDICT', 'VOLUME_DIFF'),
          new = c('r_node_name', 'date', 'total_volume', 'predicted_volume', 'volume_difference'))
+sort(unique(node_diffs$date))
 node_config <- raw_sensor_config %>%
   select(-detector_name, -detector_label, -detector_category, -detector_lane, -detector_field, -detector_abandoned, 
          -r_node_lanes, -r_node_shift, -r_node_attach_side, -date)%>%
