@@ -34,17 +34,24 @@ sensor_names <- gsub('Sensor ', '', sensor_names)
 node_lut <- config[, .(r_node_name, detector_name)]
 node_lut <- node_lut[, sensor_name := as.character(detector_name)]
 node_lut <- node_lut[detector_name %in% sensor_names,]
+
+# Only nodes with existing predictions: 
+predict_files <- list.files('output/daily_model_predictions_bynode/')
+predict_node_names <- gsub('.csv', '', predict_files)
+node_lut <- node_lut[r_node_name %in% predict_node_names,]
+
+
 node_lut <- split(node_lut, node_lut$r_node_name)
 # node_lut <- node_lut[100:120] # test
 
 cores <- detectCores()
-cl <- makeCluster(cores)
+cl <- makeCluster(cores-1)
 registerDoParallel(cl)
 
 
 
 foreach(
-  i = node_lut,
+  node_num = node_lut,
   .packages = c("data.table", "lubridate", "dplyr", "tc.sensors")
 ) %dopar% {
   
@@ -54,10 +61,10 @@ foreach(
     c(seq(as.Date("2020-10-15"), Sys.Date() - 1, by = "days"))
   # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
   
-  node_info <- i
+  # node_info <- node_num
   # for(i in 1:length(node_lut)){
   # node_info <- node_lut[[i]] # when a for loop instead of in parallel - testing
-  # node_info <- node_lut[[1020]] # test - one node
+  node_info <- node_lut[[1020]] # test - one node
   
   this_node <- node_info$r_node_name[[1]]
   
@@ -66,13 +73,20 @@ foreach(
   n_sensors <- length(node_info$sensor_name)
   new_node_data_ls <- vector("list", n_sensors)
   
-  for (j in node_info$sensor_name) {
+  for (a_sensor in node_info$sensor_name) {
     n_dates <- length(date_range)
     new_data_ls <- vector("list", n_dates)
     
-    for (i in 1:n) {
-      new_data_ls[[i]] <-
-        tc.sensors::pull_sensor(j, date_range[[i]], fill_gaps = T) %>%
+    for (a_date in 1:n_dates) {
+      
+      ####
+      # test
+      # a_date <- 1
+      # a_sensor <- node_info$sensor_name[[1]]
+      ####
+      
+      new_data_ls[[a_date]] <-
+        tc.sensors::pull_sensor(a_sensor, date_range[[a_date]], fill_gaps = T) %>%
         tc.sensors::aggregate_sensor(
           interval_length = 1,
           replace_impossible = T,
@@ -85,24 +99,35 @@ foreach(
     }
     
     new_data <- data.table::rbindlist(new_data_ls)
-    fwrite(new_data,
-           paste0("data/data_hourly_raw/Sensor ", j, ".csv"),
-           append = T)
     
-    new_node_data_ls[[j]] <- new_data
+    old_data <- fread(paste0("data/data_hourly_raw/Sensor ", a_sensor, ".csv"), fill = T)
+    old_data[,date:=as.IDate(date)]
+    old_data[,sensor:=as.character(sensor)]
+    
+    hourlydat_sensor <- rbind(new_data, old_data, use.names = T)
+    hourlydat_sensor <- unique(hourlydat_sensor)
+    hourlydat_sensor <- hourlydat_sensor[!is.na(volume.sum)]
+    hourlydat_sensor <- hourlydat_sensor[!duplicated(hourlydat_sensor, by = c('date', 'hour', 'sensor'), fromLast=TRUE)]
+    
+    
+    fwrite(hourlydat_sensor,
+           paste0("data/data_hourly_raw/Sensor ", a_sensor, ".csv"),
+           append = F)
+    
+    new_node_data_ls[[a_sensor]] <- hourlydat_sensor
   }
   
-  hourlydat_sensor <- rbindlist(new_node_data_ls)
+  hourlydat_sensors <- rbindlist(new_node_data_ls)
   
   # CHECK FOR NODES MISSING ALL DATA
-  total_zilch <- sum(!is.na(hourlydat_sensor$hour))
+  total_zilch <- sum(!is.na(hourlydat_sensors$hour))
   if (total_zilch == 0) {
     
   } else{
     # MERGE BACK TO CONFIGURATION FILE ---
-    hourlydat_sensor <-
+    hourlydat_sensors <-
       merge(
-        hourlydat_sensor,
+        hourlydat_sensors,
         config,
         all.x = T,
         all.y = F,
@@ -111,15 +136,15 @@ foreach(
       )
     
     # CALCULATE SPEED ---
-    hourlydat_sensor[, occupancy.pct := (occupancy.sum / 216000)]
-    hourlydat_sensor[, speed := ifelse(volume.sum != 0,
+    hourlydat_sensors[, occupancy.pct := (occupancy.sum / 216000)]
+    hourlydat_sensors[, speed := ifelse(volume.sum != 0,
                                        (volume.sum * detector_field) / (5280 *
                                                                           occupancy.pct),
                                        0)]
     
     # AGGREGATE TO NODES ----
     # count number of lanes with data for each hour, at node ----
-    hourlydat_sensor[, num_lanes_with_data_this_hr := sum(!is.na(volume.sum)),
+    hourlydat_sensors[, num_lanes_with_data_this_hr := sum(!is.na(volume.sum)),
                      by = list(r_node_name,
                                year,
                                date,
@@ -128,16 +153,16 @@ foreach(
     
     # sometimes more lanes than the node is reported to have from mndot (r_node_lanes). sometimes less. Confusing!
     # count number of unique sensors this year for this node:
-    hourlydat_sensor[, num_sensors_this_year := uniqueN(sensor),
+    hourlydat_sensors[, num_sensors_this_year := uniqueN(sensor),
                      by = .(r_node_name, year)]
     
     
     # exclude to only those hourly observations at each node where the number of lanes
     # equals the number of detectors for this year.
-    hourlydat_sensor <-
-      hourlydat_sensor[num_lanes_with_data_this_hr == num_sensors_this_year]
+    hourlydat_sensors <-
+      hourlydat_sensors[num_lanes_with_data_this_hr == num_sensors_this_year]
     
-    hourlydat_node <- hourlydat_sensor[, as.list(unlist(lapply(.SD,
+    hourlydat_node <- hourlydat_sensors[, as.list(unlist(lapply(.SD,
                                                                function(x)
                                                                  list(sum = sum(x),
                                                                       mean = mean(x))))),
@@ -153,9 +178,8 @@ foreach(
     fwrite(
       hourlydat_node,
       paste0('data/data_hourly_node/', this_node, '.csv'),
-      append = T,
-      row.names = T
-    )
+      append = F,
+      row.names = T)
     
     # sum for all hours of the day (daily-scale data) ----
     dailydat <- hourlydat_node[, as.list(unlist(lapply(.SD,

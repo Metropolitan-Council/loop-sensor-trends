@@ -17,20 +17,6 @@ tbidb = ROracle::dbConnect(dbDriver("Oracle"),
 Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
-# Get Nodes Without Data -------------------------------------
-need_data <- ROracle::dbReadTable(tbidb, 'RTMC_SENSORS_WITHOUT_DATA')
-# 239072
-100 * (37081-36184)/(2*239072)
-need_data$new_date <- substr(need_data$PREDICT_DATE, start = 1, stop = 11)
-library(tc.sensors)
-library(dplyr)
-
-raw_sensor_config <- pull_configuration()
-sensor_config <- pull_configuration() %>%
-  # match names to database names:
-  rename_all(toupper) %>%
-  rename_all(~ gsub("R_NODE", "NODE", .))
-
 
 
 #Checking system-wide trends-------------------------------
@@ -58,7 +44,7 @@ summary(diffs)
 diffs[,old_diff:=(volume.sum - volume.predict)/volume.predict]
 diffs[,new_diff:=(TOTAL_VOLUME_DIFF/TOTAL_PREDICTED_VOLUME)]
 
-ggplot(diffs[diffs$date < '2020-10-29'], aes(x = date)) +
+ggplot(diffs, aes(x = date)) +
   geom_point(aes(y = new_diff, color = "New"))+
   geom_point(aes(y = old_diff, color = "Old")) +
   geom_line(aes(y = new_diff, color = "New"))+
@@ -124,24 +110,24 @@ ggplot(nodes, aes(x = volume.sum, y = TOTAL_VOLUME)) +
 
 
 #Checking raw data for a sensor  -------------------------------
-test_sensor <- ROracle::dbGetQuery(tbidb,"SELECT * FROM RTMC_HOURLY_NODE WHERE DETECTOR_NAME = '10004'")
+test_sensor <- ROracle::dbGetQuery(tbidb,"SELECT * FROM RTMC_HOURLY_NODE WHERE NODE_NAME = 'rnd6_9'")
 test_sensor <- data.table(test_sensor)
-test_sensor[,date:=date(DATE)]
+test_sensor[,date:=date(DATA_DATE)]
 
 
-setnames(test_sensor, old = c('DETECTOR_NAME', 'TOTAL_VOLUME', 'HOUR'), new = c('sensor', 'volume.sum.new', 'hour'))
+setnames(test_sensor, old = c('NODE_NAME', 'TOTAL_VOLUME', 'DATA_HOUR'), new = c('r_node_name', 'volume.sum.new', 'hour'))
 
 
-old_sensor <- fread('data/data_hourly_raw/Sensor 10004.csv')
+old_sensor <- fread('data/data_hourly_node/rnd6_9.csv')
 old_sensor <- unique(old_sensor)
-old_sensor[,sensor:=as.character(sensor)]
-setkey(old_sensor, sensor, date, hour)
+old_sensor[,r_node_name:=as.character(r_node_name)]
+setkey(old_sensor, r_node_name, date, hour)
 setkey(test_sensor, sensor, date, hour)
 
 
 my_sensor <- merge(test_sensor, old_sensor)
 my_sensor[date == '2020-03-08']
-my_sensor[,date:=as.Date(date)]
+my_sensor[,date:=as.IDate(date)]
 
 lab_dates <- pretty(my_sensor$date)
 ggplot(my_sensor[date<'2020-10-01'], aes(x = volume.sum.new, y = volume.sum)) +
@@ -150,6 +136,7 @@ ggplot(my_sensor[date<'2020-10-01'], aes(x = volume.sum.new, y = volume.sum)) +
   scale_color_viridis_c(breaks = as.numeric(lab_dates), 
                         labels = lab_dates, option = "magma") + 
   theme_minimal()
+
 
 my_sensor[,pct_diff:=100 * ((volume.sum.new - volume.sum)/volume.sum)]
 ggplot(my_sensor[date<'2020-03-15'], aes(x = date, y = pct_diff)) +
