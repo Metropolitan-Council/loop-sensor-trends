@@ -6,29 +6,39 @@ library(data.table)
 load('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/councilcolors.Rdata')
 ##########################
 
+#Connecting to the database: the other 25% of the battle -------------------------------
+connect.string = '(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = fth-exa-scan.mc.local  )(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME =  com4te.mc.local)))'
+tbidb = ROracle::dbConnect(dbDriver("Oracle"), 
+                           dbname = connect.string, 
+                           username = 'mts_planning_data', # mts_planning_view for viewing data only, no read/write priviliges. mts_planning_data is the username for read/write privlieges.
+                           password = rstudioapi::askForPassword("database password"))
 
-
-############# DATA #############
-# number of households in metro area (estimated 2018)
-hh_total <- 1213980 # https://metrocouncil.org/Data-and-Maps/Publications-And-Resources/Files-and-reports/2018-Population-Estimates-(FINAL,-July-2019)-(1).aspx
-
-diffs_4plot <- fread(paste0('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/pred-and-act-vol-region.csv'))
+#Checking system-wide trends-------------------------------
+diffs_4plot <- ROracle::dbGetQuery(tbidb,"SELECT * FROM RTMC_DAILY_SYSTEM_DIFF")
+head(diffs_4plot)
+diffs_4plot <- data.table(diffs_4plot)[,date:=substr(DAY, start = 1, stop = 10)]
+diffs_4plot[,date:=as.IDate(date, format = "%Y-%m-%d")]
+setkey(diffs_4plot, date)
+diffs_4plot <- diffs_4plot[date<'2020-10-20']
+diffs_4plot[,`Difference from Typical VMT (%)`:=(100*((TOTAL_VOLUME-TOTAL_PREDICTED_VOLUME)/(TOTAL_PREDICTED_VOLUME)))]
 diffs_4plot[,date:=as.IDate(date)]
-
 diffs_4plot[,diffvol_use:=ifelse(date %in% c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07')), NA, `Difference from Typical VMT (%)`)]
 diffs_4plot[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'left', na.rm = T))]
 
+
+
 ggplot(diffs_4plot, aes(x = date))+
-  geom_point(aes(y = vmt.predict, color = "Predicted VMT"))+
-  geom_line(aes(y = vmt.predict, color = "Predicted VMT"))+
-  geom_point(aes(y = vmt.sum, color = "Actual VMT"))+
-  geom_line(aes(y= vmt.sum, color = "Actual VMT"))+
-  scale_x_date(date_breaks = "3 days")+
-  scale_color_manual(values = c(mtsRed, 'black'))
+  geom_point(aes(y = TOTAL_PREDICTED_VOLUME, color = "Predicted VMT"))+
+  geom_line(aes(y = TOTAL_PREDICTED_VOLUME, color = "Predicted VMT"))+
+  geom_point(aes(y = TOTAL_VOLUME, color = "Actual VMT"))+
+  geom_line(aes(y= TOTAL_VOLUME, color = "Actual VMT"))+
+  scale_x_date(date_breaks = "months")+
+  scale_color_manual(values = c(mtsRed, 'black')) + 
+  theme_minimal()
 
 #########################
 # MNDOT Traffic Trends
-yesterday <- as.Date('2020-10-04')
+yesterday <- as.Date('2020-10-25')
 # yesterday <- Sys.Date() - 1# change back to -1 when new data available
 # yesterday <- as.IDate(yesterday)
 # yesterday <- paste0(month(yesterday), "-", mday(yesterday), "-", year(yesterday))
@@ -98,7 +108,7 @@ actions[,arrow_start:=c(
 
 # Static plot
 static_plot <-
-  ggplot(diffs_4plot[doy>66 & year == 2020], 
+  ggplot(diffs_4plot, 
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
 
   # shaded rectangle for stay-at-home order:
@@ -122,13 +132,13 @@ static_plot <-
   #           hjust = 'right', vjust = 'top', color = councilBlue, size = 4)+
   
   # lines and points for MnDOT: 
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], size = 2)+
-  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 2)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], size = 1)+
+  geom_point(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1)+
   # geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(color = 'MnDOT Statewide\n(105 Stations)\n'), size = 0.5, linetype = 'dotted', show.legend = F)+
   geom_line(data = mndotdat[mndotdat$date > '2020-03-06',], aes(y = rollingavg, color = 'MnDOT Statewide\n(105 Stations)\n'), size = 1, show.legend = F)+
   
   # lines and points for Metro:
-  geom_point(size = 2)+
+  geom_point(size = 1)+
   # geom_line(size = 0.5, linetype = 'dotted', show.legend = F)+
   geom_line(aes(y = rollingavg), size = 1, show.legend = F)+
   # # large points for State: 
@@ -157,7 +167,7 @@ static_plot <-
   scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="2 weeks"),
                date_labels = '%m/%d',
                limits = c(as.Date('2020-03-06'), Sys.Date()+3))+
-  scale_y_continuous(limits = c(-75, 15), breaks = seq(from = -70, to = 10, by = 10))+
+  scale_y_continuous(limits = c(-70, 15), breaks = seq(from = -70, to = 10, by = 10))+
   #  colors:
   scale_color_manual(values = c(councilBlue, 'black'), name = "Traffic Sensor Group")+
   theme(legend.position = 'bottom', legend.direction = 'horizontal', legend.justification = 'center') + 
@@ -173,10 +183,9 @@ static_plot <-
 
 
 static_plot
-
-ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions.png',static_plot, width = 10, height = 4, bg = "transparent")
+ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic-trends-actions1.png',static_plot, width = 10, height = 4, bg = "transparent")
 ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traffic.trends/inst/app/www/traffic-trends-actions.png',static_plot, height = 7, width = 10, units = 'in', dpi = 300)
-pdf('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic.pdf', width =10, height = 7, family = "ArialMT")
+pdf('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/output/traffic.pdf', width =10, height = 4, family = "ArialMT")
 static_plot
 dev.off()
 

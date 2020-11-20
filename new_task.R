@@ -69,7 +69,7 @@ registerDoParallel(cl)
 # tictoc::tic()
 foreach(j = chosen_sensors) %dopar% {
   # date_range <- c(Sys.Date()-1) # yesterday's data
-  date_range <- c(seq(as.Date("2020-09-08"), Sys.Date()-1, by = "days"))
+  date_range <- c(seq(as.Date("2020-10-15"), Sys.Date()-1, by = "days"))
   # date_range <- c(seq(as.Date("2020-08-04"), as.Date("2020-08-09"), by = "days"))
   
   n <- length(date_range)
@@ -337,6 +337,9 @@ foreach(i  = node_files) %dopar%{
   # i <- "rnd_1805.csv"
   dailydat <- fread(paste0("data/data_daily_node/", i))
   dailydat <- unique(dailydat)
+  dailydat <- dailydat[!duplicated(dailydat, by = c('date'), fromLast=TRUE)]
+  fwrite(dailydat, paste0("data/data_daily_node/", i), append = FALSE)
+  
   if(nrow(dailydat) < 2 | sum(dailydat$volume.sum, na.rm = T) < 100){} else{
     
     # Dealing with date ----
