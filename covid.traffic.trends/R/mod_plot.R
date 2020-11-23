@@ -59,6 +59,11 @@ mod_plot_server <- function(input, output, session) {
         line = list(
           width = 2,
           color = councilR::colors$councilBlue
+        ),
+        marker = list(
+          size = 0,
+          opacity = 0,
+          color = "black"
         )
         # marker = list(
         #   size = 0,
@@ -96,11 +101,12 @@ mod_plot_server <- function(input, output, session) {
         line = list(
           width = 2,
           color = "black"
+        ),
+        marker = list(
+          size = 0,
+          opacity = 0,
+          color = "black"
         )
-        # marker = list(
-        #   size = 0,
-        #   color = "black"
-        # )
       ) %>%
       # plotly::add_markers( ## mn actions -----
       #   data = covid.traffic.trends::mn_actions,
