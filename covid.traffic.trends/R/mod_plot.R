@@ -33,15 +33,15 @@ mod_plot_server <- function(input, output, session) {
         x = covid.traffic.trends::predicted_actual_by_region$date,
         y = covid.traffic.trends::predicted_actual_by_region$typical_vmt_diff,
         name = "MnDOT Metro\nFreeways\n(1000+ Stations)\n",
-        mode = "lines+markers",
-        line = list(
-          width = 2,
-          color = councilR::colors$councilBlue,
-          dash = "dot"
-        ),
+        mode = "markers",
+        # line = list(
+        #   width = 2,
+        #   color = councilR::colors$councilBlue,
+        #   dash = "dot"
+        # ),
         marker = list(
           color = councilR::colors$councilBlue,
-          size = 6
+          size = 5
         ),
         hoverinfo = "text",
         text = paste(predicted_actual_by_region$hover_text),
@@ -65,10 +65,6 @@ mod_plot_server <- function(input, output, session) {
           opacity = 0,
           color = "black"
         )
-        # marker = list(
-        #   size = 0,
-        #   color = "black"
-        # )
       ) %>%
       plotly::add_markers(
         data = covid.traffic.trends::predicted_actual_by_state,
@@ -76,17 +72,17 @@ mod_plot_server <- function(input, output, session) {
         y = covid.traffic.trends::predicted_actual_by_state$typical_vmt_diff,
         name = "MnDOT Statewide\n(105 Stations)\n",
         type = "scatter",
-        mode = "lines+markers",
+        mode = "markers",
         hoverinfo = "text",
         text = paste(covid.traffic.trends::predicted_actual_by_state$hover_text),
-        line = list(
-          width = 2,
-          color = "black",
-          dash = "dot"
-        ),
+        # line = list(
+        #   width = 2,
+        #   color = "black",
+        #   dash = "dot"
+        # ),
         marker = list(
           color = "black",
-          size = 6
+          size = 5
         )
       ) %>%
       plotly::add_lines(
