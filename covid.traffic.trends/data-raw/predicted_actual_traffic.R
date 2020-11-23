@@ -73,7 +73,12 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.c
   ) %>%
   arrange(date) %>%
   mutate(`date` = as.Date(date),
-    roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA))
+    roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA),
+    hover_text_avg = paste(
+      sep = "", 
+      "<b>",round(roll_avg, digits = 1), "%", " average ", "</b>", "<br>",
+      "from ", format.Date(date-7, "%b %d"), " to ", format.Date(date, "%b %d")
+    ))
 
 usethis::use_data(predicted_actual_by_region, overwrite = TRUE, compress = "xz")
 
@@ -92,7 +97,14 @@ predicted_actual_by_state <- fread(paste0("./data-raw/diff-vol-state.csv")) %>%
     District = "MnDOT Statewide"
   ) %>%
   arrange(date) %>%
-  mutate(roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA))
+  mutate(`date` = as.Date(date),
+    roll_avg = zoo::rollmean(typical_vmt_diff, k = 7, fill = NA),
+         hover_text_avg = paste(
+           sep = "", 
+           "<b>",round(roll_avg, digits = 1), "%", " average ", "</b>", "<br>",
+           "from ", format.Date(date-7, "%b %d"), " to ",
+           format.Date(date, "%b %d")
+         ))
 
 # predicted_actual_by_state <- fread(paste0(
 #       "https://mn.gov/covid19/assets/StateofMNResponseDashboardCSV_tcm1148-427143.csv"

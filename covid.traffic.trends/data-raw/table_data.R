@@ -20,7 +20,8 @@ table_data <- rbind(
       District,
       vmt.sum,
       vmt.predict,
-      typical_vmt_diff
+      typical_vmt_diff,
+      roll_avg
     ),
   mutate(predicted_actual_by_state,
     weekday = weekdays(`date`),
@@ -34,7 +35,8 @@ table_data <- rbind(
       District,
       vmt.sum,
       vmt.predict,
-      typical_vmt_diff
+      typical_vmt_diff,
+      roll_avg
     )
 )
 
