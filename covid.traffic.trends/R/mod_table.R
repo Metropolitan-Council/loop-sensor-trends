@@ -29,7 +29,8 @@ mod_table_server <- function(input, output, session) {
         "District",
         "Observed total vehicle miles traveled",
         "Predicted total vehicle miles traveled",
-        "Percent difference between observed and predicted"
+        "Percent difference between observed and predicted",
+        "Percent difference 7-day rolling average"
       ),
       rownames = FALSE,
       options = list(dom = "tpl")
@@ -38,8 +39,12 @@ mod_table_server <- function(input, output, session) {
         "vmt.sum",
         "vmt.predict"
       ),
-      digits = 0, interval = 3,
+      digits = 0, 
+      interval = 3,
       mark = ","
+      ) %>% 
+      DT::formatRound(
+        "roll_avg", digits = 2
       )
   })
 }
