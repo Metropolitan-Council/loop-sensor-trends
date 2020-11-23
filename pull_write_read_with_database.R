@@ -61,7 +61,7 @@ need_data_raw <- need_data  # making a copy
 
 
 # anything missing from yesterday, and the past two weeks:
-need_data <- need_data[need_data$PREDICT_DATE >= '2020-11-15' & need_data$PREDICT_DATE < Sys.Date(),]
+need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-15 & need_data$PREDICT_DATE < Sys.Date(),]
 
 
 # for a month (overnight data downloads): 
