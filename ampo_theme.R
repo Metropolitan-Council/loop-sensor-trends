@@ -1,4 +1,3 @@
-# AMPO theme
 factor_val <- 1.5
 ampo_theme <- function(use_showtext = TRUE,
                        size_header = 22 * factor_val,
