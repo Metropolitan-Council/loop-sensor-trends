@@ -13,6 +13,7 @@ library(ROracle)
 
 library(ggplot2)
 load('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/councilcolors.Rdata')
+ampo_theme <- source('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/ampo_theme.R')
 ##########################
 
 # Pull Configuration ---------------------------------------------
@@ -274,6 +275,8 @@ mndotdat[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical V
 mndotdat[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'right', na.rm = T))]
 
 # Static Daily Plot  ---------------------------------------------
+
+
 static_plot <-
   ggplot(system_diffs, 
          aes(x = date, y = (`Difference from Typical VMT (%)`), color = 'MnDOT Metro Freeways\n(1000+ Stations)\n'))+
