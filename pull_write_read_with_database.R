@@ -1,3 +1,4 @@
+tictoc::tic()
 #Opening the toolbox-------------------------------
 
 # library(devtools)
@@ -78,7 +79,7 @@ pb <-
   )
 k <- 0
 
-tictoc::tic()
+
 for (s in 1:nrow(need_data)) {
     k <- k + 1
     setTxtProgressBar(pb, k)
@@ -152,7 +153,6 @@ for (s in 1:nrow(need_data)) {
     
   }
 
-tictoc::toc()
 
 
 # Delete data in permanent table where more complete data are now available -------------------
@@ -199,7 +199,6 @@ ROracle::dbSendQuery(tbidb,
 
 
 # Pull Daily Node Data ---------------------------------------------
-tictoc::tic()
 
 node_diffs <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_NODE_DIFF")
 node_diffs <- data.table(node_diffs)
