@@ -54,7 +54,7 @@ ROracle::dbGetQuery(
 )
 
 # for a month (overnight data downloads): 
-dates_2019 <- seq(from = as.Date('2019-11-01'), to = as.Date('2019-12-01'), by = 'days')
+dates_2019 <- seq(from = as.Date('2018-11-01'), to = as.Date('2018-12-01'), by = 'days')
 need_data <- expand.grid(DETECTOR_NAME = sensors_with_predictions$DETECTOR_NAME, PREDICT_DATE = dates_2019)
 need_data <- data.table(need_data)
 pb <-
