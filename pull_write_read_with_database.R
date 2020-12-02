@@ -57,7 +57,6 @@ need_data2 <- need_data2[,.(PREDICT_DATE, DETECTOR_NAME, NODE_NAME)]
 
 need_data <- merge(need_data1, need_data2, all = T)
 
-
 need_data_raw <- need_data  # making a copy
 # need_data <- need_data_raw
 
@@ -155,7 +154,7 @@ for (s in 1:nrow(need_data)) {
 
 
 
-# Delete data in permanent table where more complete data are now available -------------------
+# # Delete data in permanent table where more complete data are now available -------------------
 ROracle::dbSendQuery(
   tbidb,
   paste0(
@@ -170,8 +169,8 @@ ROracle::dbSendQuery(
 )
 ROracle::dbSendQuery(tbidb, "commit")
 
-  
-# Insert new data from temporary -> permanent table ---------------------------------------------
+
+# # Insert new data from temporary -> permanent table ---------------------------------------------
 ROracle::dbSendQuery(tbidb,
                      paste0(
                        "insert into rtmc_5min",
@@ -199,7 +198,6 @@ ROracle::dbSendQuery(tbidb,
 
 
 # Pull Daily Node Data ---------------------------------------------
-
 node_diffs <- ROracle::dbReadTable(tbidb, "RTMC_DAILY_NODE_DIFF")
 node_diffs <- data.table(node_diffs)
 
