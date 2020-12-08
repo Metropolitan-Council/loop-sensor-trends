@@ -54,7 +54,16 @@ ROracle::dbGetQuery(
 )
 
 # for a month (overnight data downloads): 
-dates_2019 <- seq(from = as.Date('2019-08-01'), to = as.Date('2019-12-31'), by = 'days')
+tgiving17 <- as.Date('2020-11-23')
+tgiving18 <- as.Date('2020-11-22')
+tgiving16 <- as.Date('2020-11-24')
+
+dates_2019 <- 
+  c(seq(from = tgiving17-1, to = tgiving17+1, by = 'days'),
+    seq(from = tgiving16-1, to = tgiving16+1, by = 'days'),
+    seq(from = tgiving18-1, to = tgiving18+1, by = 'days'))
+
+
 need_data <- expand.grid(DETECTOR_NAME = sensors_with_predictions$DETECTOR_NAME, PREDICT_DATE = dates_2019)
 need_data <- data.table(need_data)
 pb <-
@@ -141,45 +150,45 @@ for (s in 1:nrow(need_data)) {
 
 tictoc::toc()
 
-
-# # Delete data in permanent table where more complete data are now available -------------------
-ROracle::dbSendQuery(
-  tbidb,
-  paste0(
-    "delete from rtmc_5min where",
-    " rtmc_5min.start_datetime < TO_DATE('2020-01-01', 'YYYY-MM-DD') and ",
-    " rowid in (",
-    " select rtmc_5min.rowid from rtmc_5min",
-    " inner join rtmc_5min_temp on",
-    " (rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
-    " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name)",
-    " where rtmc_5min_temp.volume_sum <> rtmc_5min.volume_sum",
-    " and rtmc_5min.volume_pctnull> rtmc_5min_temp.volume_pctnull)"
-  )
-)
-ROracle::dbSendQuery(tbidb, "commit")
-
-#   
-# # Insert new data from temporary -> permanent table ---------------------------------------------
-ROracle::dbSendQuery(tbidb,
-                     paste0(
-                       "insert into rtmc_5min",
-                       " select * from rtmc_5min_temp",
-                       " where",
-                       " rtmc_5min_temp.start_datetime < TO_DATE('2018-02-01', 'YYYY-MM-DD')"
-                       # "and ",
-                       # " not exists (",
-                       # " select * from rtmc_5min",
-                       # " where  rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
-                       # " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name",
-                       # ") and",
-                       # " rowid in (",
-                       # "select max(rowid)",
-                       # " from   rtmc_5min_temp",
-                       # " group  by detector_name, start_datetime)"
-                     )
-)
 # 
+# # # Delete data in permanent table where more complete data are now available -------------------
+# ROracle::dbSendQuery(
+#   tbidb,
+#   paste0(
+#     "delete from rtmc_5min where",
+#     " rtmc_5min.start_datetime < TO_DATE('2020-01-01', 'YYYY-MM-DD') and ",
+#     " rowid in (",
+#     " select rtmc_5min.rowid from rtmc_5min",
+#     " inner join rtmc_5min_temp on",
+#     " (rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
+#     " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name)",
+#     " where rtmc_5min_temp.volume_sum <> rtmc_5min.volume_sum",
+#     " and rtmc_5min.volume_pctnull> rtmc_5min_temp.volume_pctnull)"
+#   )
+# )
+# ROracle::dbSendQuery(tbidb, "commit")
+# 
+# #   
+# # # Insert new data from temporary -> permanent table ---------------------------------------------
+# ROracle::dbSendQuery(tbidb,
+#                      paste0(
+#                        "insert into rtmc_5min",
+#                        " select * from rtmc_5min_temp",
+#                        " where",
+#                        " rtmc_5min_temp.start_datetime < TO_DATE('2018-02-01', 'YYYY-MM-DD')"
+#                        # "and ",
+#                        # " not exists (",
+#                        # " select * from rtmc_5min",
+#                        # " where  rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
+#                        # " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name",
+#                        # ") and",
+#                        # " rowid in (",
+#                        # "select max(rowid)",
+#                        # " from   rtmc_5min_temp",
+#                        # " group  by detector_name, start_datetime)"
+#                      )
+# )
+# # 
 # ROracle::dbSendQuery(tbidb, "commit")
 # 
 # # Truncate Temporary Table Here ---------------------------------------------
