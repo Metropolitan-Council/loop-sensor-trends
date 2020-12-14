@@ -62,7 +62,7 @@ need_data_raw <- need_data  # making a copy
 
 
 # anything missing from yesterday, and the past two weeks:
-need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-15 & need_data$PREDICT_DATE < Sys.Date(),]
+need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-4 & need_data$PREDICT_DATE < Sys.Date(),]
 
 
 # for a month (overnight data downloads): 
@@ -263,7 +263,8 @@ fwrite(mndotdat, paste0("N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-
 mndotdat[,date:=as.IDate(date)]
 
 # 7-Day Rolling Average Calculations  ---------------------------------------------
-holidays <- c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07'))
+holidays <- c(as.Date('2020-07-03'), as.Date('2020-07-04'), as.Date('2020-09-07'), 
+              as.Date('2020-11-26'))
 
 system_diffs[,diffvol_use:=ifelse(date %in% holidays, NA, `Difference from Typical VMT (%)`)]
 system_diffs[,rollingavg:=shift(frollapply(diffvol_use, 7, mean, align = 'right', na.rm = T))]
@@ -303,7 +304,7 @@ static_plot <-
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
   scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="2 weeks"),
-               date_labels = '%m/%d',
+               date_labels = '%b\n%d',
                limits = c(as.Date('2020-03-06'), Sys.Date()+3))+
   scale_y_continuous(limits = c(-70, 15), breaks = seq(from = -70, to = 10, by = 10))+
   #  colors:
@@ -324,3 +325,4 @@ ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traf
 
 ROracle::dbDisconnect(tbidb)
 tictoc::toc()
+
