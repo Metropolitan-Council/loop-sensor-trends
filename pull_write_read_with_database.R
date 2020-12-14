@@ -304,7 +304,7 @@ static_plot <-
   # axes: 
   labs(x = "Date", y = "% difference from typical traffic")+
   scale_x_date(breaks = seq(as.Date('2020-03-08'), Sys.Date()+3,by="2 weeks"),
-               date_labels = '%m/%d',
+               date_labels = '%b\n%d',
                limits = c(as.Date('2020-03-06'), Sys.Date()+3))+
   scale_y_continuous(limits = c(-70, 15), breaks = seq(from = -70, to = 10, by = 10))+
   #  colors:
