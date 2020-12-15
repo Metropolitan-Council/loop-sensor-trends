@@ -13,7 +13,7 @@ jobs:
      env:
        R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
        working-directory: ./covid.traffic.trends
-       r-version: 4.0.2
+       r-version: 4.0.3
        R_LIBS_USER: ./usr/local/lib/R/site-library
      steps:
       - uses: actions/checkout@v2
