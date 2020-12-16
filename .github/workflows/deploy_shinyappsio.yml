@@ -42,7 +42,7 @@ jobs:
           sudo -s eval "$sysreqs"
           sudo apt-get install software-properties-common
           sudo apt-add-repository ppa:cran/libgit2
-          sudo apt-get install libgit2-dev --y
+          sudo apt-get -y install libgit2-dev
 
       - name: Install dependencies
         working-directory: ${{ env.working-directory }}
