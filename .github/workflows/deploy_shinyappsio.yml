@@ -40,7 +40,7 @@ jobs:
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
-          sudo add-apt-repository ppa:cran/libgit2
+          sudo apt-add-repository ppa:cran/libgit2
           sudo apt-get update
           sudo apt-get install libgit2-dev
 
