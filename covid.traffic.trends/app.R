@@ -12,15 +12,12 @@ covid.traffic.trends::run_app() # add parameters here (if any)
 
 ## run code below in console only. DO NOT UN-COMMENT.
 
-# rsconnect::deployApp(appDir = "A:/Employment/MetC/MTS/research.COVID19",
-#                      account = "metrotransitmn",
-#                      server = "shinyapps.io",
-#                      appId = 1988757,
-#                      appName = "research-covid19",
-#                      appTitle = "research-covid19",
-#                      launch.browser = function(url) {
-#                        message("Deployment completed: ", url)},
-#                      lint = FALSE, metadata = list(asMultiple = FALSE,
-#                                                    asStatic = FALSE,
-#                                                    ignoredFiles = "LICENSE|LICENSE.md|README.md|dev/01_start.R|dev/02_dev.R|dev/03_deploy.R|dev/run_dev.R|man/run_app.Rd|tests/testthat.R|tests/testthat/test-golem-recommended.R|data-raw"),
-#                      logLevel = "verbose")
+# rsconnect::deployApp(appDir = '.',
+#                      account = 'metrotransitmn',
+#                      server = 'shinyapps.io',
+#                      appName = 'covid-traffic-trends', 
+#                      appId = 2004244, lint = FALSE, 
+#                      metadata =  list(asMultiple = FALSE, 
+#                                       asStatic = FALSE, 
+#                                       ignoredFiles = 'LICENSE|LICENSE.md|README.md|README.Rmd|dev/01_start.R|dev/02_dev.R|dev/03_deploy.R|dev/run_dev.R|man/run_app.Rd|tests/testthat.R|tests/testthat/test-app.R|tests/testthat/test-golem-recommended.R|vignettes/potential_streetlight_analyses.Rmd'), 
+#                      logLevel = 'verbose')
