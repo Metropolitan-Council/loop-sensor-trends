@@ -58,11 +58,11 @@ need_data2 <- need_data2[,.(PREDICT_DATE, DETECTOR_NAME, NODE_NAME)]
 need_data <- merge(need_data1, need_data2, all = T)
 
 need_data_raw <- need_data  # making a copy
-# need_data <- need_data_raw
+# need_data <- need_data_raw???
 
 
 # anything missing from yesterday, and the past two weeks:
-need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-5 & need_data$PREDICT_DATE < Sys.Date(),]
+need_data <- need_data[need_data$PREDICT_DATE >= Sys.Date()-14 & need_data$PREDICT_DATE < Sys.Date(),]
 
 
 # for a month (overnight data downloads): 
