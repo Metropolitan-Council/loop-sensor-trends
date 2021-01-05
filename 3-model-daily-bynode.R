@@ -34,21 +34,19 @@ det_config <- unique(config[,.(r_node_name, r_node_n_type,
                                r_node_lanes, r_node_shift, r_node_s_limit, r_node_station_id, 
                                r_node_attach_side, corridor_route, corridor_dir)])
 
-node_files <- list.files('data/data_daily_node')
-node_names <- gsub('.csv', '', node_files)
-node_names <- ROracle::dbSendQuery(
+# node_files <- list.files('data/data_daily_node')
+# node_names <- gsub('.csv', '', node_files)
+node_year <- ROracle::dbGetQuery(
   tbidb,
-  paste0(
-    "delete from rtmc_5min where rowid in (",
-    " select rtmc_5min.rowid from rtmc_5min",
-    " inner join rtmc_5min_temp on",
-    " (rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
-    " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name)",
-    " where rtmc_5min_temp.volume_sum <> rtmc_5min.volume_sum",
-    " and rtmc_5min.volume_pctnull> rtmc_5min_temp.volume_pctnull)"
-  )
-)
-ROracle::dbSendQuery(tbidb, "commit")
+ "select * from rtmc_yearly_node where data_year < to_date('2020', 'YYYY')"
+) %>%
+  mutate(DATA_YEAR = year(as.Date(DATA_YEAR)))%>%
+  mutate(DATA_YEAR = as.factor(DATA_YEAR))%>%
+  mutate(has_data = 1)%>%
+  pivot_wider(names_from = DATA_YEAR, values_from = has_data) %>%
+  filter(`2018` == 1 & `2019` == 1)
+
+node_names <- node_year$NODE_NAME
 
 # gam_list <- vector("list", length(node_names))
 # pred_ls <- vector("list", length(node_names))
