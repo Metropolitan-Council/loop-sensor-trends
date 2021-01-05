@@ -4,7 +4,29 @@ library(foreach)
 library(doParallel)
 library(mgcv)
 library(lubridate)
+# Database packages:
+library(DBI)
+library(rstudioapi) # this package allows us to type in a password when connecting to the database.
+library(ROracle)
+
+
+#Connecting to the database -------------------------------
+connect.string = '(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = fth-exa-scan.mc.local  )(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME =  com4te.mc.local)))'
+tbidb = ROracle::dbConnect(
+  dbDriver("Oracle"),
+  dbname = connect.string,
+  username = 'mts_planning_data',
+  # mts_planning_view for viewing data only, no write priviliges. 
+  # mts_planning_data is the username for write privlieges.
+  password = rstudioapi::askForPassword("database password")
+)
+#Configure database time zone -------------------------------
+Sys.setenv(TZ = "America/Chicago")
+Sys.setenv(ORA_SDTZ = "America/Chicago")
 #############
+
+
+
 config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
 config$date<-NULL
 det_config <- unique(config[,.(r_node_name, r_node_n_type, 
@@ -14,6 +36,20 @@ det_config <- unique(config[,.(r_node_name, r_node_n_type,
 
 node_files <- list.files('data/data_daily_node')
 node_names <- gsub('.csv', '', node_files)
+node_names <- ROracle::dbSendQuery(
+  tbidb,
+  paste0(
+    "delete from rtmc_5min where rowid in (",
+    " select rtmc_5min.rowid from rtmc_5min",
+    " inner join rtmc_5min_temp on",
+    " (rtmc_5min_temp.start_datetime = rtmc_5min.start_datetime",
+    " and rtmc_5min_temp.detector_name = rtmc_5min.detector_name)",
+    " where rtmc_5min_temp.volume_sum <> rtmc_5min.volume_sum",
+    " and rtmc_5min.volume_pctnull> rtmc_5min_temp.volume_pctnull)"
+  )
+)
+ROracle::dbSendQuery(tbidb, "commit")
+
 # gam_list <- vector("list", length(node_names))
 # pred_ls <- vector("list", length(node_names))
 
