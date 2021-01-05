@@ -75,6 +75,21 @@ foreach(i = node_files) %dopar% {
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-01-18", ] # cold snap - exclude
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-02-09", ] # snow day - exclude
   
+  # empty dataset of predictions
+  date_range <- c(seq(as.Date("2020-01-01"), as.Date("2022-12-31"), by = "days"))
+  predict_dat <- data.table(date = date_range)
+  predict_dat[, date := as.IDate(date)]
+  predict_dat[, dow := wday(date)]
+  predict_dat[, doy := yday(date)]
+  predict_dat[, year := year(date)]
+  predict_dat[, woy := week(date)]
+  predict_dat[, weekday := factor(weekdays(date))]
+  predict_dat[, monthday := format(date, "%b %d")]
+  predict_dat[, r_node_name := modeling_dat$r_node_name[[1]]]
+  predict_dat <- merge(predict_dat, det_config, all.x = T)
+  
+  
+  # Old Model (2020) - With s(day of week, k = 7)
   this_gam <- with(
     modeling_dat,
     mgcv::gam(
@@ -87,24 +102,23 @@ foreach(i = node_files) %dopar% {
   
   # gam_list[[i]] <- this_gam
   
+  # New Model (2020)  - day of week as a factor
+  new_gam <- with(
+    modeling_dat,
+    mgcv::gam(
+      volume.sum ~
+      + interaction(as.factor(year), as.factor(dow))
+      + s(doy, bs = "cc") # general seasonal trend, let it vary by year, allow knots to be set by gam
+    )
+  )
   
-  # generate predictions
-  date_range <- c(seq(as.Date("2020-01-01"), as.Date("2020-12-31"), by = "days"))
   
-  predict_dat <- data.table(date = date_range)
-  predict_dat[, date := as.IDate(date)]
-  predict_dat[, dow := wday(date)]
-  predict_dat[, doy := yday(date)]
-  predict_dat[, year := year(date)]
-  predict_dat[, woy := week(date)]
-  predict_dat[, weekday := factor(weekdays(date))]
-  predict_dat[, monthday := format(date, "%b %d")]
-  predict_dat[, r_node_name := modeling_dat$r_node_name[[1]]]
 
   
-  predict_dat <- merge(predict_dat, det_config, all.x = T)
-  
-  predict_dat[, c("volume.predict", "volume.predict.se") := cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = T))]
+  predict_dat[, c("volume.predict", "volume.predict.se",
+                  "new.volume.predict", "new.volume.predict.se") := 
+                cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = T), 
+                      predict.gam(object = new_gam, newdata = predict_dat, se.fit = T))]
   
   predict_dat <- merge(predict_dat, 
                        dailydat[,.(r_node_name, date, volume.sum)], all.x = T, 
@@ -116,7 +130,15 @@ foreach(i = node_files) %dopar% {
   # difference from predicted, in %:
   predict_dat[, volume.diff := round(((volume.sum - volume.predict) / volume.predict) * 100, 1)]
   
+  
+  
+  
+  
+  
   fwrite(predict_dat, file = paste0('output/daily_model_predictions_bynode/', i))
+  
+  
+  
   
   # store difference from normal for 2020 for mapping
   # pred_ls[[i]] <- predict_dat
