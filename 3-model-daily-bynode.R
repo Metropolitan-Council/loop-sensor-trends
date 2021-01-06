@@ -95,21 +95,16 @@ foreach(i = node_names) %dopar% {
   dailydat[, monthday := format(date, "%b %d")]
   
   
+  # Must be non-zero total volume for the day -- these models do a bad job of modeling really low volumes.
+  dailydat <- dailydat[total_volume>100]
   # get rid of 2017 data: (december 15-31 included in this pull) ----
-  dailydat <- dailydat[year > 2017, ]
+  # dailydat <- dailydat[year > 2017, ]
   
-  # must have 3 years of data, at least 60 days of data in each year ----
-  dailydat[, "num_days_per_year" := uniqueN(date), by = .(r_node_name, year)]
-  dailydat <- dailydat[num_days_per_year > 60]
+  # must have at least 75% complete data in 2018 and 2019 ----
+  pct_data = nrow(dailydat[dailydat$year %in% 2018:2019])/(365*2)
   
-  has_2020_data <- unique(dailydat$r_node_name[dailydat$year == 2020 & dailydat$date < "2020-03-01"])
-  has_2018_data <- unique(dailydat$r_node_name[dailydat$year == 2018])
-  has_2019_data <- unique(dailydat$r_node_name[dailydat$year == 2019])
-  
-  dailydat <- dailydat[dailydat$r_node_name %in% has_2020_data
-                       & dailydat$r_node_name %in% has_2019_data
-                       & dailydat$r_node_name %in% has_2018_data, ]
-  if(nrow(dailydat) == 0){} else{
+
+  if(pct_data>=0.75){} else{
 
   # subset to relevant dates:
   modeling_dat <- dailydat[dailydat$date < "2020-03-01",]
