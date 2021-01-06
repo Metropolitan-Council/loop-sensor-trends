@@ -29,7 +29,7 @@ Sys.setenv(ORA_SDTZ = "America/Chicago")
 
 config <- fread('data/Configuration of Metro Detectors 2020-03-24.csv')
 config$date<-NULL
-det_config <- unique(config[,.(r_node_name, r_node_n_type, 
+det_config <- unique(config[,.(node_name, r_node_n_type, 
                                r_node_transition, r_node_label, r_node_lon, r_node_lat, 
                                r_node_lanes, r_node_shift, r_node_s_limit, r_node_station_id, 
                                r_node_attach_side, corridor_route, corridor_dir)])
@@ -59,7 +59,7 @@ registerDoParallel(cl)
 # node_files <- node_files[1:10] # test
 
 
-foreach(i = node_files) %dopar% {
+foreach(i = node_names) %dopar% {
   
   print(i) 
   flush.console()
@@ -68,14 +68,25 @@ foreach(i = node_files) %dopar% {
   library(mgcv)
   
   
-  # i <- node_files[[3245]] # test
+  i <- node_names[1000] # test
   # i <- "rnd_1805.csv"
-  dailydat <- fread(paste0("data/data_daily_node/", i))
-  dailydat <- unique(dailydat)
+  # dailydat <- fread(paste0("data/data_daily_node/", i))
+  # dailydat <- unique(dailydat)
+  
+  dailydat <- ROracle::dbGetQuery(
+    tbidb,
+    paste0("select * from rtmc_daily_node where data_date < to_date('2020-03-01', 'YYYY-MM-DD')",
+    " and node_name = ", "'",
+    i, "'")
+  )%>%
+    rename_all(tolower)
+  
+  dailydat <- data.table(dailydat)
+  
   if(nrow(dailydat) == 0){} else{
     
   # Dealing with date ----
-  dailydat[, date := as.IDate(fast_strptime(date, "%Y-%m-%d"))]
+  dailydat[, date := as.IDate(fast_strptime(as.character(data_date), "%Y-%m-%d"))]
   dailydat[, dow := wday(date)]
   dailydat[, doy := yday(date)]
   dailydat[, year := year(date)]
