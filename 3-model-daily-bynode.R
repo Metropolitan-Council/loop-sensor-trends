@@ -121,39 +121,35 @@ foreach(i = node_names) %dopar% {
   predict_dat[, date := as.IDate(date)]
   predict_dat[, dow := wday(date)]
   predict_dat[, doy := yday(date)]
-  predict_dat[, year := year(date)]
-  predict_dat[, woy := week(date)]
-  predict_dat[, weekday := factor(weekdays(date))]
-  predict_dat[, monthday := format(date, "%b %d")]
-  predict_dat[, r_node_name := modeling_dat$r_node_name[[1]]]
-  predict_dat <- merge(predict_dat, det_config, all.x = T)
+  # predict_dat[, year := year(date)]
+  # predict_dat[, woy := week(date)]
+  # predict_dat[, weekday := factor(weekdays(date))]
+  # predict_dat[, monthday := format(date, "%b %d")]
+  predict_dat[, node_name := modeling_dat$node_name[[1]]]
+  # predict_dat <- merge(predict_dat, det_config, all.x = T)
   
   
   # Old Model (2020) - With s(day of week, k = 7)
   this_gam <- with(
     modeling_dat,
     mgcv::gam(
-      volume.sum ~
-        s(dow, k = 7, by = as.factor(year)) # one knot for each day of the week
+      total_volume ~
+        s(dow, k = 7) # one knot for each day of the week
       + s(doy) # general seasonal trend, let it vary by year, allow knots to be set by gam
-      + as.factor(year) # intercept for each year
+      # + as.factor(year) # intercept for each year
     )
   )
-  
-  # gam_list[[i]] <- this_gam
   
   # New Model (2020)  - day of week as a factor
   new_gam <- with(
     modeling_dat,
     mgcv::gam(
-      volume.sum ~
-      + interaction(as.factor(year), as.factor(dow))
+      total_volume ~
+      + as.factor(dow)
       + s(doy, bs = "cc") # general seasonal trend, let it vary by year, allow knots to be set by gam
     )
   )
   
-  
-
   
   predict_dat[, c("volume.predict", "volume.predict.se",
                   "new.volume.predict", "new.volume.predict.se") := 
@@ -161,19 +157,22 @@ foreach(i = node_names) %dopar% {
                       predict.gam(object = new_gam, newdata = predict_dat, se.fit = T))]
   
   predict_dat <- merge(predict_dat, 
-                       dailydat[,.(r_node_name, date, volume.sum)], all.x = T, 
-                       by = c('r_node_name', 'date'))
+                       dailydat[,.(node_name, date, total_volume)], all.x = T, 
+                       by = c('node_name', 'date'))
   
   # difference from predicted, n volume:
-  predict_dat[, volume.diff.raw := (volume.sum - volume.predict)]
+  predict_dat[, volume.diff.raw := (total_volume - volume.predict)]
   
   # difference from predicted, in %:
-  predict_dat[, volume.diff := round(((volume.sum - volume.predict) / volume.predict) * 100, 1)]
+  predict_dat[, volume.diff := round(((total_volume - volume.predict) / volume.predict) * 100, 1)]
   
+  ggplot(predict_dat, aes(x = doy, y = new.volume.predict, color = factor(weekday)))+
+    geom_point()+ geom_line()
   
+  with(predict_dat, plot(new.volume.predict ~ volume.predict))
   
-  
-  
+  ggplot(predict_dat, aes(x = new.volume.predict, y = volume.predict, color = factor(weekday)))+
+    geom_point()
   
   fwrite(predict_dat, file = paste0('output/daily_model_predictions_bynode/', i))
   
