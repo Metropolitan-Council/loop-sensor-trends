@@ -150,14 +150,17 @@ foreach(i = node_names) %dopar% {
     )
   )
   
-  predicts_v2020_2 <- predict_dat[, c("volume_predict", "volume_predict_se", "model_name") := 
-                                    cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = T),
+  # empty dataset of predictions
+  date_range <- c(seq(as.Date("2020-01-01"), as.Date("2022-12-31"), by = "days"))
                                           "gam_2020_2")]
   
-  predicts_v2021_1 <- predict_dat[, c("volume_predict", "volume_predict_se", "model_name") := 
-                cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = T),
-                      "gam_2021_1")]
+  predict_dat <- data.table(date = date_range)
+  predict_dat[, date := as.IDate(date)]
+  predict_dat[, dow := wday(date)]
+  predict_dat[, doy := yday(date)]
+  predict_dat[, node_name := modeling_dat$node_name[[1]]]
   
+  predict_dat[, doy := yday(date)]
   predicts <- rbind(predicts_v2020_2, predicts_v2021_1)
   
   fwrite(predict_dat, file = paste0('output/daily_model_predictions_bynode/', i))
