@@ -150,29 +150,15 @@ foreach(i = node_names) %dopar% {
     )
   )
   
+  predicts_v2020_2 <- predict_dat[, c("volume_predict", "volume_predict_se", "model_name") := 
+                                    cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = T),
+                                          "gam_2020_2")]
   
-  predict_dat[, c("volume.predict", "volume.predict.se",
-                  "new.volume.predict", "new.volume.predict.se") := 
-                cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = T), 
-                      predict.gam(object = new_gam, newdata = predict_dat, se.fit = T))]
+  predicts_v2021_1 <- predict_dat[, c("volume_predict", "volume_predict_se", "model_name") := 
+                cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = T),
+                      "gam_2021_1")]
   
-  predict_dat <- merge(predict_dat, 
-                       dailydat[,.(node_name, date, total_volume)], all.x = T, 
-                       by = c('node_name', 'date'))
-  
-  # difference from predicted, n volume:
-  predict_dat[, volume.diff.raw := (total_volume - volume.predict)]
-  
-  # difference from predicted, in %:
-  predict_dat[, volume.diff := round(((total_volume - volume.predict) / volume.predict) * 100, 1)]
-  
-  ggplot(predict_dat, aes(x = doy, y = new.volume.predict, color = factor(weekday)))+
-    geom_point()+ geom_line()
-  
-  with(predict_dat, plot(new.volume.predict ~ volume.predict))
-  
-  ggplot(predict_dat, aes(x = new.volume.predict, y = volume.predict, color = factor(weekday)))+
-    geom_point()
+  predicts <- rbind(predicts_v2020_2, predicts_v2021_1)
   
   fwrite(predict_dat, file = paste0('output/daily_model_predictions_bynode/', i))
   
