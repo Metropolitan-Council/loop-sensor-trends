@@ -51,27 +51,25 @@ node_names <- node_year$NODE_NAME
 # gam_list <- vector("list", length(node_names))
 # pred_ls <- vector("list", length(node_names))
 
-cores <- detectCores()
-cl <- makeCluster(cores)
-registerDoParallel(cl)
+
 
 
 # node_files <- node_files[1:10] # test
 
 
-foreach(i = node_names) %dopar% {
-  
-  print(i) 
+for(i in node_names) {
+  print(i)
   flush.console()
+  
+
   library(data.table)
   library(lubridate)
   library(mgcv)
+  library(dplyr)
   
   
-  i <- node_names[1000] # test
-  # i <- "rnd_1805.csv"
-  # dailydat <- fread(paste0("data/data_daily_node/", i))
-  # dailydat <- unique(dailydat)
+  # i <- node_names[1000] # test
+
   
   dailydat <- ROracle::dbGetQuery(
     tbidb,
@@ -115,19 +113,7 @@ foreach(i = node_names) %dopar% {
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-01-18", ] # cold snap - exclude
   modeling_dat <- modeling_dat[!modeling_dat$date == "2020-02-09", ] # snow day - exclude
   
-  # empty dataset of predictions
-  date_range <- c(seq(as.Date("2020-01-01"), as.Date("2022-12-31"), by = "days"))
-  predict_dat <- data.table(date = date_range)
-  predict_dat[, date := as.IDate(date)]
-  predict_dat[, dow := wday(date)]
-  predict_dat[, doy := yday(date)]
-  # predict_dat[, year := year(date)]
-  # predict_dat[, woy := week(date)]
-  # predict_dat[, weekday := factor(weekdays(date))]
-  # predict_dat[, monthday := format(date, "%b %d")]
-  predict_dat[, node_name := modeling_dat$node_name[[1]]]
-  # predict_dat <- merge(predict_dat, det_config, all.x = T)
-  
+   
   
   # Old Model (2020) - With s(day of week, k = 7)
   this_gam <- with(
@@ -212,9 +198,29 @@ foreach(i = node_names) %dopar% {
                          " and rtmc_predict_temp.node_name = rtmc_predictions.node_name",
                          " and rtmc_predict_temp.model_name = rtmc_predictions.model_name",
                          ")" 
-                       )
+                       ))
   
-  )
+  ROracle::dbSendQuery(tbidb, "commit")     
+  
+  ROracle::dbSendQuery(tbidb, "truncate table rtmc_predict_temp")
+  ROracle::dbSendQuery(tbidb, "commit")    
+  # # Storing Model Summaries -- an idea for another time. 
+  # # create list
+  # model_list <- list(this_gam, new_gam)
+  # # give the elements useful names
+  # names(model_list) <- c('gam_2020_2','gam_2021_1')
+  # 
+  # # get the summaries using `lapply
+  # summary_list <- lapply(model_list, summary)
+  # 
+  # # extract the coefficients from these summaries
+  # 
+  # p.table_list <- lapply(summary_list, `[[`, 'p.table')
+  # 
+  # s.table_list <- lapply(summary_list, `[[`, 's.table')
+  # 
+  # rbind(summary(this_gam)$p.table, summary(this_gam)$s.table)
+  # 
   
   
   
