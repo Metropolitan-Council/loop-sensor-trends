@@ -152,7 +152,6 @@ foreach(i = node_names) %dopar% {
   
   # empty dataset of predictions
   date_range <- c(seq(as.Date("2020-01-01"), as.Date("2022-12-31"), by = "days"))
-                                          "gam_2020_2")]
   
   predict_dat <- data.table(date = date_range)
   predict_dat[, date := as.IDate(date)]
@@ -160,10 +159,63 @@ foreach(i = node_names) %dopar% {
   predict_dat[, doy := yday(date)]
   predict_dat[, node_name := modeling_dat$node_name[[1]]]
   
-  predict_dat[, doy := yday(date)]
+  # Predictions - total volume
+  predicts_v2020_2 <- copy(predict_dat) 
+  predicts_v2021_1 <- copy(predict_dat)
+  
+  predicts_v2020_2[, c("volume_predict", "volume_predict_se") := 
+                                    cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = T, type = "response"))]
+  predicts_v2021_1[, c("volume_predict", "volume_predict_se") := 
+                                    cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = T, type = "response"))]
+  # Predictions - just seasonal effect, average weekday
+  predicts_v2020_2[, c("s_doy_predict", "s_doy_predict_se") := 
+                                    cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = T, 
+                                                      type= "response", terms = "s(doy)"))]
+  predicts_v2021_1[, c("s_doy_predict", "s_doy_predict_se") := 
+                                    cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = T, 
+                                                      type= "response", terms = "s(doy)"))]
+  # Predictions - just day-of-week effect, average day of the year
+  predicts_v2020_2[, c("dow_predict", "dow_predict_se") := 
+                                    cbind(predict.gam(object = this_gam, newdata = predict_dat, se.fit = F, 
+                                                      type= "response", terms = "s(dow)"))]
+  predicts_v2021_1[, c("dow_predict", "dow_predict_se") := 
+                                    cbind(predict.gam(object = new_gam, newdata = predict_dat, se.fit = F, 
+                                                      type= "response", terms = "s(dow)"))]
+  
+ 
+  predicts_v2020_2[,model_name:="gam_2020_2"]
+  predicts_v2021_1[,model_name:="gam_2021_1"]
   predicts <- rbind(predicts_v2020_2, predicts_v2021_1)
   
-  fwrite(predict_dat, file = paste0('output/daily_model_predictions_bynode/', i))
+  predicts %>%
+    rename(predict_date = date)%>%
+    rename_all(toupper) %>%
+    mutate(across(where(is.numeric), ~round(.x)))%>%
+    select(NODE_NAME, PREDICT_DATE, VOLUME_PREDICT, VOLUME_PREDICT_SE,
+           MODEL_NAME, S_DOY_PREDICT, S_DOY_PREDICT_SE, DOW_PREDICT, DOW_PREDICT_SE)%>%
+    ROracle::dbWriteTable(
+    conn = tbidb,
+    name = "RTMC_PREDICT_TEMP",
+    row.names = FALSE,
+    append = TRUE)
+  
+  ROracle::dbSendQuery(tbidb, "commit")
+  
+  ROracle::dbSendQuery(tbidb,
+                       paste0(
+                         "insert into rtmc_predictions",
+                         " select * from rtmc_predict_temp",
+                         " where",
+                         " not exists (",
+                         " select * from rtmc_predictions",
+                         " where  rtmc_predict_temp.predict_date = rtmc_predictions.predict_date",
+                         " and rtmc_predict_temp.node_name = rtmc_predictions.node_name",
+                         " and rtmc_predict_temp.model_name = rtmc_predictions.model_name",
+                         ")" 
+                       )
+  
+  )
+  
   
   
   
