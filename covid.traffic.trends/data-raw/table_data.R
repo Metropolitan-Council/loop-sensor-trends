@@ -12,7 +12,6 @@ table_data <- rbind(
     mutate(
       weekday = format.Date(date, "%A"),
       `date` = as.character(`date`)
-      
     ) %>%
     select(
       date,

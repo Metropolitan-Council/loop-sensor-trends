@@ -39,12 +39,13 @@ mod_table_server <- function(input, output, session) {
         "vmt.sum",
         "vmt.predict"
       ),
-      digits = 0, 
+      digits = 0,
       interval = 3,
       mark = ","
-      ) %>% 
+      ) %>%
       DT::formatRound(
-        "roll_avg", digits = 2
+        "roll_avg",
+        digits = 2
       )
   })
 }
