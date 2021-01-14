@@ -1,4 +1,5 @@
 tictoc::tic()
+
 #Opening the toolbox-------------------------------
 
 # library(devtools)
@@ -30,8 +31,8 @@ tbidb = ROracle::dbConnect(
   dbDriver("Oracle"),
   dbname = connect.string,
   username = 'mts_planning_data',
-  # mts_planning_view for viewing data only, no write priviliges. 
-  # mts_planning_data is the username for write privlieges.
+  # mts_planning_view for viewing data only, no write privileges. 
+  # mts_planning_data is the username for write privileges.
   password = rstudioapi::askForPassword("database password")
 )
 
@@ -167,6 +168,7 @@ ROracle::dbSendQuery(
     " and rtmc_5min.volume_pctnull> rtmc_5min_temp.volume_pctnull)"
   )
 )
+
 ROracle::dbSendQuery(tbidb, "commit")
 
 
@@ -326,3 +328,9 @@ ggsave('N:/MTS/Working/Modeling/MetroLoopDetectors/loop-sensor-trends/covid.traf
 ROracle::dbDisconnect(tbidb)
 tictoc::toc()
 
+# weekly data
+system_diffs %>%
+  select(volume.sum, date) %>%
+  mutate(week = format(week(date), '%b-%d'))%>%
+  group_by(week)%>%
+  summarize(mean(volume.sum))
