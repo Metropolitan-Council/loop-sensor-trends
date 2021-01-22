@@ -101,11 +101,11 @@ dashboard](https://mn.gov/covid19/data/response-prep/index.jsp)
 
 ### Contributors
 
-  - Liz Roten, app development (Metropolitan Council)  
-  - Ashley Asmus, data and model development (Metropolitan Council)  
-  - Brian Kary, data development and ongoing consultation (MnDOT)  
-  - Ian Vaagenes, data and model development (MnDOT)  
-  - Jonathan Ehrlich, project management (Metropolitan Council)
+-   Liz Roten, app development (Metropolitan Council)  
+-   Ashley Asmus, data and model development (Metropolitan Council)  
+-   Brian Kary, data development and ongoing consultation (MnDOT)  
+-   Ian Vaagenes, data and model development (MnDOT)  
+-   Jonathan Ehrlich, project management (Metropolitan Council)
 
 ### Contact
 
@@ -117,6 +117,6 @@ repository](https://github.com/Metropolitan-Council/loop-sensor-trends)
 for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
-*Last updated 2021-01-21*  
-Build ID: 2021-01-21.roten.f2c84854  
+*Last updated 2021-01-22*  
+Build ID: 2021-01-22.roten.02b67d13  
 </right>
