@@ -1,6 +1,8 @@
 
-**This app is in active development and will be updated frequently.
-Thank you for your patience.**
+**As of March 2021, data updates are processed every few weeks. If you
+require more recent data than is currently displayed, please email Sara
+Maaske at <Sara.Maaske@metc.state.mn.us> or open an issue on our [GitHub
+repository](https://github.com/Metropolitan-Council/loop-sensor-trends/issues/new).**
 
 ## About
 
@@ -118,5 +120,5 @@ for this project.
 
 <right style="font-size: 1rem; text-align: right; display: block;">
 *Last updated 2021-03-09*  
-Build ID: 2021-03-09.roten.481d366e  
+Build ID: 2021-03-09.roten.f4b3847e  
 </right>
