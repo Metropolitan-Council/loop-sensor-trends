@@ -201,7 +201,7 @@ mod_plot_server <- function(input, output, session) {
         xaxis = list( #----
           title = "",
           type = "date",
-          tickformat = "%b %d",
+          tickformat = "%b %Y",
 
           ## spikes
           # showspikes = TRUE,

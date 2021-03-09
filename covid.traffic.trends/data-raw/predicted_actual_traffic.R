@@ -26,7 +26,7 @@ predicted_actual_by_node <- predicted_actual_by_node_orig %>%
       TRUE ~ r_node_n_type
     ),
     hover_text = paste(
-      sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
+      sep = "", "<b>", format.Date(date, "%A, %B %d, %Y"), "</b>", "<br>",
       node_type, " on ", corridor_route, " at ", r_node_label, "<br>",
       round(volume_difference), "%"
     ),
@@ -66,7 +66,7 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.c
   select(-`Difference from Typical VMT (%)`) %>%
   mutate(
     hover_text = paste(
-      sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
+      sep = "", "<b>", format.Date(date, "%A, %B %d, %Y"), "</b>", "<br>",
       round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Metro Freeways"
@@ -78,7 +78,7 @@ predicted_actual_by_region <- fread(paste0("./data-raw/pred-and-act-vol-region.c
     hover_text_avg = paste(
       sep = "",
       "<b>", round(roll_avg, digits = 1), "%", " average ", "</b>", "<br>",
-      "from ", format.Date(date - 7, "%b %d"), " to ", format.Date(date, "%b %d")
+      "from ", format.Date(date - 7, "%b %d"), " to ", format.Date(date, "%b %d, %Y")
     )
   )
 
@@ -93,7 +93,7 @@ predicted_actual_by_state <- fread(paste0("./data-raw/diff-vol-state.csv")) %>%
   mutate(
     date = as.IDate(date),
     hover_text = paste(
-      sep = "", "<b>", format.Date(date, "%A, %B %d"), "</b>", "<br>",
+      sep = "", "<b>", format.Date(date, "%A, %B %d, %Y"), "</b>", "<br>",
       round(typical_vmt_diff, digits = 1), "%"
     ),
     District = "MnDOT Statewide"
@@ -106,7 +106,7 @@ predicted_actual_by_state <- fread(paste0("./data-raw/diff-vol-state.csv")) %>%
       sep = "",
       "<b>", round(roll_avg, digits = 1), "%", " average ", "</b>", "<br>",
       "from ", format.Date(date - 7, "%b %d"), " to ",
-      format.Date(date, "%b %d")
+      format.Date(date, "%b %d, %Y")
     )
   )
 
