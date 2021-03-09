@@ -55,12 +55,6 @@ for (i in node_names) {
   flush.console()
   
   
-  library(data.table)
-  library(lubridate)
-  library(mgcv)
-  library(dplyr)
-  
-  
   # i <- node_names[1000] # test
   # i <- 'rnd_88687' # test
   
@@ -94,8 +88,6 @@ for (i in node_names) {
     
     # Must be non-zero total volume for the day -- these models do a bad job of modeling really low volumes.
     dailydat <- dailydat[total_volume > 100]
-    # get rid of 2017 data: (december 15-31 included in this pull) ----
-    # dailydat <- dailydat[year > 2017, ]
     
     # must have at least 75% complete data in 2018 and 2019 ----
     pct_data = nrow(dailydat[dailydat$year %in% 2018:2019]) / (365 * 2)
