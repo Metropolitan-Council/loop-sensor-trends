@@ -7,7 +7,12 @@ Authors@R:
       person(given = "Liz",
              family = "Roten",
              role = c("cre", "aut"),
-             email = "liz.roten@metc.state.mn.us"))
+             email = "liz.roten@metc.state.mn.us"),
+      person(given = "Ashley",
+             family = "Asmus",
+             role = "aut",
+             email = "ashley.asmus@metc.state.mn.us",
+             comment = c(ORCID = "0000-0001-5505-1372")))
 Description: A Shiny app.
 License: MIT + file LICENSE
 URL: 
