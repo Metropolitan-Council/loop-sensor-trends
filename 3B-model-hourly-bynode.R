@@ -1,124 +1,112 @@
-library(doParallel)
-library(foreach)
+##############
 library(data.table)
-library(sf)
-library(leaflet)
-library(tidyverse)
+library(foreach)
+library(doParallel)
 library(mgcv)
-
-# Read in hourly data by node and combine.
-# READ DATA (takes about 1.5 minutes)----
-setwd('N:\\MTS\\Working\\Modeling\\MetroLoopDetectors\\loop-sensor-trends')
-sensor_config <-
-  fread('data/Configuration of Metro Detectors 2020-03-24.csv')
-
-node_files <- list.files('data/data_hourly_node/')
-node_files <- node_files[order(node_files)]
-node_names <- gsub('.csv', '', node_files)
-# corr_nodes <- sensor_config[corridor_route %in% c("I-94", "I-694", "I-494", "I-35E")
-#                            # If you want to exclude entry/exit ramps:
-#                            & r_node_n_type == 'Station', ]
-# corr_nodes <- unique(corr_nodes[, c('r_node_name', 'r_node_n_type')])
-#
-# corr_files <- node_files[node_names %in% corr_nodes$r_node_name]
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+# Database packages:
+library(DBI)
+library(rstudioapi) # this package allows us to type in a password when connecting to the database.
+library(ROracle)
 
 
-cores <- detectCores()
-cl <- makeCluster(cores)
-registerDoParallel(cl)
+
+#Connecting to the database -------------------------------
+connect.string = '(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = fth-exa-scan.mc.local  )(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME =  com4te.mc.local)))'
+tbidb = ROracle::dbConnect(
+  dbDriver("Oracle"),
+  dbname = connect.string,
+  username = 'mts_planning_data',
+  # mts_planning_view for viewing data only, no write priviliges.
+  # mts_planning_data is the username for write privlieges.
+  password = rstudioapi::askForPassword("database password")
+)
+#Configure database time zone -------------------------------
+Sys.setenv(TZ = "America/Chicago")
+Sys.setenv(ORA_SDTZ = "America/Chicago")
+#############
+# rnd_86377
+
+
+config <- dbGetQuery(tbidb, "select * from rtmc_configuration")
+
+
+node_names <- unique(config$NODE_NAME)
+
+# gam_list <- vector("list", length(node_names))
+# pred_ls <- vector("list", length(node_names))
+
+
+which(node_names == "rnd_88859") # left off at 506
+
+# node_files <- node_files[1:10] # test
 
 tictoc::tic()
 
 
 # pdf(file = 'hourly_diff_plots.pdf', onefile = T)
 
-foreach(i = node_files,
-        .packages = c('data.table', 'mgcv', 'ggplot2')) %dopar% {
-          # for (i in node_files) {
-          # print(i)
-          # dat <- fread(paste0('data/data_hourly_node/', i), header = T)
-          dat <-
-            fread(paste0('data/data_hourly_node/', i)
-                  , header = T)
-          dat <- dat[,-1]
-          
-          dat[, volume.sum := ifelse(volume.sum > 10000, NA, volume.sum)]
-          
-          if (nrow(dat) <= 2) {
-            # print(paste0("no data for node ", i))
+for (i in node_names[2001:3983]) {
+  
+  # i <- node_names[1000] # test
+  # i <- 'rnd_88221' # test
+  
+  
+  hourlydat <- ROracle::dbGetQuery(
+    tbidb,
+    paste0(
+      "select * from rtmc_hourly_node where data_date < to_date('2020-03-01', 'YYYY-MM-DD')",
+      " and node_name = ",
+      "'",
+      i,
+      "'"
+    )
+  ) %>%
+    rename_all(tolower)  %>%
+    select(node_name, data_date, data_hour, total_volume)
+  
+  
+  
+  hourlydat <- data.table(hourlydat)
+  if (nrow(hourlydat) <= 2 | median(hourlydat$total_volume)< 10) {
+            print(paste0("no data for node ", i))
           } else{
-            complete_df <- dat[date >= '2018-01-01'
-                               & date < '2020-03-01', ]
-            # make sure it has 2018, 2019 and 2020 data
-            n_expected <- data.table(year = c(2018, 2019, 2020),
-                                     n_expected = c(365 * 24,
-                                                    365 * 24,
-                                                    61 * 25))
+            # Dealing with date ----
+            hourlydat[, date := as.Date(data_date)]
+            hourlydat[, doy := yday(date)]
+            hourlydat[, year := year(date)]
+            hourlydat[, weekday := factor(weekdays(date))]
             
-            complete_df <-
-              complete_df[, lapply(.SD, function(x)
-                sum(!is.na(x[x > 0]))),  # make sure it's not all zeros, too -- should have 1 car per hour
-                by = c("year"),
-                .SDcols = c("volume.sum")]
-            complete_df <- merge(n_expected, complete_df, all = T)
-            complete_df[, pct_complete := volume.sum / n_expected]
-            # at least x% of data across all important data periods:
-            dat_complete <-
-              ifelse(sum(is.na(complete_df$pct_complete) > 0) # if it's missing a year
-                     | min(complete_df$pct_complete) < 0.25, # or if the non-zero, non-na total of rows is less than 25%
-                     0, 1) # then the data are incomplete. otherwie, good enough for now!
+            # must have at least 75% complete data in 2018 and 2019 ----
+            pct_data = nrow(hourlydat[hourlydat$year %in% 2018:2019]) / (365 * 2 * 24)
             
-            if (dat_complete == 0) {
-              # print(paste0(
-              #   "incomplete data, 1 or more years missing sufficient data for node ",
-              #   i
-              # ))
+            if (pct_data < 0.75) {
+              print(paste0("insufficient data for node ", i, ' -- ', round(100*pct_data), "% complete"))
             } else {
-              dat <- dat[, doy := yday(date)]
-              dat <- dat[, dow := wday(date)]
-              dat[, dow_fac := fcase(dow == 1,
-                                     "Sun",
-                                     dow %in% c(2:5),
-                                     "Mon-Thr",
-                                     dow == 6,
-                                     "Fri",
-                                     dow == 7,
-                                     "Sat")]
-              dat[, dow_fac := factor(dow_fac, levels = c("Sun", "Mon-Thr", "Fri", "Sat"))]
-              
-              
-              modeling_dat <-
-                dat[dat$date >= '2018-01-01' &
-                      dat$date < '2020-03-01',]
-              modeling_dat <-
-                modeling_dat[!modeling_dat$date == "2020-01-01",] # holiday in 2020
-              modeling_dat <-
-                modeling_dat[!modeling_dat$date == '2020-01-17',] # cold snap - exclude
-              modeling_dat <-
-                modeling_dat[!modeling_dat$date == '2020-01-18',] # cold snap - exclude
-              modeling_dat <-
-                modeling_dat[!modeling_dat$date == '2020-02-09',] # snow day - exclude
-              
-              
+              # subset to relevant dates:
+              modeling_dat<- hourlydat[hourlydat$date < "2020-03-01",]    
+              modeling_dat$weekday <- factor(modeling_dat$weekday, 
+                                         levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
               this_gam <- with(modeling_dat,
                                gam(
-                                 volume.sum ~
-                                   s(hour, by = dow_fac)
-                                 + s(doy, bs = "cs", k = 12)
-                                 + as.factor(year)
-                                 + dow_fac,
-                                 family = tw()
+                                 total_volume ~
+                                   s(data_hour, by = weekday, bs = "cs")
+                                 + s(doy, bs = "cs", k = 12),
+                                 family = tw() # tweedie family for these low-count data?
                                ))
               
-              predict_dat <- dat[year==2020,
-                                 .(r_node_name,
-                                   year,
-                                   date,
-                                   doy,
-                                   dow,
-                                   dow_fac,
-                                   hour,
-                                   volume.sum)]
+              # empty dataset of predictions
+              date_range <-
+                c(seq(as.POSIXct("2020-01-01 00:00:00"), as.POSIXct("2021-12-31 23:00:00"), by = "hours"))
+              
+              predict_dat <-
+                data.table(date = date_range)
+              predict_dat[, weekday := factor(weekdays(date))]
+              predict_dat[, doy := yday(date)]
+              predict_dat[, data_hour:=hour(date)]
+              predict_dat[, node_name := modeling_dat$node_name[[1]]]
               
               predict_dat[, c('predicted.volume') :=
                             round(
@@ -132,44 +120,105 @@ foreach(i = node_files,
               
               # also calculate a strict average
               avg_dat <- modeling_dat[,
-                                      round(mean(volume.sum, na.rm = T)),
-                                      by = .(hour, dow_fac, month(date))]
+                                      round(mean(total_volume, na.rm = T)),
+                                      by = .(data_hour, weekday, month(date))]
+              
               setnames(avg_dat, old = "V1", new = 'avg.volume')
               
+              
+              
+              # Plotting data:
               predict_dat[, month := month(date)]
-              predict_dat <- merge(predict_dat, avg_dat, all.x = T)
-              setorder(predict_dat, 'date', 'hour')
+              
+              plot_dat <- merge(predict_dat, avg_dat, all.x = T)
+              
+              setorder(plot_dat, 'date', 'data_hour')
+              
+              # for plotting, just grab the middle week of every month
+              plot_dat <- plot_dat[mday(plot_dat$date)%in%c(15:21) 
+                                   & year(plot_dat$date) == 2021,]
+              plot_dat$weekday <- factor(plot_dat$weekday, 
+                                         levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+              title_string <- paste0("Node ", i, " | Rsq= ", round(summary(this_gam)$r.sq, 2), " | Median Volume = ", 
+                                     median(modeling_dat$total_volume, na.rm = T))
+              myplot <-
+              ggplot(plot_dat, aes(x = data_hour, y = predicted.volume))+
+                geom_line()+
+                facet_grid(month~weekday) + 
+                geom_line(aes(y = avg.volume), color = 'red') + 
+                cowplot::theme_cowplot() + theme(plot.title = element_text(hjust = 0.5))+
+                ggtitle(title_string)
+              
+              ggsave(paste0('output/hrtestplots/hourlytest_', i, '.jpeg'),
+                     myplot, height = 8, width = 8, units = "in")
               
               
-              # # difference from predicted, in %:
-              # predict_dat[, diff.hourly.volume := round(((volume.sum - predicted.volume) / predicted.volume) * 100, 1)]
+              # Rbind two ways of calculating baseline
+              avg_dat_withdates <- merge(avg_dat, predict_dat[,.(node_name, date, weekday, month, doy, data_hour)],  
+                                         by = c("weekday", "month", "data_hour"))
+              avg_dat_withdates[,model_name := 'avg_2018_2019']
+              setnames(avg_dat_withdates, 'avg.volume', 'predicted.volume')
+              predict_dat[,model_name := 'gam_hourly_2021_1']
               
-              fwrite(predict_dat[,.(r_node_name, date, hour, volume.sum, predicted.volume, avg.volume)],
-                     paste0('output/hourly_model_predictions_bynode/',
-                            i),
-                     append = F)
+              predicts_to_db <- 
+              predict_dat %>%
+                rbind(avg_dat_withdates) %>%
+                arrange(node_name, model_name, date) %>%
+                select(node_name, date, predicted.volume, model_name, data_hour)
               
-              # myplot <-
-              #   ggplot(predict_dat[hour %in% c(8, 12, 17) &
-              #                        doy < 100, ], aes(x = date, y = predicted.volume)) +
-              #   theme_minimal() +
-              #   geom_point() +
-              #   geom_line() +
-              #   geom_line(aes(y = volume.sum), color = 'red') +
-              #   facet_wrap(hour ~ ., scales = "free", nrow = 3) +
-              #   scale_x_date(date_breaks = "week", date_labels = '%b %d') +
-              #   geom_hline(yintercept = 0) +
-              #   ggtitle(predict_dat$r_node_name) +
-              #   theme(legend.position = 'none') +
-              #   labs(x = "Date", y = "Difference from Predicted Volume")
-              # print(myplot)
-              # ggsave(paste0('output/hrtestplots/hourlytest_', i, '.jpeg'),
-              #        myplot)
+              temp_insert_result <- 
+                ROracle::dbWriteTable(
+                  predicts_to_db,
+                  conn = tbidb,
+                  name = "RTMC_PREDICT_HOURLY_TEMP",
+                  row.names = FALSE,
+                  append = TRUE
+                )
+              temp_insert_result
+              # ROracle::dbClearResult(temp_insert_result)
+              
+              temp_commit_result <- ROracle::dbSendQuery(tbidb, "commit")
+              temp_commit_result
+              ROracle::dbClearResult(temp_commit_result)
+              
+              perm_insert_result <-
+                ROracle::dbSendQuery(
+                  tbidb,
+                  paste0(
+                    "insert into rtmc_predictions_hourly",
+                    " select * from rtmc_predict_hourly_temp",
+                    " where",
+                    " not exists (",
+                    " select * from rtmc_predictions_hourly",
+                    " where  rtmc_predict_hourly_temp.predict_date = rtmc_predictions_hourly.predict_date",
+                    " and rtmc_predict_hourly_temp.node_name = rtmc_predictions_hourly.node_name",
+                    " and rtmc_predict_hourly_temp.model_name = rtmc_predictions_hourly.model_name",
+                    ")"
+                  )
+                )
+              perm_insert_result
+              ROracle::dbClearResult(perm_insert_result)
+              
+              insert_commit_result <- ROracle::dbSendQuery(tbidb, "commit")
+              insert_commit_result
+              ROracle::dbClearResult(insert_commit_result)
+              
+              truncate_table_result <-
+                ROracle::dbSendQuery(tbidb, "truncate table rtmc_predict_hourly_temp")
+              truncate_table_result
+              ROracle::dbClearResult(truncate_table_result)
+              
+              truncate_commit_result <-
+                ROracle::dbSendQuery(tbidb, "commit")
+              truncate_commit_result
+              ROracle::dbClearResult(truncate_commit_result)
+                
+              print(paste0("..............................................................", round(which(node_names == i)/length(node_names)*100), "% complete"))
+              flush.console()
               
             } # end check for complete data
           } # end  check for enough data
-        } # end foreach loop
+        } # end for loop loop
 
 tictoc::toc()
 
-stopCluster(cl)
